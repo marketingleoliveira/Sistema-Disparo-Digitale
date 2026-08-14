@@ -328,9 +328,13 @@ function CampaignWizard({ onCancel }: { onCancel: () => void }) {
 }
 
 function CampaignsPage() {
-  const { campaigns, deleteCampaign } = useDataStore();
+  const { campaigns, deleteCampaign, fetchCampaigns, isLoading } = useDataStore();
   const [isCreating, setIsCreating] = React.useState(false);
   const [statusFilter, setStatusFilter] = React.useState("Todas");
+
+  React.useEffect(() => {
+    fetchCampaigns();
+  }, [fetchCampaigns]);
 
   const filteredCampaigns = campaigns.filter(c => 
     statusFilter === "Todas" || c.status === statusFilter
