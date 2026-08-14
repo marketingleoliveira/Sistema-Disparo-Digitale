@@ -323,8 +323,9 @@ function ReportsPage() {
                 {topCampaigns.map((camp, i) => (
                   <TableRow key={i} className="hover:bg-muted/30">
                     <TableCell className="pl-6 py-4">
-                      <span className="font-medium text-sm block truncate max-w-[200px]">{camp.name}</span>
-                      <span className="text-[10px] text-muted-foreground">{camp.sent} enviados</span>
+                      <span className="font-bold text-primary text-sm block truncate max-w-[200px]">{camp.name}</span>
+                      <span className="text-[10px] font-medium text-muted-foreground">{camp.sent} enviados</span>
+
                     </TableCell>
                     <TableCell className="text-center">
                       <Badge variant="outline" className="font-bold text-emerald-600 bg-emerald-50 border-emerald-100">
