@@ -64,7 +64,7 @@ function LoginPage() {
         <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 shadow-2xl">
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-white/80">E-mail Corporativo</ className="text-white/80">
+              <Label htmlFor="email" className="text-white/80">E-mail Corporativo</Label>
               <Input 
                 id="email" 
                 type="email" 
