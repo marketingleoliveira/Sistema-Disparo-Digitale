@@ -229,7 +229,7 @@ function SidebarItem({ item }: { item: NavItem }) {
           )}
         >
           <div className="flex items-center gap-3">
-            <item.icon className={cn("h-4 w-4", (isOpen || isChildActive) && "text-primary")} />
+            <item.icon className={cn("h-4 w-4", (isOpen || isChildActive) && "text-white")} />
             <span>{item.label}</span>
           </div>
           <ChevronRight className={cn(
