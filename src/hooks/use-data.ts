@@ -102,11 +102,11 @@ export const useDataStore = create<DataState>((set, get) => ({
     const { error } = await supabase.from('contacts').insert([{
       name: data.name,
       email: data.email,
-      company: data.company,
+      company: data.company || null,
       status: data.status,
-      lists: data.lists,
-      tags: data.tags,
-      phone: data.phone,
+      lists: data.lists as any,
+      tags: data.tags as any,
+      phone: data.phone || null,
     }]);
 
     if (!error) await get().fetchContacts();
@@ -120,7 +120,7 @@ export const useDataStore = create<DataState>((set, get) => ({
   addCampaign: async (data) => {
     const { error } = await supabase.from('campaigns').insert([{
       name: data.name,
-      subject: data.subject,
+      subject: data.subject || null,
       type: data.type,
       status: data.status,
       recipients: data.recipients,
