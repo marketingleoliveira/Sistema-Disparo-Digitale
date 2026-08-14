@@ -209,32 +209,31 @@ function SidebarItem({ item }: { item: NavItem }) {
         <button
           onClick={() => setIsOpen(!isOpen)}
           className={cn(
-            "flex w-full items-center justify-between rounded-md px-3 py-2 text-[14px] font-medium transition-all duration-200",
-            (isOpen || isChildActive) ? "text-primary" : "text-muted-foreground",
-            "hover:bg-secondary hover:text-primary"
+            "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+            (isOpen || isChildActive) ? "text-primary bg-primary/5" : "text-muted-foreground",
+            "hover:bg-secondary hover:text-primary active:scale-[0.98]"
           )}
         >
           <div className="flex items-center gap-3">
-            <item.icon className="h-4 w-4" />
+            <item.icon className={cn("h-4 w-4", (isOpen || isChildActive) && "text-primary")} />
             <span>{item.label}</span>
           </div>
-          {isOpen ? (
-            <ChevronDown className="h-3.5 w-3.5" />
-          ) : (
-            <ChevronRight className="h-3.5 w-3.5" />
-          )}
+          <ChevronRight className={cn(
+            "h-3.5 w-3.5 transition-transform duration-200",
+            isOpen && "rotate-90"
+          )} />
         </button>
         {isOpen && (
-          <div className="ml-7 space-y-1 border-l pl-2">
+          <div className="ml-4 space-y-1 border-l-2 border-primary/10 pl-4 py-1">
             {item.items!.map((sub) => (
               <Link
                 key={sub.href}
                 to={sub.href as any}
                 className={cn(
-                  "block rounded-md px-3 py-1.5 text-[13px] font-medium transition-all",
+                  "block rounded-md px-3 py-1.5 text-xs font-medium transition-all",
                   location.pathname === sub.href
-                    ? "text-primary bg-secondary/60"
-                    : "text-muted-foreground hover:text-primary hover:bg-secondary/40"
+                    ? "text-primary font-bold bg-primary/5"
+                    : "text-muted-foreground hover:text-primary hover:bg-secondary/60"
                 )}
               >
                 {sub.label}
@@ -250,10 +249,10 @@ function SidebarItem({ item }: { item: NavItem }) {
     <Link
       to={item.href as any}
       className={cn(
-        "group flex items-center justify-between rounded-md px-3 py-2 text-[14px] font-medium transition-all duration-200",
+        "group flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
         isActive 
-          ? "bg-secondary text-primary shadow-sm" 
-          : "text-muted-foreground hover:bg-secondary hover:text-primary"
+          ? "bg-primary text-primary-foreground shadow-md shadow-primary/20 scale-[1.02]" 
+          : "text-muted-foreground hover:bg-secondary hover:text-primary active:scale-[0.98]"
       )}
     >
       <div className="flex items-center gap-3">
@@ -263,3 +262,4 @@ function SidebarItem({ item }: { item: NavItem }) {
     </Link>
   );
 }
+
