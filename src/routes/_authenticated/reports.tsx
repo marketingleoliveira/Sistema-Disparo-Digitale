@@ -1,5 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import * as React from "react";
 import { useState } from "react";
+import { createFileRoute } from "@tanstack/react-router";
 import { 
   BarChart3, 
   Download, 
@@ -45,6 +46,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { useDataStore } from "@/hooks/use-data";
 import { cn } from "@/lib/utils";
 import {
   Select,
@@ -97,7 +99,7 @@ function ReportsPage() {
   }, [fetchContacts, fetchCampaigns]);
 
   // Cálculo dinâmico para o gráfico de pizza
-  const engajamento = contacts.reduce((acc, c) => {
+  const engajamento = contacts.reduce((acc: any, c: any) => {
     if (c.engagement >= 80) acc.very++;
     else if (c.engagement >= 40) acc.engaged++;
     else if (c.engagement > 0) acc.low++;
@@ -113,8 +115,8 @@ function ReportsPage() {
     { name: "Inativo", value: Math.round((engajamento.inactive / totalContacts) * 100), color: "#e2e8f0" },
   ];
 
-  const enviadas = campaigns.filter(c => c.status === 'Enviada');
-  const totalEnviados = enviadas.reduce((sum, c) => sum + c.recipients, 0);
+  const enviadas = campaigns.filter((c: any) => c.status === 'Enviada');
+  const totalEnviados = enviadas.reduce((sum: number, c: any) => sum + c.recipients, 0);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -152,7 +154,7 @@ function ReportsPage() {
         <KPICard title="Aberturas" value={enviadas.length > 0 ? "0" : "0"} change="+0%" icon={Eye} trend="up" />
         <KPICard title="Cliques" value="0" change="+0%" icon={MousePointer2} trend="up" />
         <KPICard title="Bounce" value="0%" change="-0%" icon={AlertCircle} trend="down" />
-        <KPICard title="Descadastros" value={contacts.filter(c => c.status === 'Descadastrado').length.toString()} change="+0%" icon={UserMinus} trend="down" />
+        <KPICard title="Descadastros" value={contacts.filter((c: any) => c.status === 'Descadastrado').length.toString()} change="+0%" icon={UserMinus} trend="down" />
       </div>
 
 
