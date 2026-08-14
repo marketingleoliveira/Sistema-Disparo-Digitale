@@ -21,8 +21,10 @@ import {
   History,
   Send,
   MousePointer2,
-  X
+  X,
+  Loader2
 } from "lucide-react";
+import { useDataStore } from "@/hooks/use-data";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -58,9 +60,8 @@ export const Route = createFileRoute("/_authenticated/contacts")({
   component: ContactsPage,
 });
 
-// --- Mock Data ---
+// --- State ---
 
-const contacts: any[] = [];
 
 // --- Sub-components ---
 
@@ -182,7 +183,8 @@ function ContactDetailSheet({ contact, open, onOpenChange }: { contact: any, ope
 }
 
 function ContactsPage() {
-  const [selectedContacts, setSelectedContacts] = React.useState<number[]>([]);
+  const { contacts, deleteContact } = useDataStore();
+  const [selectedContacts, setSelectedContacts] = React.useState<string[]>([]);
   const [detailContact, setDetailContact] = React.useState<any>(null);
   const [search, setSearch] = React.useState("");
 
@@ -194,7 +196,7 @@ function ContactsPage() {
     }
   };
 
-  const toggleSelect = (id: number) => {
+  const toggleSelect = (id: string) => {
     setSelectedContacts(prev => 
       prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
     );
@@ -278,7 +280,15 @@ function ContactsPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button size="sm" variant="ghost" className="h-8 px-2 text-xs font-bold text-red-300 hover:bg-red-500/20">
+            <Button 
+              size="sm" 
+              variant="ghost" 
+              className="h-8 px-2 text-xs font-bold text-red-300 hover:bg-red-500/20"
+              onClick={() => {
+                selectedContacts.forEach(id => deleteContact(id));
+                setSelectedContacts([]);
+              }}
+            >
               <Trash2 size={14} className="mr-1.5" /> Excluir
             </Button>
             <Button size="sm" variant="ghost" onClick={() => setSelectedContacts([])} className="h-8 w-8 p-0 text-white/70 hover:text-white">
@@ -380,7 +390,7 @@ function ContactsPage() {
                       <DropdownMenuItem>Editar</DropdownMenuItem>
                       <DropdownMenuItem>Adicionar à lista</DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-red-600">Excluir</DropdownMenuItem>
+                      <DropdownMenuItem className="text-red-600" onClick={() => deleteContact(contact.id)}>Excluir</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
