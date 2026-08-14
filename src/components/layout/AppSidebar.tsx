@@ -118,7 +118,7 @@ export function AppSidebar() {
       <div className="absolute inset-0 pointer-events-none opacity-[0.03] pattern-grid" />
       
       {/* Logo */}
-      <div className="flex h-20 items-center border-b px-6 relative z-10 bg-card/80 backdrop-blur-sm">
+      <div className="flex h-20 items-center border-b border-white/10 px-6 relative z-10 bg-primary/80 backdrop-blur-sm">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20 rotate-3">
             <Mail className="h-6 w-6 -rotate-3" />
