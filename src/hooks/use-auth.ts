@@ -31,8 +31,8 @@ export const useAuthStore = create<AuthState>()(
         const nameParts = localPart.split('.');
         const name = nameParts.map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
         const initials = nameParts.length > 0 && nameParts[0]
-          ? nameParts.map(n => n[0]).join('').toUpperCase().slice(0, 2)
-          : localPart[0].toUpperCase();
+          ? nameParts.map(n => (n ? n[0] : '')).join('').toUpperCase().slice(0, 2)
+          : (localPart[0] || 'U').toUpperCase();
 
         set({
           user: {
