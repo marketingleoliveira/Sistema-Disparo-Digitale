@@ -71,7 +71,7 @@ function AuthenticatedLayout() {
     <div className="min-h-screen bg-background text-foreground selection:bg-accent/20 selection:text-accent flex">
       <AppSidebar />
       
-      <div className="flex-1 flex flex-col min-w-0 lg:pl-[240px]">
+      <div className="flex-1 flex flex-col min-w-0 lg:pl-[240px] bg-slate-50">
         {/* Topbar */}
         <header className="sticky top-0 z-30 flex h-20 w-full items-center justify-between border-b bg-background/80 px-4 md:px-8 backdrop-blur-md shadow-sm">
 
