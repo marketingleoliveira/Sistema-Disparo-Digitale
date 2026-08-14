@@ -161,7 +161,7 @@ function AuthenticatedLayout() {
 
         {/* Main Content Area */}
         <main className="flex-1">
-          <div className="mx-auto max-w-[1600px] p-4 md:p-8 lg:p-10 transition-all duration-500 animate-in fade-in slide-in-from-top-2">
+          <div className="mx-auto max-w-[1600px] p-6 md:p-10 lg:p-12 transition-all duration-500 animate-in fade-in slide-in-from-top-2">
             <Outlet />
           </div>
         </main>
