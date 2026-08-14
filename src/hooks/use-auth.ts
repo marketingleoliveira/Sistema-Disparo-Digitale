@@ -2,13 +2,15 @@ import { create } from 'zustand';
 
 export type UserRole = 'Desenvolvedor' | 'Diretoria' | 'Gerência' | 'Marketing';
 
+interface User {
+  name: string;
+  role: UserRole;
+  initials: string;
+}
+
 interface AuthState {
-  user: {
-    name: string;
-    role: UserRole;
-    initials: string;
-  };
-  setUser: (user: AuthState['user']) => void;
+  user: User;
+  setUser: (user: User) => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -17,5 +19,5 @@ export const useAuthStore = create<AuthState>((set) => ({
     role: 'Desenvolvedor',
     initials: 'LO',
   },
-  setUser: (user) => set({ user }),
+  setUser: (user: User) => set({ user }),
 }));
