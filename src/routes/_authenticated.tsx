@@ -129,10 +129,11 @@ function AuthenticatedLayout() {
                 <button className="flex items-center gap-3 rounded-xl py-1 pl-1 pr-2 transition-all hover:bg-secondary active:scale-[0.98] border border-transparent hover:border-border/40">
                   <Avatar className="h-8 w-8 border-2 border-primary/10 shadow-sm transition-transform hover:rotate-6">
                     <AvatarImage src="" />
-                    <AvatarFallback className="bg-primary text-primary-foreground text-[10px] font-bold">DO</AvatarFallback>
+                    <AvatarFallback className="bg-primary text-primary-foreground text-[10px] font-bold">LO</AvatarFallback>
                   </Avatar>
                   <div className="hidden text-left lg:block">
                     <p className="text-[11px] font-bold leading-none text-foreground">Leonardo Oliveira</p>
+
                     <p className="text-[9px] text-emerald-600 font-black uppercase tracking-widest mt-0.5">Admin Level 4</p>
 
                   </div>
