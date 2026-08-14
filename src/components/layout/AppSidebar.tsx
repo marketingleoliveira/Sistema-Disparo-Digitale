@@ -25,6 +25,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import logoAsset from "@/assets/Digitale_ALTATECNOLOGIA.png.asset.json";
+import { useAuthStore } from "@/hooks/use-auth";
 import {
   Sheet,
   SheetContent,
