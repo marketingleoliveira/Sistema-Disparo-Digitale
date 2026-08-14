@@ -29,7 +29,9 @@ export const useAuthStore = create<AuthState>()(
         
         const nameParts = email.split('@')[0].split('.');
         const name = nameParts.map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
-        const initials = nameParts.map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        const initials = nameParts.length > 0 
+          ? nameParts.map(n => n[0]).join('').toUpperCase().slice(0, 2)
+          : email[0].toUpperCase();
 
         set({
           user: {
