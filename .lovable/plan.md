@@ -19,12 +19,12 @@ Redesenhar completamente a página de contatos para oferecer uma experiência de
   - Timeline de atividades cronológica.
 
 ### Componentes e Estrutura
-- Integrar componentes Shadcn/UI: , , , , , , .
+- Integrar componentes Shadcn/UI: Table, Avatar, Badge, Checkbox, Input, DropdownMenu, Sheet.
 - Utilizar a paleta Digitale Têxtil (Marinho/Laranja/Gelo).
-- Criar mock data robusto para 50+ contatos para testar a densidade de informação.
+- Criar mock data robusto para testar a densidade de informação.
 
 ## Technical Details
 - **Arquivo Principal**: `src/routes/_authenticated/contacts.tsx`.
-- **Componentes Locais**: Extrair sub-componentes para `ContactTable`, `ContactFilters` e `ContactDetailSheet` para manter o código limpo.
-- **Estado**: Gerenciamento de seleção múltipla e filtros via estado local (e futuramente URL query params).
+- **Componentes Locais**: Organizar a página com sub-componentes para maior manutenibilidade.
+- **Estado**: Gerenciamento de seleção múltipla e filtros via estado local.
 
