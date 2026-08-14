@@ -130,7 +130,7 @@ function EmptyState({ title, description, actionLabel }: { title: string, descri
 }
 
 function DashboardPage() {
-  const hasData = true; // Toggle for empty state testing
+  const hasData = false; // Toggle for empty state testing
 
   if (!hasData) {
     return (
@@ -178,12 +178,7 @@ function DashboardPage() {
           <h3 className="text-lg font-bold text-primary">Notificações Recentes</h3>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
-          {[
-            { title: "Artes de Disparo Whatsapp", desc: "Nova arte de disparo disponível. Confira materiais comerciais. Att: Marketing", time: "há 11 dias" },
-            { title: "Artes de Disparo Whatsapp", desc: "Nova arte de disparo disponível. Confira materiais comerciais. Att: Marketing", time: "há 14 dias" },
-            { title: "Manutenção no portal", desc: "Bom dia, os sistemas estão passando por atualização, podendo causar lentidão e inatividade de algumas ferramentas. Assim que normalizar, comunico. Att: Leo do marketing", time: "há 4 meses" },
-            { title: "Manutenção no portal", desc: "O portal e o site sofrerão algumas atualizações que podem gerar instabilidade. Assim que for normalizado informaremos. Att: Leo do marketing", time: "há 4 meses" }
-          ].map((notif, i) => (
+          {[].map((notif, i) => (
             <div key={i} className="flex gap-4 p-4 rounded-xl bg-secondary/20 border border-border/50 hover:bg-secondary/30 transition-colors">
               <div className="h-10 w-10 shrink-0 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
                 <Bell size={18} />
@@ -215,7 +210,7 @@ function DashboardPage() {
         <div className="rounded-xl border bg-card p-6 shadow-sm flex items-center justify-between">
           <div className="space-y-1">
             <p className="text-xs font-bold text-muted-foreground">Usuários</p>
-            <span className="text-3xl font-black text-primary">20</span>
+            <span className="text-3xl font-black text-primary">1</span>
             <p className="text-[10px] text-muted-foreground font-medium">Ativos no sistema</p>
           </div>
           <div className="h-12 w-12 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
