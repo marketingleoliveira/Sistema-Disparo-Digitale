@@ -1,9 +1,12 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute('/_authenticated/forms')({
-  component: RouteComponent,
-})
-
-function RouteComponent() {
-  return <div>Hello "/_authenticated/forms"!</div>
-}
+export const Route = createFileRoute("/_authenticated/forms")({
+  component: () => (
+    <div className="space-y-4">
+      <h1 className="text-3xl font-bold tracking-tight">Formulários</h1>
+      <div className="rounded-xl border bg-card p-12 text-center shadow-sm">
+        <p className="text-muted-foreground">Módulo de formulários em desenvolvimento...</p>
+      </div>
+    </div>
+  ),
+});
