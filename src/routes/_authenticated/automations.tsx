@@ -9,12 +9,15 @@ import {
   ChevronRight,
   Pause,
   Trash2,
-  Copy
+  Copy,
+  Settings2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+
 import {
   Table,
   TableBody,
