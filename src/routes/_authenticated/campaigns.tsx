@@ -177,11 +177,23 @@ function CampaignWizard({ onCancel }: { onCancel: () => void }) {
             <div className="grid gap-6 sm:grid-cols-2">
               <div className="space-y-2 sm:col-span-2">
                 <Label htmlFor="name">Nome da campanha (interno)</Label>
-                <Input id="name" placeholder="Ex: Lançamento Primavera 2026" className="h-10" />
+                <Input 
+                  id="name" 
+                  placeholder="Ex: Lançamento Primavera 2026" 
+                  className="h-10" 
+                  value={formData.name}
+                  onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                />
               </div>
               <div className="space-y-2 sm:col-span-2">
                 <Label htmlFor="subject">Assunto do e-mail</Label>
-                <Input id="subject" placeholder="Confira as novidades da nova estação" className="h-10" />
+                <Input 
+                  id="subject" 
+                  placeholder="Confira as novidades da nova estação" 
+                  className="h-10" 
+                  value={formData.subject}
+                  onChange={e => setFormData(prev => ({ ...prev, subject: e.target.value }))}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="sender">Nome do remetente</Label>
