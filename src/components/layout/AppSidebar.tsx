@@ -196,7 +196,7 @@ export function AppSidebar() {
   }
 
   return (
-    <aside className="fixed left-0 top-0 z-40 hidden h-screen w-[240px] border-r bg-card shadow-sm transition-transform lg:block">
+    <aside className="fixed left-0 top-0 z-40 hidden h-screen w-[240px] border-r border-white/10 bg-primary shadow-2xl transition-transform lg:block">
       <SidebarContent />
     </aside>
   );
