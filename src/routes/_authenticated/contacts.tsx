@@ -60,73 +60,7 @@ export const Route = createFileRoute("/_authenticated/contacts")({
 
 // --- Mock Data ---
 
-const contacts = [
-  { 
-    id: 1, 
-    name: "Ana Oliveira", 
-    email: "ana.oliveira@textil.com.br", 
-    company: "Digitale Têxtil", 
-    lists: ["Clientes VIP", "Newsletter"], 
-    tags: ["Prioridade", "Varejo"], 
-    engagement: 95, 
-    lastActivity: "Há 2 horas", 
-    status: "Ativo",
-    initials: "AO",
-    phone: "+55 (11) 98877-6655"
-  },
-  { 
-    id: 2, 
-    name: "Bruno Santos", 
-    email: "bruno.santos@lojaexemplo.com", 
-    company: "Loja Exemplo", 
-    lists: ["Prospects"], 
-    tags: ["Lead"], 
-    engagement: 45, 
-    lastActivity: "Há 1 dia", 
-    status: "Ativo",
-    initials: "BS",
-    phone: "+55 (11) 97766-5544"
-  },
-  { 
-    id: 3, 
-    name: "Carla Mendes", 
-    email: "carla@fashionhouse.com", 
-    company: "Fashion House", 
-    lists: ["Clientes VIP"], 
-    tags: ["Atacado"], 
-    engagement: 82, 
-    lastActivity: "Há 3 horas", 
-    status: "Pendente",
-    initials: "CM",
-    phone: "+55 (21) 99988-7766"
-  },
-  { 
-    id: 4, 
-    name: "Daniel Lima", 
-    email: "daniel.lima@confecoes.net", 
-    company: "Lima Confecções", 
-    lists: ["Newsletter"], 
-    tags: ["Inativo"], 
-    engagement: 12, 
-    lastActivity: "Há 15 dias", 
-    status: "Descadastrado",
-    initials: "DL",
-    phone: "+55 (31) 96655-4433"
-  },
-  { 
-    id: 5, 
-    name: "Eduarda Costa", 
-    email: "eduarda@estilotextil.com", 
-    company: "Estilo Têxtil", 
-    lists: ["Clientes VIP", "B2B"], 
-    tags: ["VIP", "Fiel"], 
-    engagement: 98, 
-    lastActivity: "Há 30 min", 
-    status: "Ativo",
-    initials: "EC",
-    phone: "+55 (11) 95544-3322"
-  },
-];
+const contacts: any[] = [];
 
 // --- Sub-components ---
 
@@ -405,14 +339,14 @@ function ContactsPage() {
                 <TableCell className="text-xs font-medium text-muted-foreground">{contact.company}</TableCell>
                 <TableCell>
                   <div className="flex flex-wrap gap-1 max-w-[120px]">
-                    {contact.lists.map(list => (
+                    {contact.lists?.map((list: string) => (
                       <span key={list} className="text-[10px] text-muted-foreground border rounded px-1">{list}</span>
                     ))}
                   </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-wrap gap-1">
-                    {contact.tags.map(tag => (
+                    {contact.tags?.map((tag: string) => (
                       <Badge key={tag} variant="secondary" className="bg-secondary/50 text-primary border-none text-[9px] px-1.5 py-0 font-bold">
                         {tag}
                       </Badge>
