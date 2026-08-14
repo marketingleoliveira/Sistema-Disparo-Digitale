@@ -289,21 +289,28 @@ function DashboardPage() {
               </thead>
               <tbody className="divide-y divide-border">
                 {recentCampaigns.map((camp) => (
-                  <tr key={camp.id} className="group hover:bg-secondary/20 transition-colors">
-                    <td className="px-6 py-4 font-semibold text-primary">{camp.name}</td>
-                    <td className="px-6 py-4 text-xs text-muted-foreground">{camp.date}</td>
-                    <td className="px-6 py-4 text-xs">{camp.recipients.toLocaleString('pt-BR')}</td>
-                    <td className="px-6 py-4 text-xs font-medium">{camp.open}</td>
-                    <td className="px-6 py-4 text-xs font-medium">{camp.clicks}</td>
-                    <td className="px-6 py-4">
+                  <tr key={camp.id} className="group hover:bg-secondary/40 transition-all cursor-pointer">
+                    <td className="px-6 py-5 font-bold text-primary text-sm">{camp.name}</td>
+                    <td className="px-6 py-5 text-xs font-medium text-muted-foreground">{camp.date}</td>
+                    <td className="px-6 py-5 text-xs font-mono">{camp.recipients.toLocaleString('pt-BR')}</td>
+                    <td className="px-6 py-5 text-xs">
+                      <div className="flex items-center gap-2">
+                         <div className="h-1.5 w-8 rounded-full bg-muted overflow-hidden">
+                            <div className="h-full bg-emerald-500" style={{ width: camp.open.replace('%', '').replace(',', '.') + '%' }} />
+                         </div>
+                         <span className="font-bold">{camp.open}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-5 text-xs font-bold text-primary">{camp.clicks}</td>
+                    <td className="px-6 py-5">
                       <Badge 
                         variant="secondary"
                         className={cn(
-                          "rounded-full px-2 py-0.5 text-[10px] font-bold border-none",
-                          camp.status === 'Enviada' && "bg-emerald-100 text-emerald-700",
-                          camp.status === 'Agendada' && "bg-blue-100 text-blue-700",
-                          camp.status === 'Rascunho' && "bg-gray-100 text-gray-700",
-                          camp.status === 'Em andamento' && "bg-orange-100 text-orange-700"
+                          "rounded-lg px-2.5 py-1 text-[10px] font-bold border shadow-sm",
+                          camp.status === 'Enviada' && "bg-emerald-50 text-emerald-700 border-emerald-100",
+                          camp.status === 'Agendada' && "bg-blue-50 text-blue-700 border-blue-100",
+                          camp.status === 'Rascunho' && "bg-zinc-50 text-zinc-600 border-zinc-200",
+                          camp.status === 'Em andamento' && "bg-orange-50 text-orange-700 border-orange-100"
                         )}
                       >
                         {camp.status}
@@ -315,6 +322,7 @@ function DashboardPage() {
             </table>
           </div>
         </div>
+
 
         {/* Recent Activity Timeline */}
         <div className="rounded-xl border bg-card p-6 shadow-sm">
