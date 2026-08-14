@@ -68,17 +68,20 @@ export function VisualEmailEditor() {
     e.stopPropagation();
     const index = blocks.findIndex((b) => b.id === id);
     if (index === -1) return;
-    const block = blocks[index];
+    const blockToDuplicate = blocks[index];
+    if (!blockToDuplicate) return;
+    
     const newBlock: EditorBlock = { 
       id: `block-${Date.now()}`,
-      type: block.type,
-      content: JSON.parse(JSON.stringify(block.content)),
-      styles: JSON.parse(JSON.stringify(block.styles))
+      type: blockToDuplicate.type,
+      content: JSON.parse(JSON.stringify(blockToDuplicate.content)),
+      styles: JSON.parse(JSON.stringify(blockToDuplicate.styles))
     };
     const newBlocks = [...blocks];
     newBlocks.splice(index + 1, 0, newBlock);
     setBlocks(newBlocks);
   };
+
 
 
   const updateBlockStyle = (styleName: string, value: any) => {
