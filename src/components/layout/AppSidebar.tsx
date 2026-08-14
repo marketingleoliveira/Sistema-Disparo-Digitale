@@ -223,8 +223,9 @@ function SidebarItem({ item }: { item: NavItem }) {
           onClick={() => setIsOpen(!isOpen)}
           className={cn(
             "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
-            (isOpen || isChildActive) ? "text-primary bg-primary/5" : "text-muted-foreground",
-            "hover:bg-secondary hover:text-primary active:scale-[0.98]"
+            (isOpen || isChildActive) ? "text-white bg-white/15 shadow-sm" : "text-white/70",
+            "hover:bg-white/10 hover:text-white active:scale-[0.98]"
+
           )}
         >
           <div className="flex items-center gap-3">
