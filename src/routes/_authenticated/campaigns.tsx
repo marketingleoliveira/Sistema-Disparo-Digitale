@@ -20,9 +20,12 @@ import {
   Monitor,
   Smartphone,
   Info,
-  ChevronDown
+  ChevronDown,
+  Trash2,
+  Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useDataStore } from "@/hooks/use-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -117,7 +120,9 @@ function WizardProgress({ currentStep }: { currentStep: number }) {
 }
 
 function CampaignWizard({ onCancel }: { onCancel: () => void }) {
+  const { addCampaign } = useDataStore();
   const [step, setStep] = React.useState(1);
+  const [isLoading, setIsLoading] = React.useState(false);
   const [formData, setFormData] = React.useState({
     name: "",
     subject: "",
@@ -126,7 +131,26 @@ function CampaignWizard({ onCancel }: { onCancel: () => void }) {
     replyTo: "contato@digitaletextil.com.br"
   });
 
-  const nextStep = () => setStep(s => Math.min(s + 1, 5));
+  const nextStep = async () => {
+    if (step === 5) {
+      setIsLoading(true);
+      await new Promise(r => setTimeout(r, 1000));
+      addCampaign({
+        name: formData.name || "Nova Campanha",
+        type: "Email",
+        date: new Date().toLocaleDateString('pt-BR'),
+        recipients: 2384,
+        open: "0%",
+        clicks: "0%",
+        status: "Enviada",
+        subject: formData.subject
+      });
+      setIsLoading(false);
+      onCancel();
+      return;
+    }
+    setStep(s => Math.min(s + 1, 5));
+  };
   const prevStep = () => setStep(s => Math.max(s - 1, 1));
 
   return (
@@ -267,15 +291,23 @@ function CampaignWizard({ onCancel }: { onCancel: () => void }) {
         )}
 
         <div className="mt-12 flex justify-between border-t pt-6">
-          <Button variant="ghost" onClick={prevStep} disabled={step === 1} className="font-bold text-muted-foreground">Anterior</Button>
+          <Button variant="ghost" onClick={prevStep} disabled={step === 1 || isLoading} className="font-bold text-muted-foreground">Anterior</Button>
           <Button 
             onClick={nextStep} 
+            disabled={isLoading}
             className={cn(
               "font-bold px-8 shadow-md active:scale-95 transition-all",
               step === 5 ? "bg-emerald-600 hover:bg-emerald-700 text-white" : "bg-accent text-accent-foreground"
             )}
           >
-            {step === 5 ? "Enviar agora" : "Continuar"} {step !== 5 && <ChevronRight size={18} className="ml-2" />}
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <>
+                {step === 5 ? "Enviar agora" : "Continuar"} 
+                {step !== 5 && <ChevronRight size={18} className="ml-2" />}
+              </>
+            )}
           </Button>
         </div>
       </div>
@@ -284,8 +316,13 @@ function CampaignWizard({ onCancel }: { onCancel: () => void }) {
 }
 
 function CampaignsPage() {
+  const { campaigns, deleteCampaign } = useDataStore();
   const [isCreating, setIsCreating] = React.useState(false);
   const [statusFilter, setStatusFilter] = React.useState("Todas");
+
+  const filteredCampaigns = campaigns.filter(c => 
+    statusFilter === "Todas" || c.status === statusFilter
+  );
 
   if (isCreating) {
     return <CampaignWizard onCancel={() => setIsCreating(false)} />;
@@ -341,7 +378,7 @@ function CampaignsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {campaigns.map((camp) => (
+              {filteredCampaigns.map((camp) => (
                 <TableRow key={camp.id} className="group hover:bg-secondary/40 transition-all cursor-pointer">
 
                   <TableCell>
@@ -387,7 +424,7 @@ function CampaignsPage() {
                         <DropdownMenuItem>Duplicar</DropdownMenuItem>
                         <DropdownMenuItem>Editar</DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-red-600">Excluir</DropdownMenuItem>
+                        <DropdownMenuItem className="text-red-600" onClick={() => deleteCampaign(camp.id)}>Excluir</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
