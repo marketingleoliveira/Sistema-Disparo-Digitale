@@ -113,12 +113,12 @@ export function AppSidebar() {
   const [open, setOpen] = React.useState(false);
 
   const SidebarContent = () => (
-    <div className="flex h-full flex-col bg-primary relative overflow-hidden">
+    <div className="flex h-full flex-col bg-[#1e2d4d] relative overflow-hidden">
       {/* Pattern background */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.05] pattern-grid" />
       
       {/* Logo */}
-      <div className="flex h-20 items-center border-b border-white/10 px-6 relative z-10 bg-primary/80 backdrop-blur-sm">
+      <div className="flex h-20 items-center border-b border-white/10 px-6 relative z-10 bg-[#1e2d4d]/80 backdrop-blur-sm">
         <div className="flex w-full items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-white shadow-lg border border-white/20 rotate-3">
@@ -202,7 +202,7 @@ export function AppSidebar() {
   }
 
   return (
-    <aside className="fixed left-0 top-0 z-40 hidden h-screen w-[240px] border-r border-white/10 bg-primary shadow-2xl transition-transform lg:block">
+    <aside className="fixed left-0 top-0 z-40 hidden h-screen w-[240px] border-r border-white/10 bg-[#1e2d4d] shadow-2xl transition-transform lg:block">
       <SidebarContent />
     </aside>
   );
