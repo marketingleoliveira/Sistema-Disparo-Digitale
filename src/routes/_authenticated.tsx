@@ -132,8 +132,9 @@ function AuthenticatedLayout() {
                     <AvatarFallback className="bg-primary text-primary-foreground text-[10px] font-bold">DO</AvatarFallback>
                   </Avatar>
                   <div className="hidden text-left lg:block">
-                    <p className="text-[11px] font-bold leading-none text-foreground">Digitale Oliveira</p>
-                    <p className="text-[9px] text-accent font-black uppercase tracking-widest mt-0.5">Admin Level 4</p>
+                    <p className="text-[11px] font-bold leading-none text-foreground">Leonardo Oliveira</p>
+                    <p className="text-[9px] text-emerald-600 font-black uppercase tracking-widest mt-0.5">Admin Level 4</p>
+
                   </div>
                   <ChevronDown className="hidden h-3 w-3 text-muted-foreground/60 lg:block transition-transform duration-200" />
                 </button>
