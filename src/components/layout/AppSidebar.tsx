@@ -17,13 +17,10 @@ import {
   ChevronDown,
   Tag,
   TrendingUp,
-  CreditCard,
   Globe,
-  Bell,
   Menu,
   ShieldCheck,
-  Smartphone,
-  Info
+  Smartphone
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -56,11 +53,7 @@ const sidebarStructure: { group: string; items: NavItem[] }[] = [
       {
         label: "Campanhas",
         icon: Mail,
-        items: [
-          { label: "E-mail", icon: Mail, href: "/campaigns/email" },
-          { label: "SMS", icon: Smartphone, href: "/campaigns/sms" },
-          { label: "WhatsApp", icon: Zap, href: "/campaigns/whatsapp" },
-        ],
+        href: "/campaigns",
       },
       { label: "Templates", icon: FileText, href: "/templates" },
       { label: "Automações", icon: Zap, href: "/automations" },
@@ -73,23 +66,18 @@ const sidebarStructure: { group: string; items: NavItem[] }[] = [
       { label: "Todos os contatos", icon: Users, href: "/contacts" },
       { label: "Listas", icon: List, href: "/lists" },
       { label: "Segmentos", icon: Target, href: "/segments" },
-      { label: "Tags", icon: Tag, href: "/tags" },
     ],
   },
   {
     group: "Analytics",
     items: [
       { label: "Relatórios", icon: BarChart3, href: "/reports" },
-      { label: "Desempenho", icon: TrendingUp, href: "/analytics/performance" },
     ],
   },
   {
     group: "Configurações",
     items: [
-      { label: "Conta", icon: User, href: "/settings/account" },
-      { label: "E-mail", icon: Mail, href: "/settings/email" },
-      { label: "Domínio", icon: Globe, href: "/settings/domain" },
-      { label: "Usuários", icon: ShieldCheck, href: "/settings/users" },
+      { label: "Configurações", icon: Settings, href: "/settings" },
     ],
   },
 ];
@@ -130,13 +118,12 @@ export function AppSidebar() {
 
       {/* Footer */}
       <div className="border-t p-3 space-y-0.5">
-        <Link
-          to="/help"
-          className="flex items-center gap-3 rounded-md px-3 py-2 text-[14px] font-medium text-muted-foreground transition-all hover:bg-secondary hover:text-primary"
+        <div
+          className="flex items-center gap-3 rounded-md px-3 py-2 text-[14px] font-medium text-muted-foreground transition-all hover:bg-secondary hover:text-primary cursor-pointer"
         >
           <HelpCircle className="h-4 w-4" />
           <span>Ajuda</span>
-        </Link>
+        </div>
         <div className="flex items-center gap-3 rounded-md px-3 py-2 text-[14px] font-medium text-muted-foreground transition-all hover:bg-secondary hover:text-primary cursor-pointer">
           <div className="h-6 w-6 rounded-full bg-secondary flex items-center justify-center text-[10px] text-primary font-bold">
             DO
@@ -214,7 +201,7 @@ function SidebarItem({ item }: { item: NavItem }) {
             {item.items!.map((sub) => (
               <Link
                 key={sub.href}
-                to={sub.href}
+                to={sub.href as any}
                 className={cn(
                   "block rounded-md px-3 py-1.5 text-[13px] font-medium transition-all",
                   location.pathname === sub.href
@@ -233,7 +220,7 @@ function SidebarItem({ item }: { item: NavItem }) {
 
   return (
     <Link
-      to={item.href}
+      to={item.href as any}
       className={cn(
         "group flex items-center justify-between rounded-md px-3 py-2 text-[14px] font-medium transition-all duration-200",
         isActive 
