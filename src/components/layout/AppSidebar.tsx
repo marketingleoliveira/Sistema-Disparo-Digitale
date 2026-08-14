@@ -258,11 +258,12 @@ function SidebarItem({ item }: { item: NavItem }) {
     <Link
       to={item.href as any}
       className={cn(
-        "group flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+        "group flex items-center justify-between rounded-lg px-3 py-2 text-sm font-bold transition-all duration-200",
         isActive 
-          ? "bg-primary text-primary-foreground shadow-md shadow-primary/20 scale-[1.02]" 
-          : "text-muted-foreground hover:bg-secondary hover:text-primary active:scale-[0.98]"
+          ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30 scale-[1.02] translate-x-1" 
+          : "text-muted-foreground hover:bg-secondary/80 hover:text-primary active:scale-[0.98]"
       )}
+
     >
       <div className="flex items-center gap-3">
         <item.icon className="h-4 w-4 transition-transform group-hover:scale-110" />
