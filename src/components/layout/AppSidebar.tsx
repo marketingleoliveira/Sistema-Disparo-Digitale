@@ -113,18 +113,27 @@ export function AppSidebar() {
   const [open, setOpen] = React.useState(false);
 
   const SidebarContent = () => (
-    <div className="flex h-full flex-col bg-card">
+    <div className="flex h-full flex-col bg-card relative overflow-hidden">
+      {/* Pattern background */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.03] pattern-grid" />
+      
       {/* Logo */}
-      <div className="flex h-16 items-center border-b px-6">
+      <div className="flex h-20 items-center border-b px-6 relative z-10 bg-card/80 backdrop-blur-sm">
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
-            <Mail className="h-5 w-5" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20 rotate-3">
+            <Mail className="h-6 w-6 -rotate-3" />
           </div>
-          <span className="text-sm font-bold tracking-tight text-primary">
-            Newsletter Digitale
-          </span>
+          <div className="flex flex-col">
+            <span className="text-sm font-black tracking-tight text-primary leading-none">
+              Digitale
+            </span>
+            <span className="text-[10px] font-bold text-accent tracking-[0.2em] uppercase mt-0.5">
+              Newsletter
+            </span>
+          </div>
         </div>
       </div>
+
 
       {/* Navigation */}
       <ScrollArea className="flex-1 px-4 py-6">
