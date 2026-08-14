@@ -6,12 +6,13 @@ import {
   Eye, 
   Undo, 
   Redo, 
-  X,
-  ChevronLeft,
-  Settings2,
-  Trash2,
-  Copy,
-  Plus
+  Settings2, 
+  Trash2, 
+  Copy, 
+  Plus,
+  AlignLeft,
+  AlignCenter,
+  AlignRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -21,7 +22,6 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { 
   LIBRARY_BLOCKS, 
   INITIAL_BLOCKS, 
@@ -44,8 +44,15 @@ export function VisualEmailEditor() {
     const newBlock: EditorBlock = {
       id: `block-${Date.now()}`,
       type,
-      content: { text: "Novo bloco de " + type },
-      styles: { paddingTop: "10px", paddingBottom: "10px" }
+      content: { text: "Novo bloco de " + type, url: type === 'image' || type === 'logo' ? 'https://placehold.co/400x200' : undefined },
+      styles: { 
+        paddingTop: "10px", 
+        paddingBottom: "10px",
+        textAlign: "left",
+        fontSize: "16px",
+        color: "#1e293b",
+        fontWeight: "normal"
+      }
     };
     setBlocks([...blocks, newBlock]);
     setSelectedBlockId(newBlock.id);
@@ -60,8 +67,14 @@ export function VisualEmailEditor() {
   const handleDuplicateBlock = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     const index = blocks.findIndex((b) => b.id === id);
+    if (index === -1) return;
     const block = blocks[index];
-    const newBlock = { ...block, id: `block-${Date.now()}` };
+    const newBlock: EditorBlock = { 
+      ...block, 
+      id: `block-${Date.now()}`,
+      content: { ...block.content },
+      styles: { ...block.styles }
+    };
     const newBlocks = [...blocks];
     newBlocks.splice(index + 1, 0, newBlock);
     setBlocks(newBlocks);
@@ -189,26 +202,26 @@ export function VisualEmailEditor() {
 
                       <div style={block.styles as any}>
                         {block.type === 'logo' && (
-                          <div className="flex justify-center">
-                            <img src={block.content.url} alt="Logo" className="max-h-16" />
+                          <div style={{ textAlign: block.styles['textAlign'] as any }}>
+                            <img src={block.content.url} alt="Logo" className="max-h-16 inline-block" />
                           </div>
                         )}
                         {block.type === 'title' && (
                           <h2 style={{
-                            fontSize: block.styles.fontSize,
-                            fontWeight: block.styles.fontWeight,
-                            color: block.styles.color,
-                            textAlign: block.styles.textAlign
+                            fontSize: block.styles['fontSize'],
+                            fontWeight: block.styles['fontWeight'],
+                            color: block.styles['color'],
+                            textAlign: block.styles['textAlign']
                           } as any}>
                             {block.content.text}
                           </h2>
                         )}
                         {block.type === 'text' && (
                           <p style={{
-                            fontSize: block.styles.fontSize,
-                            lineHeight: block.styles.lineHeight,
-                            color: block.styles.color,
-                            textAlign: block.styles.textAlign
+                            fontSize: block.styles['fontSize'],
+                            lineHeight: block.styles['lineHeight'],
+                            color: block.styles['color'],
+                            textAlign: block.styles['textAlign']
                           } as any}>
                             {block.content.text}
                           </p>
@@ -218,21 +231,24 @@ export function VisualEmailEditor() {
                             src={block.content.url} 
                             alt="Content" 
                             style={{ 
-                              width: block.styles.width, 
-                              borderRadius: block.styles.borderRadius 
+                              width: block.styles['width'], 
+                              borderRadius: block.styles['borderRadius'] 
                             } as any} 
                           />
                         )}
                         {block.type === 'button' && (
-                          <div style={{ textAlign: block.styles.textAlign } as any}>
+                          <div style={{ textAlign: block.styles['textAlign'] as any }}>
                             <a 
                               href="#" 
                               style={{
-                                backgroundColor: block.styles.backgroundColor,
-                                color: block.styles.color,
-                                padding: `${block.styles.paddingTop} ${block.styles.paddingRight} ${block.styles.paddingBottom} ${block.styles.paddingLeft}`,
-                                borderRadius: block.styles.borderRadius,
-                                display: block.styles.display,
+                                backgroundColor: block.styles['backgroundColor'],
+                                color: block.styles['color'],
+                                paddingTop: block.styles['paddingTop'],
+                                paddingRight: block.styles['paddingRight'] || '20px',
+                                paddingBottom: block.styles['paddingBottom'],
+                                paddingLeft: block.styles['paddingLeft'] || '20px',
+                                borderRadius: block.styles['borderRadius'],
+                                display: block.styles['display'] || 'inline-block',
                                 textDecoration: 'none',
                                 fontWeight: 'bold',
                                 fontSize: '14px'
@@ -255,7 +271,7 @@ export function VisualEmailEditor() {
                     <div className="mb-4 rounded-full bg-muted p-4 text-muted-foreground">
                       <Plus size={32} />
                     </div>
-                    <p className="text-sm font-medium text-muted-foreground">Arraste um bloco aqui para começar</p>
+                    <p className="text-sm font-medium text-muted-foreground">Clique em um bloco ao lado para começar</p>
                   </div>
                 )}
               </div>
@@ -324,10 +340,10 @@ export function VisualEmailEditor() {
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <Label className="text-xs">Tamanho da Fonte</Label>
-                      <span className="text-[10px] font-mono text-muted-foreground">{selectedBlock.styles.fontSize}</span>
+                      <span className="text-[10px] font-mono text-muted-foreground">{selectedBlock.styles['fontSize']}</span>
                     </div>
                     <Slider 
-                      defaultValue={[parseInt(selectedBlock.styles.fontSize || "16")]} 
+                      value={[parseInt(selectedBlock.styles['fontSize'] || "16")]} 
                       max={72} 
                       min={8} 
                       step={1} 
@@ -341,19 +357,20 @@ export function VisualEmailEditor() {
                   <div className="space-y-2">
                     <Label className="text-xs">Alinhamento</Label>
                     <div className="flex items-center gap-1 rounded-md border p-1 bg-white">
-                      {['left', 'center', 'right'].map((align) => (
+                      {[
+                        { id: 'left', icon: AlignLeft }, 
+                        { id: 'center', icon: AlignCenter }, 
+                        { id: 'right', icon: AlignRight }
+                      ].map((align) => (
                         <button
-                          key={align}
-                          onClick={() => updateBlockStyle('textAlign', align)}
+                          key={align.id}
+                          onClick={() => updateBlockStyle('textAlign', align.id)}
                           className={cn(
                             "flex flex-1 justify-center rounded py-1 transition-all",
-                            selectedBlock.styles.textAlign === align ? "bg-accent text-accent-foreground shadow-sm" : "hover:bg-muted"
+                            selectedBlock.styles['textAlign'] === align.id ? "bg-accent text-accent-foreground shadow-sm" : "hover:bg-muted"
                           )}
                         >
-                          {align === 'left' && <Layout size={12} className="rotate-0" />}
-                          {align === 'center' && <Layout size={12} className="rotate-0" />}
-                          {align === 'right' && <Layout size={12} className="rotate-0" />}
-                          <span className="text-[10px] ml-1 capitalize">{align}</span>
+                          <align.icon size={12} />
                         </button>
                       ))}
                     </div>
@@ -367,12 +384,12 @@ export function VisualEmailEditor() {
                     <div className="flex items-center gap-2">
                       <Input 
                         type="color" 
-                        value={selectedBlock.type === 'button' ? selectedBlock.styles.backgroundColor : selectedBlock.styles.color} 
+                        value={selectedBlock.type === 'button' ? selectedBlock.styles['backgroundColor'] : selectedBlock.styles['color']} 
                         onChange={(e) => updateBlockStyle(selectedBlock.type === 'button' ? 'backgroundColor' : 'color', e.target.value)}
                         className="h-8 w-12 p-0.5"
                       />
                       <Input 
-                        value={selectedBlock.type === 'button' ? selectedBlock.styles.backgroundColor : selectedBlock.styles.color} 
+                        value={selectedBlock.type === 'button' ? selectedBlock.styles['backgroundColor'] : selectedBlock.styles['color']} 
                         onChange={(e) => updateBlockStyle(selectedBlock.type === 'button' ? 'backgroundColor' : 'color', e.target.value)}
                         className="text-[10px] h-8 font-mono"
                       />
@@ -384,10 +401,10 @@ export function VisualEmailEditor() {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <Label className="text-xs">Espaçamento Superior</Label>
-                    <span className="text-[10px] font-mono text-muted-foreground">{selectedBlock.styles.paddingTop}</span>
+                    <span className="text-[10px] font-mono text-muted-foreground">{selectedBlock.styles['paddingTop']}</span>
                   </div>
                   <Slider 
-                    defaultValue={[parseInt(selectedBlock.styles.paddingTop || "0")]} 
+                    value={[parseInt(selectedBlock.styles['paddingTop'] || "0")]} 
                     max={100} 
                     min={0} 
                     onValueChange={([v]) => updateBlockStyle('paddingTop', `${v}px`)}
@@ -397,10 +414,10 @@ export function VisualEmailEditor() {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <Label className="text-xs">Espaçamento Inferior</Label>
-                    <span className="text-[10px] font-mono text-muted-foreground">{selectedBlock.styles.paddingBottom}</span>
+                    <span className="text-[10px] font-mono text-muted-foreground">{selectedBlock.styles['paddingBottom']}</span>
                   </div>
                   <Slider 
-                    defaultValue={[parseInt(selectedBlock.styles.paddingBottom || "0")]} 
+                    value={[parseInt(selectedBlock.styles['paddingBottom'] || "0")]} 
                     max={100} 
                     min={0} 
                     onValueChange={([v]) => updateBlockStyle('paddingBottom', `${v}px`)}
