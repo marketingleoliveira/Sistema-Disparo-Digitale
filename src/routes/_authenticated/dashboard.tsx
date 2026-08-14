@@ -200,8 +200,9 @@ function DashboardPage() {
               <AreaChart data={performanceData}>
                 <defs>
                   <linearGradient id="colorEnviados" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="oklch(0.20 0.05 260)" stopOpacity={0.1}/>
-                    <stop offset="95%" stopColor="oklch(0.20 0.05 260)" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.1}/>
+                    <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0}/>
+
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="oklch(0.92 0.01 260)" />
