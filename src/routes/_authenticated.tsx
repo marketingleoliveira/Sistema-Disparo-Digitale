@@ -1,3 +1,4 @@
+import * as React from "react";
 import { createFileRoute, Outlet, redirect, useLocation } from "@tanstack/react-router";
 import { AppSidebar } from "../components/layout/AppSidebar";
 import { 
@@ -63,7 +64,8 @@ function AuthenticatedLayout() {
   };
 
   const pathParts = location.pathname.split("/").filter(Boolean);
-  const currentTitle = pathMap[pathParts[pathParts.length - 1]] || "Visão Geral";
+  const lastPart = pathParts[pathParts.length - 1];
+  const currentTitle = (lastPart && pathMap[lastPart]) || "Visão Geral";
 
   return (
     <div className="min-h-screen bg-white text-foreground selection:bg-accent/20 selection:text-accent flex">
