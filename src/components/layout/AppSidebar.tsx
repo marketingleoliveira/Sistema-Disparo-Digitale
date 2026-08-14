@@ -113,11 +113,11 @@ export function AppSidebar() {
   const [open, setOpen] = React.useState(false);
 
   const SidebarContent = () => (
-    <div className="flex h-full flex-col bg-white">
+    <div className="flex h-full flex-col bg-card">
       {/* Logo */}
       <div className="flex h-16 items-center border-b px-6">
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded bg-primary text-primary-foreground shadow-sm">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
             <Mail className="h-5 w-5" />
           </div>
           <span className="text-sm font-bold tracking-tight text-primary">
@@ -127,13 +127,13 @@ export function AppSidebar() {
       </div>
 
       {/* Navigation */}
-      <ScrollArea className="flex-1 px-3 py-4">
+      <ScrollArea className="flex-1 px-4 py-6">
         {sidebarStructure.map((group, idx) => (
-          <div key={group.group} className={cn("mb-6", idx === 0 && "mt-2")}>
-            <h2 className="mb-2 px-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground/60">
+          <div key={group.group} className={cn("mb-8", idx === 0 && "mt-0")}>
+            <h2 className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground/50">
               {group.group}
             </h2>
-            <nav className="space-y-0.5">
+            <nav className="space-y-1">
               {group.items.map((item) => (
                 <SidebarItem key={item.label} item={item} />
               ))}
@@ -143,25 +143,26 @@ export function AppSidebar() {
       </ScrollArea>
 
       {/* Footer */}
-      <div className="border-t p-3 space-y-0.5">
+      <div className="border-t p-4 space-y-1">
         <div
-          className="flex items-center gap-3 rounded-md px-3 py-2 text-[14px] font-medium text-muted-foreground transition-all hover:bg-secondary hover:text-primary cursor-pointer"
+          className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-all hover:bg-secondary hover:text-primary cursor-pointer group"
         >
-          <HelpCircle className="h-4 w-4" />
-          <span>Ajuda</span>
+          <HelpCircle className="h-4 w-4 transition-transform group-hover:scale-110" />
+          <span>Central de Ajuda</span>
         </div>
-        <div className="flex items-center gap-3 rounded-md px-3 py-2 text-[14px] font-medium text-muted-foreground transition-all hover:bg-secondary hover:text-primary cursor-pointer">
-          <div className="h-6 w-6 rounded-full bg-secondary flex items-center justify-center text-[10px] text-primary font-bold">
+        <div className="flex items-center gap-3 rounded-xl px-3 py-3 bg-secondary/30 mt-2 border border-border/50">
+          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-xs text-primary font-bold shadow-inner">
             DO
           </div>
           <div className="flex-1 overflow-hidden">
-            <p className="truncate text-xs text-foreground font-semibold">Digitale Oliveira</p>
-            <p className="truncate text-[10px] opacity-60">Plano Enterprise</p>
+            <p className="truncate text-xs text-foreground font-bold">Digitale Oliveira</p>
+            <p className="truncate text-[10px] text-muted-foreground font-medium">Plano Enterprise</p>
           </div>
         </div>
       </div>
     </div>
   );
+
 
   if (isMobile) {
     return (
