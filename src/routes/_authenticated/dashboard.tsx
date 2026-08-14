@@ -44,44 +44,26 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 // --- Mock Data ---
 
 const kpiStats = [
-  { label: "Contatos", value: "24.512", trend: "12,4%", trendType: "up", icon: Users },
-  { label: "E-mails enviados", value: "1.2M", trend: "8,2%", trendType: "up", icon: Mail },
-  { label: "Taxa de abertura", value: "24,8%", trend: "2,1%", trendType: "down", icon: ArrowUpRight },
-  { label: "Taxa de cliques", value: "3,2%", trend: "0,5%", trendType: "up", icon: MousePointer2 },
-  { label: "Descadastros", value: "42", trend: "1,2%", trendType: "down", icon: UserMinus },
-  { label: "Bounce", value: "0,8%", trend: "0,2%", trendType: "up", icon: AlertOctagon },
+  { label: "Contatos", value: "0", trend: "0%", trendType: "up", icon: Users },
+  { label: "E-mails enviados", value: "0", trend: "0%", trendType: "up", icon: Mail },
+  { label: "Taxa de abertura", value: "0%", trend: "0%", trendType: "up", icon: ArrowUpRight },
+  { label: "Taxa de cliques", value: "0%", trend: "0%", trendType: "up", icon: MousePointer2 },
+  { label: "Descadastros", value: "0", trend: "0%", trendType: "down", icon: UserMinus },
+  { label: "Bounce", value: "0%", trend: "0%", trendType: "down", icon: AlertOctagon },
 ];
 
-const performanceData = [
-  { name: "Seg", enviados: 12000, aberturas: 4200, cliques: 800 },
-  { name: "Ter", enviados: 15000, aberturas: 5100, cliques: 950 },
-  { name: "Qua", enviados: 18000, aberturas: 6200, cliques: 1200 },
-  { name: "Qui", enviados: 14000, aberturas: 4800, cliques: 850 },
-  { name: "Sex", enviados: 22000, aberturas: 7500, cliques: 1500 },
-  { name: "Sáb", enviados: 8000, aberturas: 2800, cliques: 400 },
-  { name: "Dom", enviados: 5000, aberturas: 1500, cliques: 200 },
-];
+const performanceData: any[] = [];
 
 const engagementLevels = [
-  { name: "Muito engajados", value: 45, color: "oklch(0.20 0.05 260)" },
-  { name: "Engajados", value: 30, color: "oklch(0.65 0.20 45)" },
-  { name: "Pouco engajados", value: 15, color: "oklch(0.97 0.01 260)" },
-  { name: "Inativos", value: 10, color: "oklch(0.85 0.02 260)" },
+  { name: "Muito engajados", value: 0, color: "oklch(0.20 0.05 260)" },
+  { name: "Engajados", value: 0, color: "oklch(0.65 0.20 45)" },
+  { name: "Pouco engajados", value: 0, color: "oklch(0.97 0.01 260)" },
+  { name: "Inativos", value: 0, color: "oklch(0.85 0.02 260)" },
 ];
 
-const recentCampaigns = [
-  { id: 1, name: "Lançamento Coleção Verão 2026", date: "14 Ago, 2026", recipients: 24512, open: "32,4%", clicks: "5,8%", status: "Enviada" },
-  { id: 2, name: "Webinar: Tendências Têxteis", date: "16 Ago, 2026", recipients: 1200, open: "-", clicks: "-", status: "Agendada" },
-  { id: 3, name: "Newsletter Semanal #42", date: "12 Ago, 2026", recipients: 24100, open: "28,1%", clicks: "4,2%", status: "Enviada" },
-  { id: 4, name: "Draft: Promoção Algodão Egípcio", date: "10 Ago, 2026", recipients: 0, open: "-", clicks: "-", status: "Rascunho" },
-];
+const recentCampaigns: any[] = [];
 
-const activities = [
-  { id: 1, type: "envio", title: "Campanha enviada", desc: "Lançamento Coleção Verão", time: "Há 2 horas", icon: Send },
-  { id: 2, type: "contato", title: "Novo contato", desc: "joao.silva@exemplo.com", time: "Há 4 horas", icon: UserPlus },
-  { id: 3, type: "automacao", title: "Automação ativada", desc: "Boas-vindas Cliente VIP", time: "Ontem", icon: CheckCircle2 },
-  { id: 4, type: "agendamento", title: "Campanha agendada", desc: "Webinar: Tendências", time: "Ontem", icon: Clock },
-];
+const activities: any[] = [];
 
 // --- Components ---
 
