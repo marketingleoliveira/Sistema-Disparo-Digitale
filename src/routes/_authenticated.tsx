@@ -19,10 +19,10 @@ export const Route = createFileRoute("/_authenticated")({
 
 function AuthenticatedLayout() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-white text-foreground selection:bg-accent/20 selection:text-accent">
       <AppSidebar />
-      <main className="lg:pl-64">
-        <div className="container mx-auto p-4 md:p-8">
+      <main className="lg:pl-64 transition-all duration-300">
+        <div className="mx-auto max-w-[1400px] p-6 md:p-10">
           <Outlet />
         </div>
       </main>

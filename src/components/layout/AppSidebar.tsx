@@ -53,8 +53,9 @@ export function AppSidebar() {
               key={item.href}
               to={item.href}
               className={cn(
-                "group flex items-center justify-between rounded-md px-2 py-2.5 text-sm font-medium transition-colors hover:bg-secondary/50 hover:text-primary",
-                "text-muted-foreground [&.active]:bg-secondary [&.active]:text-primary"
+                "group flex items-center justify-between rounded-md px-3 py-2 text-[14px] font-medium transition-all duration-200",
+                "text-muted-foreground hover:bg-secondary hover:text-primary",
+                "[&.active]:bg-secondary [&.active]:text-primary [&.active]:shadow-sm"
               )}
             >
               <div className="flex items-center gap-3">
