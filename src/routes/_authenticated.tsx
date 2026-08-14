@@ -68,31 +68,31 @@ function AuthenticatedLayout() {
   const currentTitle = (lastPart && pathMap[lastPart]) || "Visão Geral";
 
   return (
-    <div className="min-h-screen bg-white text-foreground selection:bg-accent/20 selection:text-accent flex">
+    <div className="min-h-screen bg-background text-foreground selection:bg-accent/20 selection:text-accent flex">
       <AppSidebar />
       
       <div className="flex-1 flex flex-col min-w-0 lg:pl-[240px]">
         {/* Topbar */}
-        <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b bg-white/80 px-6 backdrop-blur-md">
+        <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b bg-background/80 px-4 md:px-8 backdrop-blur-md">
           {/* Left Side: Breadcrumb & Context Title */}
           <div className="flex items-center gap-4">
             <div className="hidden md:block">
               <Breadcrumb>
                 <BreadcrumbList>
                   <BreadcrumbItem>
-                    <BreadcrumbLink href="/dashboard" className="text-xs">Início</BreadcrumbLink>
+                    <BreadcrumbLink href="/dashboard" className="text-[11px] font-medium transition-colors hover:text-primary">Início</BreadcrumbLink>
                   </BreadcrumbItem>
                   {pathParts.map((part, index) => {
                     const isLast = index === pathParts.length - 1;
                     const title = pathMap[part] || part;
                     return (
                       <React.Fragment key={part}>
-                        <BreadcrumbSeparator />
+                        <BreadcrumbSeparator className="opacity-40" />
                         <BreadcrumbItem>
                           {isLast ? (
-                            <BreadcrumbPage className="text-xs font-semibold">{title}</BreadcrumbPage>
+                            <BreadcrumbPage className="text-[11px] font-bold text-primary">{title}</BreadcrumbPage>
                           ) : (
-                            <BreadcrumbLink href={`/${part}`} className="text-xs">{title}</BreadcrumbLink>
+                            <BreadcrumbLink href={`/${part}`} className="text-[11px] font-medium transition-colors hover:text-primary">{title}</BreadcrumbLink>
                           )}
                         </BreadcrumbItem>
                       </React.Fragment>
@@ -107,49 +107,51 @@ function AuthenticatedLayout() {
           </div>
 
           {/* Right Side: Actions & Profile */}
-          <div className="flex items-center gap-2">
-            <button className="rounded-full p-2 text-muted-foreground hover:bg-secondary hover:text-primary transition-colors">
-              <Search className="h-5 w-5" />
-            </button>
-            <button className="rounded-full p-2 text-muted-foreground hover:bg-secondary hover:text-primary transition-colors relative">
-              <Bell className="h-5 w-5" />
-              <span className="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-accent"></span>
-            </button>
-            <button className="rounded-full p-2 text-muted-foreground hover:bg-secondary hover:text-primary transition-colors">
-              <HelpCircle className="h-5 w-5" />
-            </button>
+          <div className="flex items-center gap-1 md:gap-3">
+            <div className="hidden sm:flex items-center gap-1">
+              <button className="rounded-lg p-2 text-muted-foreground hover:bg-secondary hover:text-primary transition-all active:scale-95 group">
+                <Search className="h-4 w-4 transition-transform group-hover:scale-110" />
+              </button>
+              <button className="rounded-lg p-2 text-muted-foreground hover:bg-secondary hover:text-primary transition-all active:scale-95 relative group">
+                <Bell className="h-4 w-4 transition-transform group-hover:scale-110" />
+                <span className="absolute top-2 right-2 flex h-1.5 w-1.5 rounded-full bg-accent animate-pulse shadow-[0_0_8px_rgba(249,115,22,0.8)]"></span>
+              </button>
+              <button className="rounded-lg p-2 text-muted-foreground hover:bg-secondary hover:text-primary transition-all active:scale-95 group">
+                <HelpCircle className="h-4 w-4 transition-transform group-hover:scale-110" />
+              </button>
+            </div>
             
-            <div className="mx-2 h-6 w-px bg-border"></div>
+            <div className="mx-2 h-6 w-px bg-border/60 hidden sm:block"></div>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-3 rounded-full py-1 pl-1 pr-2 transition-all hover:bg-secondary">
-                  <Avatar className="h-8 w-8 border">
+                <button className="flex items-center gap-3 rounded-xl py-1 pl-1 pr-2 transition-all hover:bg-secondary active:scale-[0.98] border border-transparent hover:border-border/40">
+                  <Avatar className="h-8 w-8 border-2 border-primary/10 shadow-sm transition-transform hover:rotate-6">
                     <AvatarImage src="" />
-                    <AvatarFallback className="bg-primary text-primary-foreground text-[10px]">DO</AvatarFallback>
+                    <AvatarFallback className="bg-primary text-primary-foreground text-[10px] font-bold">DO</AvatarFallback>
                   </Avatar>
                   <div className="hidden text-left lg:block">
-                    <p className="text-[12px] font-bold leading-none text-foreground">Digitale Oliveira</p>
-                    <p className="text-[10px] text-muted-foreground">Admin</p>
+                    <p className="text-[11px] font-bold leading-none text-foreground">Digitale Oliveira</p>
+                    <p className="text-[9px] text-muted-foreground font-medium uppercase tracking-tighter mt-0.5">Admin Level 4</p>
                   </div>
-                  <ChevronDown className="hidden h-3 w-3 text-muted-foreground lg:block" />
+                  <ChevronDown className="hidden h-3 w-3 text-muted-foreground/60 lg:block transition-transform duration-200" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="cursor-pointer">
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Perfil</span>
+              <DropdownMenuContent align="end" className="w-56 mt-1 rounded-xl shadow-xl ring-1 ring-black/5 animate-in fade-in zoom-in-95">
+                <DropdownMenuLabel className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-3 py-2">Minha Conta</DropdownMenuLabel>
+                <DropdownMenuSeparator className="opacity-50" />
+                <DropdownMenuItem className="cursor-pointer rounded-lg mx-1 transition-colors hover:bg-secondary">
+                  <User className="mr-2 h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Perfil da Agência</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer">
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Configurações</span>
+                <DropdownMenuItem className="cursor-pointer rounded-lg mx-1 transition-colors hover:bg-secondary">
+                  <Settings className="mr-2 h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Configurações</span>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-destructive cursor-pointer">
+                <DropdownMenuSeparator className="opacity-50" />
+                <DropdownMenuItem className="text-destructive cursor-pointer rounded-lg mx-1 transition-colors hover:bg-destructive/10">
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Sair</span>
+                  <span className="text-sm font-bold">Sair do Sistema</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -157,12 +159,13 @@ function AuthenticatedLayout() {
         </header>
 
         {/* Main Content Area */}
-        <main className="flex-1 bg-white">
-          <div className="mx-auto max-w-[1400px] p-6 md:p-10 transition-all duration-500 animate-in fade-in slide-in-from-top-1">
+        <main className="flex-1">
+          <div className="mx-auto max-w-[1600px] p-4 md:p-8 lg:p-10 transition-all duration-500 animate-in fade-in slide-in-from-top-2">
             <Outlet />
           </div>
         </main>
       </div>
     </div>
+
   );
 }
