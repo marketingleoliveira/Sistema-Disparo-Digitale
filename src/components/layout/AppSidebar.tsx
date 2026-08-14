@@ -183,11 +183,12 @@ export function AppSidebar() {
   }
 
   return (
-    <aside className="fixed left-0 top-0 z-40 hidden h-screen w-[240px] border-r bg-white shadow-[1px_0_0_0_rgba(0,0,0,0.05)] transition-transform lg:block">
+    <aside className="fixed left-0 top-0 z-40 hidden h-screen w-[240px] border-r bg-card shadow-sm transition-transform lg:block">
       <SidebarContent />
     </aside>
   );
 }
+
 
 function SidebarItem({ item }: { item: NavItem }) {
   const location = useLocation();
