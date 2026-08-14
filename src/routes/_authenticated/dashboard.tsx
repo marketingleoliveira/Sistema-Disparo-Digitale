@@ -17,8 +17,10 @@ import {
   Send,
   UserPlus,
   CheckCircle2,
-  Clock
+  Clock,
+  Bell
 } from "lucide-react";
+
 import { 
   XAxis, 
   YAxis, 
@@ -151,11 +153,12 @@ function DashboardPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-primary">Visão geral</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-primary">Boa tarde, Leonardo!</h1>
           <p className="text-sm font-medium text-muted-foreground mt-1">
-            Métricas de desempenho em tempo real para a Digitale Têxtil.
+            Confira as informações do seu painel.
           </p>
         </div>
+
         <div className="flex items-center gap-3">
           <Button variant="outline" className="hidden sm:flex border-border/60 hover:bg-secondary">
              Exportar Dados
@@ -168,12 +171,59 @@ function DashboardPage() {
       </div>
 
 
-      {/* KPI Cards Grid */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
-        {kpiStats.map((stat, i) => (
-          <KpiCard key={i} stat={stat} />
-        ))}
+      {/* Notifications Section */}
+      <div className="rounded-xl border bg-card p-6 shadow-sm">
+        <div className="flex items-center gap-2 mb-6">
+          <Bell className="h-5 w-5 text-accent" />
+          <h3 className="text-lg font-bold text-primary">Notificações Recentes</h3>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          {[
+            { title: "Artes de Disparo Whatsapp", desc: "Nova arte de disparo disponível. Confira materiais comerciais. Att: Marketing", time: "há 11 dias" },
+            { title: "Artes de Disparo Whatsapp", desc: "Nova arte de disparo disponível. Confira materiais comerciais. Att: Marketing", time: "há 14 dias" },
+            { title: "Manutenção no portal", desc: "Bom dia, os sistemas estão passando por atualização, podendo causar lentidão e inatividade de algumas ferramentas. Assim que normalizar, comunico. Att: Leo do marketing", time: "há 4 meses" },
+            { title: "Manutenção no portal", desc: "O portal e o site sofrerão algumas atualizações que podem gerar instabilidade. Assim que for normalizado informaremos. Att: Leo do marketing", time: "há 4 meses" }
+          ].map((notif, i) => (
+            <div key={i} className="flex gap-4 p-4 rounded-xl bg-secondary/20 border border-border/50 hover:bg-secondary/30 transition-colors">
+              <div className="h-10 w-10 shrink-0 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
+                <Bell size={18} />
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-bold text-primary">{notif.title}</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">{notif.desc}</p>
+                <p className="text-[10px] text-muted-foreground/60">{notif.time}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="rounded-xl border bg-card p-6 shadow-sm flex items-center justify-between">
+          <div className="space-y-1">
+            <p className="text-xs font-bold text-muted-foreground">Usuários Online</p>
+            <div className="flex items-center gap-2">
+              <span className="text-3xl font-black text-primary">0</span>
+              <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+            </div>
+            <p className="text-[10px] text-muted-foreground font-medium">Em tempo real</p>
+          </div>
+          <div className="h-12 w-12 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
+            <UserPlus size={24} />
+          </div>
+        </div>
+        <div className="rounded-xl border bg-card p-6 shadow-sm flex items-center justify-between">
+          <div className="space-y-1">
+            <p className="text-xs font-bold text-muted-foreground">Usuários</p>
+            <span className="text-3xl font-black text-primary">20</span>
+            <p className="text-[10px] text-muted-foreground font-medium">Ativos no sistema</p>
+          </div>
+          <div className="h-12 w-12 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
+            <Users size={24} />
+          </div>
+        </div>
+      </div>
+
 
       {/* Main Charts & Side Info Row */}
       <div className="grid gap-6 lg:grid-cols-3">

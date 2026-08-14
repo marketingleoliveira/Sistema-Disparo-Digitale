@@ -71,7 +71,7 @@ function AuthenticatedLayout() {
     <div className="min-h-screen bg-background text-foreground selection:bg-accent/20 selection:text-accent flex">
       <AppSidebar />
       
-      <div className="flex-1 flex flex-col min-w-0 lg:pl-[240px]">
+      <div className="flex-1 flex flex-col min-w-0 lg:pl-[240px] bg-slate-50">
         {/* Topbar */}
         <header className="sticky top-0 z-30 flex h-20 w-full items-center justify-between border-b bg-background/80 px-4 md:px-8 backdrop-blur-md shadow-sm">
 
@@ -129,11 +129,13 @@ function AuthenticatedLayout() {
                 <button className="flex items-center gap-3 rounded-xl py-1 pl-1 pr-2 transition-all hover:bg-secondary active:scale-[0.98] border border-transparent hover:border-border/40">
                   <Avatar className="h-8 w-8 border-2 border-primary/10 shadow-sm transition-transform hover:rotate-6">
                     <AvatarImage src="" />
-                    <AvatarFallback className="bg-primary text-primary-foreground text-[10px] font-bold">DO</AvatarFallback>
+                    <AvatarFallback className="bg-primary text-primary-foreground text-[10px] font-bold">LO</AvatarFallback>
                   </Avatar>
                   <div className="hidden text-left lg:block">
-                    <p className="text-[11px] font-bold leading-none text-foreground">Digitale Oliveira</p>
-                    <p className="text-[9px] text-accent font-black uppercase tracking-widest mt-0.5">Admin Level 4</p>
+                    <p className="text-[11px] font-bold leading-none text-foreground">Leonardo Oliveira</p>
+
+                    <p className="text-[9px] text-emerald-600 font-black uppercase tracking-widest mt-0.5">Admin Level 4</p>
+
                   </div>
                   <ChevronDown className="hidden h-3 w-3 text-muted-foreground/60 lg:block transition-transform duration-200" />
                 </button>
