@@ -62,35 +62,44 @@ const lastCampaigns = [
 
 function DashboardPage() {
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-700">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground">Bem-vindo à plataforma de marketing da Digitale Têxtil.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-primary">Visão Geral</h1>
+          <p className="text-sm text-muted-foreground">Analise o desempenho das suas campanhas em tempo real.</p>
         </div>
-        <button className="inline-flex items-center gap-2 rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground shadow-sm transition-all hover:bg-accent/90">
-          <Plus className="h-4 w-4" />
-          Criar campanha
-        </button>
+        <div className="flex items-center gap-3">
+          <button className="inline-flex items-center gap-2 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-all hover:bg-muted/50">
+            Exportar dados
+          </button>
+          <button className="inline-flex items-center gap-2 rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground shadow-sm transition-all hover:bg-accent/90 active:scale-95">
+            <Plus className="h-4 w-4" />
+            Criar campanha
+          </button>
+        </div>
       </div>
 
       {/* Stats Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         {stats.map((stat) => (
-          <div key={stat.label} className="rounded-xl border bg-card p-4 shadow-sm">
+          <div key={stat.label} className="group rounded-xl border bg-card p-5 shadow-[0_2px_4px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_8px_16px_rgba(0,0,0,0.04)]">
             <div className="flex items-center justify-between text-muted-foreground">
-              <stat.icon className="h-4 w-4" />
+              <div className="rounded-md bg-secondary p-2 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                <stat.icon className="h-4 w-4" />
+              </div>
               <div className={cn(
-                "flex items-center gap-0.5 text-xs font-medium",
-                stat.trendType === "up" ? (stat.label === "Descadastros" ? "text-destructive" : "text-emerald-600") : "text-destructive"
+                "flex items-center gap-0.5 text-[11px] font-bold px-1.5 py-0.5 rounded-full",
+                stat.trendType === "up" 
+                  ? (stat.label === "Descadastros" ? "bg-red-50 text-red-600" : "bg-emerald-50 text-emerald-600") 
+                  : "bg-red-50 text-red-600"
               )}>
-                {stat.trendType === "up" ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                {stat.trendType === "up" ? <TrendingUp className="h-2.5 w-2.5" /> : <TrendingDown className="h-2.5 w-2.5" />}
                 {stat.trend}
               </div>
             </div>
-            <div className="mt-3">
-              <h3 className="text-sm font-medium text-muted-foreground">{stat.label}</h3>
-              <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+            <div className="mt-4">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">{stat.label}</h3>
+              <p className="mt-1 text-2xl font-bold text-primary">{stat.value}</p>
             </div>
           </div>
         ))}
@@ -98,7 +107,7 @@ function DashboardPage() {
 
       {/* Charts Section */}
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border bg-card p-6 shadow-sm">
+        <div className="rounded-xl border bg-card p-6 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-lg font-semibold">Evolução de contatos</h3>
             <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
@@ -115,9 +124,9 @@ function DashboardPage() {
                     <stop offset="95%" stopColor="oklch(0.20 0.05 260)" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="oklch(0.85 0.02 260)" />
-                <XAxis dataKey="name" stroke="oklch(0.40 0.02 260)" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="oklch(0.40 0.02 260)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value/1000}k`} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="oklch(0.92 0.01 260)" />
+                <XAxis dataKey="name" stroke="oklch(0.45 0.02 260)" fontSize={11} tickLine={false} axisLine={false} dy={10} />
+                <YAxis stroke="oklch(0.45 0.02 260)" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(value) => `${value/1000}k`} dx={-10} />
                 <Tooltip />
                 <Area type="monotone" dataKey="total" stroke="oklch(0.20 0.05 260)" fillOpacity={1} fill="url(#colorTotal)" strokeWidth={2} />
               </AreaChart>
@@ -125,7 +134,7 @@ function DashboardPage() {
           </div>
         </div>
 
-        <div className="rounded-xl border bg-card p-6 shadow-sm">
+        <div className="rounded-xl border bg-card p-6 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
           <h3 className="mb-4 text-lg font-semibold">Engajamento da Base</h3>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -159,14 +168,14 @@ function DashboardPage() {
       </div>
 
       {/* Last Campaigns Table */}
-      <div className="rounded-xl border bg-card shadow-sm">
-        <div className="flex items-center justify-between border-b px-6 py-4">
+      <div className="rounded-xl border bg-card shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
+        <div className="flex items-center justify-between bg-muted/20 border-b px-6 py-4">
           <h3 className="text-lg font-semibold">Últimas campanhas</h3>
           <Link to="/campaigns" className="text-sm font-medium text-primary hover:underline">Ver todas</Link>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="bg-muted/50 text-muted-foreground uppercase text-[11px] font-bold">
+            <thead className="bg-muted/30 text-muted-foreground uppercase text-[10px] font-bold tracking-wider">
               <tr>
                 <th className="px-6 py-3">Campanha</th>
                 <th className="px-6 py-3">Data</th>
@@ -179,7 +188,7 @@ function DashboardPage() {
             </thead>
             <tbody className="divide-y">
               {lastCampaigns.map((campaign) => (
-                <tr key={campaign.id} className="hover:bg-muted/30 transition-colors">
+                <tr key={campaign.id} className="hover:bg-secondary/30 transition-colors group">
                   <td className="px-6 py-4 font-medium text-foreground">{campaign.name}</td>
                   <td className="px-6 py-4 text-muted-foreground">{campaign.date}</td>
                   <td className="px-6 py-4">{campaign.recipients.toLocaleString()}</td>
