@@ -119,21 +119,26 @@ export function AppSidebar() {
       
       {/* Logo */}
       <div className="flex h-20 items-center border-b border-white/10 px-6 relative z-10 bg-primary/80 backdrop-blur-sm">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-white shadow-lg border border-white/20 rotate-3">
-            <Mail className="h-6 w-6 -rotate-3" />
+        <div className="flex w-full items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-white shadow-lg border border-white/20 rotate-3">
+              <Mail className="h-6 w-6 -rotate-3" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm font-black tracking-tight text-white leading-none">
+                Digitale
+              </span>
+              <span className="text-[10px] font-bold text-emerald-400 tracking-[0.2em] uppercase mt-0.5">
+                Têxtil
+              </span>
+            </div>
           </div>
-
-          <div className="flex flex-col">
-            <span className="text-sm font-black tracking-tight text-white leading-none">
-              Digitale
-            </span>
-            <span className="text-[10px] font-bold text-emerald-400 tracking-[0.2em] uppercase mt-0.5">
-              Têxtil
-            </span>
-
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-[9px] font-black text-emerald-400 uppercase tracking-widest">
+            <div className="h-1 w-1 rounded-full bg-emerald-400 animate-pulse" />
+            #Sustentabilidade
           </div>
         </div>
+
       </div>
 
 
