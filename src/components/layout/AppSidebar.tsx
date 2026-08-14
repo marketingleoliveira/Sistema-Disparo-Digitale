@@ -115,7 +115,7 @@ export function AppSidebar() {
   const SidebarContent = () => (
     <div className="flex h-full flex-col bg-primary relative overflow-hidden">
       {/* Pattern background */}
-      <div className="absolute inset-0 pointer-events-none opacity-[0.03] pattern-grid" />
+      <div className="absolute inset-0 pointer-events-none opacity-[0.05] pattern-grid" />
       
       {/* Logo */}
       <div className="flex h-20 items-center border-b border-white/10 px-6 relative z-10 bg-primary/80 backdrop-blur-sm">
@@ -143,7 +143,7 @@ export function AppSidebar() {
 
 
       {/* Navigation */}
-      <ScrollArea className="flex-1 px-4 py-6">
+      <ScrollArea className="flex-1 px-4 py-6 scrollbar-white">
         {sidebarStructure.map((group, idx) => (
           <div key={group.group} className={cn("mb-8", idx === 0 && "mt-0")}>
             <h2 className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.1em] text-white/40">
