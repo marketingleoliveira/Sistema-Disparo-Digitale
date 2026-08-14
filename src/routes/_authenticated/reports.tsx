@@ -120,13 +120,14 @@ function ReportsPage() {
   const [period, setPeriod] = useState("30");
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="space-y-8 animate-in fade-in duration-500">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-primary">Relatórios</h1>
-          <p className="text-muted-foreground mt-1">Análise detalhada do desempenho da Digitale Têxtil.</p>
+          <p className="text-sm font-medium text-muted-foreground mt-1">Análise estratégica de performance para a Digitale Têxtil.</p>
         </div>
+
         <div className="flex items-center gap-3">
           <Select value={period} onValueChange={setPeriod}>
             <SelectTrigger className="w-[180px] bg-card">
