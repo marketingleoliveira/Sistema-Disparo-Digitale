@@ -124,12 +124,13 @@ export function AppSidebar() {
             <Mail className="h-6 w-6 -rotate-3" />
           </div>
           <div className="flex flex-col">
-            <span className="text-sm font-black tracking-tight text-primary leading-none">
+            <span className="text-sm font-black tracking-tight text-white leading-none">
               Digitale
             </span>
-            <span className="text-[10px] font-bold text-accent tracking-[0.2em] uppercase mt-0.5">
-              Newsletter
+            <span className="text-[10px] font-bold text-emerald-400 tracking-[0.2em] uppercase mt-0.5">
+              Têxtil
             </span>
+
           </div>
         </div>
       </div>
