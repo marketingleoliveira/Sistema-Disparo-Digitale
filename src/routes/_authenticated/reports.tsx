@@ -150,13 +150,14 @@ function ReportsPage() {
 
       {/* KPI Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <KPICard title="Enviados" value="48,250" change="+12%" icon={Mail} trend="up" />
-        <KPICard title="Entregues" value="47,980" change="+11%" icon={CheckCircle2} trend="up" />
-        <KPICard title="Aberturas" value="12,400" change="+8%" icon={Eye} trend="up" />
-        <KPICard title="Cliques" value="3,850" change="+5%" icon={MousePointer2} trend="up" />
-        <KPICard title="Bounce" value="0.45%" change="-2%" icon={AlertCircle} trend="down" />
-        <KPICard title="Descadastros" value="0.12%" change="+1%" icon={UserMinus} trend="down" />
+        <KPICard title="Enviados" value="48.250" change="+12%" icon={Mail} trend="up" />
+        <KPICard title="Entregues" value="47.980" change="+11%" icon={CheckCircle2} trend="up" />
+        <KPICard title="Aberturas" value="12.400" change="+8%" icon={Eye} trend="up" />
+        <KPICard title="Cliques" value="3.850" change="+5%" icon={MousePointer2} trend="up" />
+        <KPICard title="Bounce" value="0,45%" change="-2%" icon={AlertCircle} trend="down" />
+        <KPICard title="Descadastros" value="0,12%" change="+1%" icon={UserMinus} trend="down" />
       </div>
+
 
       {/* Main Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
