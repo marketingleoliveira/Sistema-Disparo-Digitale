@@ -141,7 +141,7 @@ export function AppSidebar() {
       <ScrollArea className="flex-1 px-4 py-6">
         {sidebarStructure.map((group, idx) => (
           <div key={group.group} className={cn("mb-8", idx === 0 && "mt-0")}>
-            <h2 className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground/50">
+            <h2 className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.1em] text-white/40">
               {group.group}
             </h2>
             <nav className="space-y-1">
