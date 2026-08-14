@@ -70,15 +70,16 @@ export function VisualEmailEditor() {
     if (index === -1) return;
     const block = blocks[index];
     const newBlock: EditorBlock = { 
-      ...block, 
       id: `block-${Date.now()}`,
-      content: { ...block.content },
-      styles: { ...block.styles }
+      type: block.type,
+      content: JSON.parse(JSON.stringify(block.content)),
+      styles: JSON.parse(JSON.stringify(block.styles))
     };
     const newBlocks = [...blocks];
     newBlocks.splice(index + 1, 0, newBlock);
     setBlocks(newBlocks);
   };
+
 
   const updateBlockStyle = (styleName: string, value: any) => {
     if (!selectedBlockId) return;
