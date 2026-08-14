@@ -147,20 +147,26 @@ function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-primary">Visão geral</h1>
-          <p className="text-sm text-muted-foreground">
-            Acompanhe o desempenho das suas campanhas e da sua base de contatos.
+          <h1 className="text-3xl font-bold tracking-tight text-primary">Visão geral</h1>
+          <p className="text-sm font-medium text-muted-foreground mt-1">
+            Métricas de desempenho em tempo real para a Digitale Têxtil.
           </p>
         </div>
-        <Button className="w-full sm:w-auto bg-accent text-accent-foreground font-bold shadow-sm active:scale-95 transition-all">
-          <Plus size={18} className="mr-2" />
-          Criar campanha
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" className="hidden sm:flex border-border/60 hover:bg-secondary">
+             Exportar Dados
+          </Button>
+          <Button className="w-full sm:w-auto bg-accent text-accent-foreground font-bold shadow-lg shadow-accent/20 active:scale-95 transition-all rounded-lg px-6">
+            <Plus size={18} className="mr-2" />
+            Nova Campanha
+          </Button>
+        </div>
       </div>
+
 
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
