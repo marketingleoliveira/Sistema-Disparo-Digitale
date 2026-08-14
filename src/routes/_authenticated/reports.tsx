@@ -54,38 +54,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const performanceData = [
-  { name: "Seg", open: 4000, click: 2400 },
-  { name: "Ter", open: 3000, click: 1398 },
-  { name: "Qua", open: 2000, click: 9800 },
-  { name: "Qui", open: 2780, click: 3908 },
-  { name: "Sex", open: 1890, click: 4800 },
-  { name: "Sáb", open: 2390, click: 3800 },
-  { name: "Dom", open: 3490, click: 4300 },
-];
-
-const growthData = [
-  { name: "Jan", total: 10000 },
-  { name: "Fev", total: 12500 },
-  { name: "Mar", total: 15200 },
-  { name: "Abr", total: 18900 },
-  { name: "Mai", total: 22400 },
-  { name: "Jun", total: 26800 },
-];
-
+const performanceData: any[] = [];
+const growthData: any[] = [];
 const engagementData = [
-  { name: "Muito Engajado", value: 45, color: "#0f172a" }, // Navy
-  { name: "Engajado", value: 30, color: "#f97316" },      // Orange
-  { name: "Pouco Engajado", value: 15, color: "#94a3b8" }, // Gray
-  { name: "Inativo", value: 10, color: "#e2e8f0" },       // Light Gray
+  { name: "Muito Engajado", value: 0, color: "#0f172a" },
+  { name: "Engajado", value: 0, color: "#f97316" },
+  { name: "Pouco Engajado", value: 0, color: "#94a3b8" },
+  { name: "Inativo", value: 0, color: "#e2e8f0" },
 ];
-
-const topCampaigns = [
-  { name: "Lançamento Coleção Verão", sent: "12,450", open: "28.5%", click: "8.2%", bounce: "0.5%", unsubs: "0.2%" },
-  { name: "Newsletter Semanal #42", sent: "28,900", open: "22.1%", click: "4.5%", bounce: "0.8%", unsubs: "0.3%" },
-  { name: "Promoção Relâmpago 48h", sent: "15,200", open: "35.2%", click: "12.4%", bounce: "0.4%", unsubs: "0.5%" },
-  { name: "Reengajamento Clientes Inativos", sent: "5,400", open: "15.8%", click: "2.1%", bounce: "1.2%", unsubs: "0.8%" },
-];
+const topCampaigns: any[] = [];
 
 export const Route = createFileRoute("/_authenticated/reports")({
   component: ReportsPage,
