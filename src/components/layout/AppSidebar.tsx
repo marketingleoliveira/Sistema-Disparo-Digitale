@@ -128,8 +128,8 @@ export function AppSidebar() {
               className="h-10 w-auto object-contain brightness-0 invert"
             />
           </div>
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-[9px] font-black text-emerald-400 uppercase tracking-widest">
-            <div className="h-1 w-1 rounded-full bg-emerald-400 animate-pulse" />
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#163a3d] border border-[#1d4d50] text-[10px] font-bold text-[#20b88d] uppercase tracking-wider">
+            <div className="h-1.5 w-1.5 rounded-sm bg-[#20b88d]" />
             #Sustentabilidade
           </div>
         </div>
