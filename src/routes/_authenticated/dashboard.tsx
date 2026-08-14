@@ -286,7 +286,7 @@ function DashboardPage() {
                   <tr key={camp.id} className="group hover:bg-secondary/20 transition-colors">
                     <td className="px-6 py-4 font-semibold text-primary">{camp.name}</td>
                     <td className="px-6 py-4 text-xs text-muted-foreground">{camp.date}</td>
-                    <td className="px-6 py-4 text-xs">{camp.recipients.toLocaleString()}</td>
+                    <td className="px-6 py-4 text-xs">{camp.recipients.toLocaleString('pt-BR')}</td>
                     <td className="px-6 py-4 text-xs font-medium">{camp.open}</td>
                     <td className="px-6 py-4 text-xs font-medium">{camp.clicks}</td>
                     <td className="px-6 py-4">
