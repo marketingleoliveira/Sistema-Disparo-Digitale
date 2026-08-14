@@ -32,21 +32,23 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated")({
-  beforeLoad: async ({ location }) => {
-    // Verificamos a autenticação via localStorage manualmente se necessário, 
-    // mas o useAuthStore cuidará do estado reativo.
-    // Para TanStack Router, podemos usar o estado do store diretamente se disponível
-    // ou checar o storage.
-    const authData = localStorage.getItem('digitale-auth-storage');
-    const isAuthenticated = authData ? JSON.parse(authData).state.isAuthenticated : false;
+  beforeLoad: async () => {
+    // localStorage só existe no browser: durante o SSR/prerender não há sessão
+    // para inspecionar, então a verificação acontece apenas no cliente.
+    if (typeof window === "undefined") return;
+
+    let isAuthenticated = false;
+    try {
+      const authData = window.localStorage.getItem("digitale-auth-storage");
+      isAuthenticated = authData
+        ? Boolean(JSON.parse(authData)?.state?.isAuthenticated)
+        : false;
+    } catch {
+      isAuthenticated = false;
+    }
 
     if (!isAuthenticated) {
-      throw redirect({
-        to: "/",
-        search: {
-          redirect: location.href,
-        },
-      });
+      throw redirect({ to: "/" });
     }
   },
   component: AuthenticatedLayout,
