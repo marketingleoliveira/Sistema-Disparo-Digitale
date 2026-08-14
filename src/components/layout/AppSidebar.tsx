@@ -168,11 +168,12 @@ export function AppSidebar() {
 
         </div>
         <div className="flex items-center gap-3 rounded-xl px-3 py-3 bg-white/5 mt-2 border border-white/10">
-          <div className="h-8 w-8 rounded-lg bg-white/10 flex items-center justify-center text-xs text-white font-bold shadow-inner">
-            DO
+          <div className="h-8 w-8 rounded-lg bg-white/10 flex items-center justify-center text-xs text-white font-bold shadow-inner border border-white/10">
+            LO
           </div>
           <div className="flex-1 overflow-hidden">
-            <p className="truncate text-xs text-white font-bold">Digitale Oliveira</p>
+            <p className="truncate text-xs text-white font-bold">Leonardo Oliveira</p>
+
             <p className="truncate text-[10px] text-white/50 font-medium">Plano Enterprise</p>
 
           </div>
