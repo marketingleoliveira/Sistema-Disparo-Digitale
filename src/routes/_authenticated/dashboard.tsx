@@ -160,7 +160,7 @@ function DashboardPage() {
           <h3 className="text-lg font-bold text-primary">Notificações Recentes</h3>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
-          {[].map((notif, i) => (
+          {activities.map((notif, i) => (
             <div key={i} className="flex gap-4 p-4 rounded-xl bg-secondary/20 border border-border/50 hover:bg-secondary/30 transition-colors">
               <div className="h-10 w-10 shrink-0 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
                 <Bell size={18} />

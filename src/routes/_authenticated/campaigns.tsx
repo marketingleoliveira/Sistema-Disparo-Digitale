@@ -71,13 +71,7 @@ export const Route = createFileRoute("/_authenticated/campaigns")({
 
 // --- Mock Data ---
 
-const campaigns = [
-  { id: 1, name: "Lançamento Coleção Verão 2026", type: "Email", date: "14 Ago, 2026", recipients: 24512, open: "32,4%", clicks: "5,8%", status: "Enviada" },
-  { id: 2, name: "Webinar: Tendências Têxteis", type: "Email", date: "16 Ago, 2026", recipients: 1200, open: "-", clicks: "-", status: "Agendada" },
-  { id: 3, name: "Newsletter Semanal #42", type: "Email", date: "12 Ago, 2026", recipients: 24100, open: "28,1%", clicks: "4,2%", status: "Enviada" },
-  { id: 4, name: "Promoção Algodão Egípcio", type: "Email", date: "10 Ago, 2026", recipients: 0, open: "-", clicks: "-", status: "Rascunho" },
-  { id: 5, name: "Re-engajamento Inativos", type: "Email", date: "15 Ago, 2026", recipients: 5200, open: "-", clicks: "-", status: "Em andamento" },
-];
+const campaigns: any[] = [];
 
 const steps = [
   { id: 1, label: "Informações", icon: Info },

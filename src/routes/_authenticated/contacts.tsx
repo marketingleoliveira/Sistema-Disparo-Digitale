@@ -339,14 +339,14 @@ function ContactsPage() {
                 <TableCell className="text-xs font-medium text-muted-foreground">{contact.company}</TableCell>
                 <TableCell>
                   <div className="flex flex-wrap gap-1 max-w-[120px]">
-                    {contact.lists.map(list => (
+                    {contact.lists?.map((list: string) => (
                       <span key={list} className="text-[10px] text-muted-foreground border rounded px-1">{list}</span>
                     ))}
                   </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-wrap gap-1">
-                    {contact.tags.map(tag => (
+                    {contact.tags?.map((tag: string) => (
                       <Badge key={tag} variant="secondary" className="bg-secondary/50 text-primary border-none text-[9px] px-1.5 py-0 font-bold">
                         {tag}
                       </Badge>
