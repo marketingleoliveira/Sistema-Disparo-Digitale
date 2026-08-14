@@ -266,8 +266,9 @@ function SidebarItem({ item }: { item: NavItem }) {
       className={cn(
         "group flex items-center justify-between rounded-lg px-3 py-2 text-sm font-bold transition-all duration-200",
         isActive 
-          ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30 scale-[1.02] translate-x-1" 
-          : "text-muted-foreground hover:bg-secondary/80 hover:text-primary active:scale-[0.98]"
+          ? "bg-white text-primary shadow-xl scale-[1.02] translate-x-1" 
+          : "text-white/80 hover:bg-white/10 hover:text-white active:scale-[0.98]"
+
       )}
 
     >
