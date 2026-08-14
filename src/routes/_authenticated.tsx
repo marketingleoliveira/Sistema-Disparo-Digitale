@@ -33,16 +33,20 @@ import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated")({
   beforeLoad: async () => {
-    // localStorage só existe no browser: durante o SSR/prerender não há sessão
-    // para inspecionar, então a verificação acontece apenas no cliente.
+    // Apenas no cliente para evitar erros de SSR com localStorage
     if (typeof window === "undefined") return;
 
+    // Nota: Em um fluxo real do Supabase, usaríamos supabase.auth.getSession()
+    // Como a migração está em progresso e mantemos persistência local para cargos,
+    // verificamos se há um usuário autenticado no store ou localStorage.
+    
     let isAuthenticated = false;
     try {
       const authData = window.localStorage.getItem("digitale-auth-storage");
-      isAuthenticated = authData
-        ? Boolean(JSON.parse(authData)?.state?.isAuthenticated)
-        : false;
+      if (authData) {
+        const parsed = JSON.parse(authData);
+        isAuthenticated = Boolean(parsed?.state?.isAuthenticated);
+      }
     } catch {
       isAuthenticated = false;
     }
