@@ -87,29 +87,29 @@ function KpiCard({ stat }: { stat: typeof kpiStats[0] }) {
   const isUp = stat.trendType === "up";
   const isNeutral = stat.label === "Descadastros" || stat.label === "Bounce";
   
-  // Logical color correction: for descadastros/bounce, "up" is bad (red)
   const trendColor = isNeutral 
-    ? (isUp ? "text-red-600 bg-red-50" : "text-emerald-600 bg-emerald-50")
-    : (isUp ? "text-emerald-600 bg-emerald-50" : "text-red-600 bg-red-50");
+    ? (isUp ? "text-destructive bg-destructive/10" : "text-emerald-600 bg-emerald-50")
+    : (isUp ? "text-emerald-600 bg-emerald-50" : "text-destructive bg-destructive/10");
 
   return (
-    <div className="flex flex-col rounded-xl border bg-card p-4 shadow-sm transition-all hover:shadow-md">
+    <div className="flex flex-col rounded-xl border bg-card p-4 shadow-sm transition-all hover:shadow-md hover:-translate-y-1 active:scale-[0.98]">
       <div className="flex items-center justify-between">
-        <div className="rounded-lg bg-secondary/50 p-2 text-primary">
+        <div className="rounded-lg bg-primary/5 p-2 text-primary shadow-inner">
           <stat.icon size={16} />
         </div>
-        <div className={cn("flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[10px] font-bold", trendColor)}>
+        <div className={cn("flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[10px] font-bold shadow-sm", trendColor)}>
           {isUp ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
           {stat.trend}
         </div>
       </div>
-      <div className="mt-3">
-        <p className="text-xs font-medium text-muted-foreground">{stat.label}</p>
-        <p className="text-xl font-bold text-primary tracking-tight">{stat.value}</p>
+      <div className="mt-4">
+        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{stat.label}</p>
+        <p className="text-2xl font-bold text-primary tracking-tight mt-0.5">{stat.value}</p>
       </div>
     </div>
   );
 }
+
 
 function EmptyState({ title, description, actionLabel }: { title: string, description: string, actionLabel: string }) {
   return (
