@@ -12,7 +12,7 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { ShieldCheck, Loader2 } from "lucide-react";
-import logoAsset from "@/assets/Digitale_ALTATECNOLOGIA.png.asset.json";
+import logoAsset from "@/assets/digitale-logo-white.png.asset.json";
 
 export const Route = createFileRoute("/")({
   component: LoginPage,
@@ -52,8 +52,8 @@ function LoginPage() {
         <div className="text-center space-y-4">
           <img 
             src={logoAsset.url} 
-            alt="Digitale Têxtil" 
-            className="h-16 w-auto mx-auto brightness-0 invert"
+            alt="Digitale Têxtil — Tecidos de Alta Tecnologia" 
+            className="h-24 w-auto mx-auto object-contain"
           />
           <div className="space-y-1">
             <h1 className="text-2xl font-bold text-white tracking-tight">Newsletter Interna</h1>

@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import logoAsset from "@/assets/Digitale_ALTATECNOLOGIA.png.asset.json";
+import logoAsset from "@/assets/digitale-logo-white.png.asset.json";
 import { useAuthStore } from "@/hooks/use-auth";
 import {
   Sheet,
@@ -144,8 +144,8 @@ export function AppSidebar() {
             <div className="flex items-center gap-3">
               <img 
                 src={logoAsset.url} 
-                alt="Digitale Têxtil" 
-                className="h-10 w-auto object-contain brightness-0 invert"
+                alt="Digitale Têxtil — Tecidos de Alta Tecnologia" 
+                className="h-11 w-auto object-contain"
               />
             </div>
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#163a3d] border border-[#1d4d50] text-[10px] font-bold text-[#20b88d] uppercase tracking-wider">
