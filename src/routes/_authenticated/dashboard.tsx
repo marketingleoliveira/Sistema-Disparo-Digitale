@@ -4,15 +4,22 @@ import {
   Users, 
   Mail, 
   MousePointer2, 
-  AlertCircle, 
+  UserMinus, 
+  AlertOctagon,
   TrendingUp, 
   TrendingDown,
   Calendar,
-  Plus
+  Plus,
+  MoreHorizontal,
+  ArrowUpRight,
+  Filter,
+  ChevronRight,
+  Send,
+  UserPlus,
+  CheckCircle2,
+  Clock
 } from "lucide-react";
 import { 
-  BarChart, 
-  Bar, 
   XAxis, 
   YAxis, 
   CartesianGrid, 
@@ -20,196 +27,314 @@ import {
   ResponsiveContainer,
   AreaChart,
   Area,
-  Cell,
-  PieChart,
-  Pie
+  BarChart,
+  Bar,
+  Cell
 } from "recharts";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: DashboardPage,
 });
 
-const stats = [
-  { label: "Total de contatos", value: "24.512", icon: Users, trend: "+12%", trendType: "up" },
-  { label: "Contatos ativos", value: "18.203", icon: Users, trend: "+5%", trendType: "up" },
-  { label: "E-mails enviados", value: "145.890", icon: Mail, trend: "+18%", trendType: "up" },
-  { label: "Taxa de abertura", value: "24.8%", icon: Mail, trend: "-2%", trendType: "down" },
-  { label: "Taxa de cliques", value: "3.2%", icon: MousePointer2, trend: "+0.5%", trendType: "up" },
-  { label: "Descadastros", value: "0.8%", icon: AlertCircle, trend: "-0.1%", trendType: "up" },
+// --- Mock Data ---
+
+const kpiStats = [
+  { label: "Contatos", value: "24.512", trend: "12,4%", trendType: "up", icon: Users },
+  { label: "E-mails enviados", value: "1.2M", trend: "8,2%", trendType: "up", icon: Mail },
+  { label: "Taxa de abertura", value: "24,8%", trend: "2,1%", trendType: "down", icon: ArrowUpRight },
+  { label: "Taxa de cliques", value: "3,2%", trend: "0,5%", trendType: "up", icon: MousePointer2 },
+  { label: "Descadastros", value: "42", trend: "1,2%", trendType: "down", icon: UserMinus },
+  { label: "Bounce", value: "0,8%", trend: "0,2%", trendType: "up", icon: AlertOctagon },
 ];
 
-const contactGrowthData = [
-  { name: "Jan", total: 12000 },
-  { name: "Fev", total: 13500 },
-  { name: "Mar", total: 15000 },
-  { name: "Abr", total: 18000 },
-  { name: "Mai", total: 21000 },
-  { name: "Jun", total: 24512 },
+const performanceData = [
+  { name: "Seg", enviados: 12000, aberturas: 4200, cliques: 800 },
+  { name: "Ter", enviados: 15000, aberturas: 5100, cliques: 950 },
+  { name: "Qua", enviados: 18000, aberturas: 6200, cliques: 1200 },
+  { name: "Qui", enviados: 14000, aberturas: 4800, cliques: 850 },
+  { name: "Sex", enviados: 22000, aberturas: 7500, cliques: 1500 },
+  { name: "Sáb", enviados: 8000, aberturas: 2800, cliques: 400 },
+  { name: "Dom", enviados: 5000, aberturas: 1500, cliques: 200 },
 ];
 
-const engagementData = [
-  { name: "Muito Engajados", value: 4500, color: "oklch(0.20 0.05 260)" },
-  { name: "Engajados", value: 8200, color: "oklch(0.90 0.15 50)" },
-  { name: "Pouco Engajados", value: 3500, color: "oklch(0.85 0.02 260)" },
-  { name: "Inativos", value: 2003, color: "oklch(0.50 0.20 30)" },
+const engagementLevels = [
+  { name: "Muito engajados", value: 45, color: "oklch(0.20 0.05 260)" },
+  { name: "Engajados", value: 30, color: "oklch(0.65 0.20 45)" },
+  { name: "Pouco engajados", value: 15, color: "oklch(0.97 0.01 260)" },
+  { name: "Inativos", value: 10, color: "oklch(0.85 0.02 260)" },
 ];
 
-const lastCampaigns = [
-  { id: 1, name: "Lançamento Coleção Verão", date: "12/08/2026", recipients: 15420, delivered: "99.2%", open: "32.1%", clicks: "5.4%", status: "Enviado" },
-  { id: 2, name: "Promoção Dia dos Pais", date: "05/08/2026", recipients: 22100, delivered: "98.8%", open: "28.5%", clicks: "4.2%", status: "Enviado" },
-  { id: 3, name: "Newsletter Semanal #32", date: "01/08/2026", recipients: 24000, delivered: "99.5%", open: "25.2%", clicks: "3.1%", status: "Enviado" },
-  { id: 4, name: "Webinar Tecnologias Têxteis", date: "28/07/2026", recipients: 5200, delivered: "99.1%", open: "45.8%", clicks: "12.2%", status: "Enviado" },
+const recentCampaigns = [
+  { id: 1, name: "Lançamento Coleção Verão 2026", date: "14 Ago, 2026", recipients: 24512, open: "32,4%", clicks: "5,8%", status: "Enviada" },
+  { id: 2, name: "Webinar: Tendências Têxteis", date: "16 Ago, 2026", recipients: 1200, open: "-", clicks: "-", status: "Agendada" },
+  { id: 3, name: "Newsletter Semanal #42", date: "12 Ago, 2026", recipients: 24100, open: "28,1%", clicks: "4,2%", status: "Enviada" },
+  { id: 4, name: "Draft: Promoção Algodão Egípcio", date: "10 Ago, 2026", recipients: 0, open: "-", clicks: "-", status: "Rascunho" },
 ];
 
-function DashboardPage() {
+const activities = [
+  { id: 1, type: "envio", title: "Campanha enviada", desc: "Lançamento Coleção Verão", time: "Há 2 horas", icon: Send },
+  { id: 2, type: "contato", title: "Novo contato", desc: "joao.silva@exemplo.com", time: "Há 4 horas", icon: UserPlus },
+  { id: 3, type: "automacao", title: "Automação ativada", desc: "Boas-vindas Cliente VIP", time: "Ontem", icon: CheckCircle2 },
+  { id: 4, type: "agendamento", title: "Campanha agendada", desc: "Webinar: Tendências", time: "Ontem", icon: Clock },
+];
+
+// --- Components ---
+
+function KpiCard({ stat }: { stat: typeof kpiStats[0] }) {
+  const isUp = stat.trendType === "up";
+  const isNeutral = stat.label === "Descadastros" || stat.label === "Bounce";
+  
+  // Logical color correction: for descadastros/bounce, "up" is bad (red)
+  const trendColor = isNeutral 
+    ? (isUp ? "text-red-600 bg-red-50" : "text-emerald-600 bg-emerald-50")
+    : (isUp ? "text-emerald-600 bg-emerald-50" : "text-red-600 bg-red-50");
+
   return (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-700">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-primary">Visão Geral</h1>
-          <p className="text-sm text-muted-foreground">Analise o desempenho das suas campanhas em tempo real.</p>
+    <div className="flex flex-col rounded-xl border bg-card p-4 shadow-sm transition-all hover:shadow-md">
+      <div className="flex items-center justify-between">
+        <div className="rounded-lg bg-secondary/50 p-2 text-primary">
+          <stat.icon size={16} />
         </div>
-        <div className="flex items-center gap-3">
-          <button className="inline-flex items-center gap-2 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-all hover:bg-muted/50">
-            Exportar dados
-          </button>
-          <button className="inline-flex items-center gap-2 rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground shadow-sm transition-all hover:bg-accent/90 active:scale-95">
-            <Plus className="h-4 w-4" />
-            Criar campanha
-          </button>
+        <div className={cn("flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[10px] font-bold", trendColor)}>
+          {isUp ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
+          {stat.trend}
         </div>
       </div>
-
-      {/* Stats Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-        {stats.map((stat) => (
-          <div key={stat.label} className="group rounded-xl border bg-card p-5 shadow-[0_2px_4px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_8px_16px_rgba(0,0,0,0.04)]">
-            <div className="flex items-center justify-between text-muted-foreground">
-              <div className="rounded-md bg-secondary p-2 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                <stat.icon className="h-4 w-4" />
-              </div>
-              <div className={cn(
-                "flex items-center gap-0.5 text-[11px] font-bold px-1.5 py-0.5 rounded-full",
-                stat.trendType === "up" 
-                  ? (stat.label === "Descadastros" ? "bg-red-50 text-red-600" : "bg-emerald-50 text-emerald-600") 
-                  : "bg-red-50 text-red-600"
-              )}>
-                {stat.trendType === "up" ? <TrendingUp className="h-2.5 w-2.5" /> : <TrendingDown className="h-2.5 w-2.5" />}
-                {stat.trend}
-              </div>
-            </div>
-            <div className="mt-4">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">{stat.label}</h3>
-              <p className="mt-1 text-2xl font-bold text-primary">{stat.value}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Charts Section */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border bg-card p-6 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Evolução de contatos</h3>
-            <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-              <Calendar className="h-3.5 w-3.5" />
-              Últimos 6 meses
-            </div>
-          </div>
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={contactGrowthData}>
-                <defs>
-                  <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="oklch(0.20 0.05 260)" stopOpacity={0.1}/>
-                    <stop offset="95%" stopColor="oklch(0.20 0.05 260)" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="oklch(0.92 0.01 260)" />
-                <XAxis dataKey="name" stroke="oklch(0.45 0.02 260)" fontSize={11} tickLine={false} axisLine={false} dy={10} />
-                <YAxis stroke="oklch(0.45 0.02 260)" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(value) => `${value/1000}k`} dx={-10} />
-                <Tooltip />
-                <Area type="monotone" dataKey="total" stroke="oklch(0.20 0.05 260)" fillOpacity={1} fill="url(#colorTotal)" strokeWidth={2} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div className="rounded-xl border bg-card p-6 shadow-[0_2px_4px_rgba(0,0,0,0.02)]">
-          <h3 className="mb-4 text-lg font-semibold">Engajamento da Base</h3>
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={engagementData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {engagementData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="mt-4 grid grid-cols-2 gap-4">
-            {engagementData.map((item) => (
-              <div key={item.name} className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full" style={{ backgroundColor: item.color }} />
-                <span className="text-xs font-medium text-muted-foreground">{item.name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Last Campaigns Table */}
-      <div className="rounded-xl border bg-card shadow-[0_2px_4px_rgba(0,0,0,0.02)] overflow-hidden">
-        <div className="flex items-center justify-between bg-muted/20 border-b px-6 py-4">
-          <h3 className="text-lg font-semibold">Últimas campanhas</h3>
-          <Link to="/campaigns" className="text-sm font-medium text-primary hover:underline">Ver todas</Link>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-muted/30 text-muted-foreground uppercase text-[10px] font-bold tracking-wider">
-              <tr>
-                <th className="px-6 py-3">Campanha</th>
-                <th className="px-6 py-3">Data</th>
-                <th className="px-6 py-3">Destinatários</th>
-                <th className="px-6 py-3">Entregues</th>
-                <th className="px-6 py-3">Abertura</th>
-                <th className="px-6 py-3">Cliques</th>
-                <th className="px-6 py-3">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {lastCampaigns.map((campaign) => (
-                <tr key={campaign.id} className="hover:bg-secondary/30 transition-colors group">
-                  <td className="px-6 py-4 font-medium text-foreground">{campaign.name}</td>
-                  <td className="px-6 py-4 text-muted-foreground">{campaign.date}</td>
-                  <td className="px-6 py-4">{campaign.recipients.toLocaleString()}</td>
-                  <td className="px-6 py-4">{campaign.delivered}</td>
-                  <td className="px-6 py-4">{campaign.open}</td>
-                  <td className="px-6 py-4">{campaign.clicks}</td>
-                  <td className="px-6 py-4">
-                    <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
-                      {campaign.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <div className="mt-3">
+        <p className="text-xs font-medium text-muted-foreground">{stat.label}</p>
+        <p className="text-xl font-bold text-primary tracking-tight">{stat.value}</p>
       </div>
     </div>
   );
 }
 
-// cn utility is imported from @/lib/utils instead of local definition
-import { cn } from "@/lib/utils";
+function EmptyState({ title, description, actionLabel }: { title: string, description: string, actionLabel: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed bg-muted/20 p-12 text-center animate-in fade-in zoom-in-95 duration-500">
+      <div className="mb-4 rounded-full bg-secondary p-4 text-primary">
+        <Mail size={32} />
+      </div>
+      <h3 className="text-lg font-semibold text-primary">{title}</h3>
+      <p className="mt-2 max-w-xs text-sm text-muted-foreground">{description}</p>
+      <Button className="mt-6 bg-accent hover:bg-accent/90 text-accent-foreground">
+        <Plus size={16} className="mr-2" />
+        {actionLabel}
+      </Button>
+    </div>
+  );
+}
+
+function DashboardPage() {
+  const hasData = true; // Toggle for empty state testing
+
+  if (!hasData) {
+    return (
+      <div className="space-y-8">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-primary">Visão geral</h1>
+          <Button className="bg-accent text-accent-foreground"><Plus size={16} className="mr-2" /> Criar campanha</Button>
+        </div>
+        <EmptyState 
+          title="Você ainda não enviou nenhuma campanha" 
+          description="Comece agora a se comunicar com sua base de contatos e veja os resultados aqui."
+          actionLabel="Criar primeira campanha"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-primary">Visão geral</h1>
+          <p className="text-sm text-muted-foreground">
+            Acompanhe o desempenho das suas campanhas e da sua base de contatos.
+          </p>
+        </div>
+        <Button className="w-full sm:w-auto bg-accent text-accent-foreground font-bold shadow-sm active:scale-95 transition-all">
+          <Plus size={18} className="mr-2" />
+          Criar campanha
+        </Button>
+      </div>
+
+      {/* KPI Cards Grid */}
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+        {kpiStats.map((stat, i) => (
+          <KpiCard key={i} stat={stat} />
+        ))}
+      </div>
+
+      {/* Main Charts & Side Info Row */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Main Chart */}
+        <div className="lg:col-span-2 rounded-xl border bg-card p-6 shadow-sm">
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <h3 className="text-base font-bold text-primary">Desempenho das campanhas</h3>
+            <div className="flex items-center gap-1 rounded-lg border bg-muted/30 p-1">
+              {['7d', '30d', '90d', '12m'].map((period) => (
+                <button 
+                  key={period} 
+                  className={cn(
+                    "rounded-md px-3 py-1 text-[11px] font-bold transition-all",
+                    period === '7d' ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-primary"
+                  )}
+                >
+                  {period}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={performanceData}>
+                <defs>
+                  <linearGradient id="colorEnviados" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="oklch(0.20 0.05 260)" stopOpacity={0.1}/>
+                    <stop offset="95%" stopColor="oklch(0.20 0.05 260)" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="oklch(0.92 0.01 260)" />
+                <XAxis dataKey="name" fontSize={11} tickLine={false} axisLine={false} tick={{fill: 'oklch(0.45 0.02 260)'}} />
+                <YAxis fontSize={11} tickLine={false} axisLine={false} tick={{fill: 'oklch(0.45 0.02 260)'}} tickFormatter={(v) => v >= 1000 ? `${v/1000}k` : v} />
+                <Tooltip 
+                  contentStyle={{ borderRadius: '8px', border: '1px solid oklch(0.92 0.01 260)', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                />
+                <Area type="monotone" dataKey="enviados" stroke="oklch(0.20 0.05 260)" strokeWidth={2} fillOpacity={1} fill="url(#colorEnviados)" />
+                <Area type="monotone" dataKey="aberturas" stroke="oklch(0.65 0.20 45)" strokeWidth={2} fill="transparent" />
+                <Area type="monotone" dataKey="cliques" stroke="oklch(0.85 0.02 260)" strokeWidth={2} fill="transparent" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-6 flex flex-wrap gap-6 border-t pt-4">
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-primary" />
+              <span className="text-xs text-muted-foreground">Enviados</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-accent" />
+              <span className="text-xs text-muted-foreground">Aberturas</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-muted-foreground" />
+              <span className="text-xs text-muted-foreground">Cliques</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Engagement Level */}
+        <div className="rounded-xl border bg-card p-6 shadow-sm">
+          <h3 className="mb-6 text-base font-bold text-primary">Engajamento da base</h3>
+          <div className="flex flex-col items-center">
+            <div className="relative h-[180px] w-full max-w-[200px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={engagementLevels} layout="vertical">
+                  <XAxis type="number" hide />
+                  <YAxis type="category" dataKey="name" hide />
+                  <Tooltip cursor={{fill: 'transparent'}} />
+                  <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={20}>
+                    {engagementLevels.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="mt-4 w-full space-y-3">
+              {engagementLevels.map((item) => (
+                <div key={item.name} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full" style={{ backgroundColor: item.color }} />
+                    <span className="text-xs font-medium text-muted-foreground">{item.name}</span>
+                  </div>
+                  <span className="text-xs font-bold text-primary">{item.value}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Campaigns Table & Recent Activity Grid */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Campaigns Table */}
+        <div className="lg:col-span-2 rounded-xl border bg-card shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between border-b px-6 py-4">
+            <h3 className="text-base font-bold text-primary">Campanhas recentes</h3>
+            <Link to="/campaigns" className="text-xs font-bold text-accent hover:underline flex items-center gap-1">
+              Ver todas <ChevronRight size={14} />
+            </Link>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-muted/30 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                <tr>
+                  <th className="px-6 py-3">Campanha</th>
+                  <th className="px-6 py-3">Data</th>
+                  <th className="px-6 py-3">Destinatários</th>
+                  <th className="px-6 py-3">Abertura</th>
+                  <th className="px-6 py-3">Cliques</th>
+                  <th className="px-6 py-3">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {recentCampaigns.map((camp) => (
+                  <tr key={camp.id} className="group hover:bg-secondary/20 transition-colors">
+                    <td className="px-6 py-4 font-semibold text-primary">{camp.name}</td>
+                    <td className="px-6 py-4 text-xs text-muted-foreground">{camp.date}</td>
+                    <td className="px-6 py-4 text-xs">{camp.recipients.toLocaleString()}</td>
+                    <td className="px-6 py-4 text-xs font-medium">{camp.open}</td>
+                    <td className="px-6 py-4 text-xs font-medium">{camp.clicks}</td>
+                    <td className="px-6 py-4">
+                      <Badge 
+                        variant="secondary"
+                        className={cn(
+                          "rounded-full px-2 py-0.5 text-[10px] font-bold border-none",
+                          camp.status === 'Enviada' && "bg-emerald-100 text-emerald-700",
+                          camp.status === 'Agendada' && "bg-blue-100 text-blue-700",
+                          camp.status === 'Rascunho' && "bg-gray-100 text-gray-700",
+                          camp.status === 'Em andamento' && "bg-orange-100 text-orange-700"
+                        )}
+                      >
+                        {camp.status}
+                      </Badge>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Recent Activity Timeline */}
+        <div className="rounded-xl border bg-card p-6 shadow-sm">
+          <h3 className="mb-6 text-base font-bold text-primary">Atividade recente</h3>
+          <div className="space-y-6">
+            {activities.map((act, i) => (
+              <div key={act.id} className="relative flex gap-4">
+                {i !== activities.length - 1 && (
+                  <div className="absolute left-[15px] top-8 h-full w-[2px] bg-muted/50" />
+                )}
+                <div className="z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary text-primary">
+                  <act.icon size={14} />
+                </div>
+                <div className="flex flex-col gap-1 pb-2">
+                  <p className="text-xs font-bold text-primary">{act.title}</p>
+                  <p className="text-[11px] text-muted-foreground leading-tight">{act.desc}</p>
+                  <span className="text-[10px] text-muted-foreground/60">{act.time}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          <Button variant="ghost" className="mt-4 w-full text-xs font-bold text-muted-foreground hover:text-primary">
+            Ver log completo
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
