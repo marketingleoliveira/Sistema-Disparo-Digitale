@@ -238,7 +238,7 @@ function SidebarItem({ item }: { item: NavItem }) {
           )} />
         </button>
         {isOpen && (
-          <div className="ml-4 space-y-1 border-l-2 border-primary/10 pl-4 py-1">
+          <div className="ml-4 space-y-1 border-l border-white/10 pl-4 py-1">
             {item.items!.map((sub) => (
               <Link
                 key={sub.href}
@@ -246,10 +246,11 @@ function SidebarItem({ item }: { item: NavItem }) {
                 className={cn(
                   "block rounded-md px-3 py-1.5 text-xs font-medium transition-all",
                   location.pathname === sub.href
-                    ? "text-primary font-bold bg-primary/5"
-                    : "text-muted-foreground hover:text-primary hover:bg-secondary/60"
+                    ? "text-white font-bold bg-white/10"
+                    : "text-white/60 hover:text-white hover:bg-white/5"
                 )}
               >
+
                 {sub.label}
               </Link>
             ))}
