@@ -87,29 +87,29 @@ function KpiCard({ stat }: { stat: typeof kpiStats[0] }) {
   const isUp = stat.trendType === "up";
   const isNeutral = stat.label === "Descadastros" || stat.label === "Bounce";
   
-  // Logical color correction: for descadastros/bounce, "up" is bad (red)
   const trendColor = isNeutral 
-    ? (isUp ? "text-red-600 bg-red-50" : "text-emerald-600 bg-emerald-50")
-    : (isUp ? "text-emerald-600 bg-emerald-50" : "text-red-600 bg-red-50");
+    ? (isUp ? "text-destructive bg-destructive/10" : "text-emerald-600 bg-emerald-50")
+    : (isUp ? "text-emerald-600 bg-emerald-50" : "text-destructive bg-destructive/10");
 
   return (
-    <div className="flex flex-col rounded-xl border bg-card p-4 shadow-sm transition-all hover:shadow-md">
+    <div className="flex flex-col rounded-xl border bg-card p-4 shadow-sm transition-all hover:shadow-md hover:-translate-y-1 active:scale-[0.98]">
       <div className="flex items-center justify-between">
-        <div className="rounded-lg bg-secondary/50 p-2 text-primary">
+        <div className="rounded-lg bg-primary/5 p-2 text-primary shadow-inner">
           <stat.icon size={16} />
         </div>
-        <div className={cn("flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[10px] font-bold", trendColor)}>
+        <div className={cn("flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[10px] font-bold shadow-sm", trendColor)}>
           {isUp ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
           {stat.trend}
         </div>
       </div>
-      <div className="mt-3">
-        <p className="text-xs font-medium text-muted-foreground">{stat.label}</p>
-        <p className="text-xl font-bold text-primary tracking-tight">{stat.value}</p>
+      <div className="mt-4">
+        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{stat.label}</p>
+        <p className="text-2xl font-bold text-primary tracking-tight mt-0.5">{stat.value}</p>
       </div>
     </div>
   );
 }
+
 
 function EmptyState({ title, description, actionLabel }: { title: string, description: string, actionLabel: string }) {
   return (
@@ -147,20 +147,26 @@ function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-primary">Visão geral</h1>
-          <p className="text-sm text-muted-foreground">
-            Acompanhe o desempenho das suas campanhas e da sua base de contatos.
+          <h1 className="text-3xl font-bold tracking-tight text-primary">Visão geral</h1>
+          <p className="text-sm font-medium text-muted-foreground mt-1">
+            Métricas de desempenho em tempo real para a Digitale Têxtil.
           </p>
         </div>
-        <Button className="w-full sm:w-auto bg-accent text-accent-foreground font-bold shadow-sm active:scale-95 transition-all">
-          <Plus size={18} className="mr-2" />
-          Criar campanha
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" className="hidden sm:flex border-border/60 hover:bg-secondary">
+             Exportar Dados
+          </Button>
+          <Button className="w-full sm:w-auto bg-accent text-accent-foreground font-bold shadow-lg shadow-accent/20 active:scale-95 transition-all rounded-lg px-6">
+            <Plus size={18} className="mr-2" />
+            Nova Campanha
+          </Button>
+        </div>
       </div>
+
 
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
@@ -194,8 +200,9 @@ function DashboardPage() {
               <AreaChart data={performanceData}>
                 <defs>
                   <linearGradient id="colorEnviados" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="oklch(0.20 0.05 260)" stopOpacity={0.1}/>
-                    <stop offset="95%" stopColor="oklch(0.20 0.05 260)" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.1}/>
+                    <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0}/>
+
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="oklch(0.92 0.01 260)" />
@@ -204,9 +211,10 @@ function DashboardPage() {
                 <Tooltip 
                   contentStyle={{ borderRadius: '8px', border: '1px solid oklch(0.92 0.01 260)', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                 />
-                <Area type="monotone" dataKey="enviados" stroke="oklch(0.20 0.05 260)" strokeWidth={2} fillOpacity={1} fill="url(#colorEnviados)" />
-                <Area type="monotone" dataKey="aberturas" stroke="oklch(0.65 0.20 45)" strokeWidth={2} fill="transparent" />
-                <Area type="monotone" dataKey="cliques" stroke="oklch(0.85 0.02 260)" strokeWidth={2} fill="transparent" />
+                <Area type="monotone" dataKey="enviados" stroke="var(--color-primary)" strokeWidth={3} fillOpacity={1} fill="url(#colorEnviados)" />
+                <Area type="monotone" dataKey="aberturas" stroke="var(--color-accent)" strokeWidth={3} fill="transparent" strokeDasharray="5 5" />
+                <Area type="monotone" dataKey="cliques" stroke="var(--color-muted-foreground)" strokeWidth={2} fill="transparent" />
+
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -283,21 +291,28 @@ function DashboardPage() {
               </thead>
               <tbody className="divide-y divide-border">
                 {recentCampaigns.map((camp) => (
-                  <tr key={camp.id} className="group hover:bg-secondary/20 transition-colors">
-                    <td className="px-6 py-4 font-semibold text-primary">{camp.name}</td>
-                    <td className="px-6 py-4 text-xs text-muted-foreground">{camp.date}</td>
-                    <td className="px-6 py-4 text-xs">{camp.recipients.toLocaleString('pt-BR')}</td>
-                    <td className="px-6 py-4 text-xs font-medium">{camp.open}</td>
-                    <td className="px-6 py-4 text-xs font-medium">{camp.clicks}</td>
-                    <td className="px-6 py-4">
+                  <tr key={camp.id} className="group hover:bg-secondary/40 transition-all cursor-pointer">
+                    <td className="px-6 py-5 font-bold text-primary text-sm">{camp.name}</td>
+                    <td className="px-6 py-5 text-xs font-medium text-muted-foreground">{camp.date}</td>
+                    <td className="px-6 py-5 text-xs font-mono">{camp.recipients.toLocaleString('pt-BR')}</td>
+                    <td className="px-6 py-5 text-xs">
+                      <div className="flex items-center gap-2">
+                         <div className="h-1.5 w-8 rounded-full bg-muted overflow-hidden">
+                            <div className="h-full bg-emerald-500" style={{ width: camp.open.replace('%', '').replace(',', '.') + '%' }} />
+                         </div>
+                         <span className="font-bold">{camp.open}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-5 text-xs font-bold text-primary">{camp.clicks}</td>
+                    <td className="px-6 py-5">
                       <Badge 
                         variant="secondary"
                         className={cn(
-                          "rounded-full px-2 py-0.5 text-[10px] font-bold border-none",
-                          camp.status === 'Enviada' && "bg-emerald-100 text-emerald-700",
-                          camp.status === 'Agendada' && "bg-blue-100 text-blue-700",
-                          camp.status === 'Rascunho' && "bg-gray-100 text-gray-700",
-                          camp.status === 'Em andamento' && "bg-orange-100 text-orange-700"
+                          "rounded-lg px-2.5 py-1 text-[10px] font-bold border shadow-sm",
+                          camp.status === 'Enviada' && "bg-emerald-50 text-emerald-700 border-emerald-100",
+                          camp.status === 'Agendada' && "bg-blue-50 text-blue-700 border-blue-100",
+                          camp.status === 'Rascunho' && "bg-zinc-50 text-zinc-600 border-zinc-200",
+                          camp.status === 'Em andamento' && "bg-orange-50 text-orange-700 border-orange-100"
                         )}
                       >
                         {camp.status}
@@ -309,6 +324,7 @@ function DashboardPage() {
             </table>
           </div>
         </div>
+
 
         {/* Recent Activity Timeline */}
         <div className="rounded-xl border bg-card p-6 shadow-sm">

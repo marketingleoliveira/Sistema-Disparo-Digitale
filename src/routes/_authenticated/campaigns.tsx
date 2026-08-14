@@ -298,23 +298,24 @@ function CampaignsPage() {
   }
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-primary">Campanhas</h1>
-          <p className="text-sm text-muted-foreground">
-            Gerencie suas campanhas de e-mail marketing e automações.
+          <h1 className="text-3xl font-bold tracking-tight text-primary">Campanhas</h1>
+          <p className="text-sm font-medium text-muted-foreground mt-1">
+            Gestão profissional de envios para a Digitale Têxtil.
           </p>
         </div>
         <Button 
           onClick={() => setIsCreating(true)}
-          className="bg-accent text-accent-foreground font-bold shadow-sm active:scale-95 transition-all"
+          className="bg-accent text-accent-foreground font-bold shadow-lg shadow-accent/20 active:scale-95 transition-all rounded-lg px-6"
         >
           <Plus size={18} className="mr-2" />
-          Criar campanha
+          Nova Campanha
         </Button>
       </div>
+
 
       {/* Filters Tabs */}
       <Tabs defaultValue="Todas" className="w-full">
@@ -333,21 +334,22 @@ function CampaignsPage() {
         
         <div className="mt-6 rounded-xl border bg-card shadow-sm overflow-hidden">
           <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent">
-                <TableHead>Campanha</TableHead>
-                <TableHead>Tipo</TableHead>
-                <TableHead>Data</TableHead>
-                <TableHead>Destinatários</TableHead>
-                <TableHead>Abertura</TableHead>
-                <TableHead>Cliques</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="w-[50px]"></TableHead>
+            <TableHeader className="bg-muted/50">
+              <TableRow className="hover:bg-transparent border-b">
+                <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80 py-4 pl-6">Campanha</TableHead>
+                <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">Tipo</TableHead>
+                <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">Data</TableHead>
+                <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">Destinatários</TableHead>
+                <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">Abertura</TableHead>
+                <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">Cliques</TableHead>
+                <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">Status</TableHead>
+                <TableHead className="w-[50px] pr-6"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {campaigns.map((camp) => (
-                <TableRow key={camp.id} className="group hover:bg-secondary/20 transition-colors">
+                <TableRow key={camp.id} className="group hover:bg-secondary/40 transition-all cursor-pointer">
+
                   <TableCell>
                     <div className="flex flex-col">
                       <span className="font-semibold text-primary">{camp.name}</span>

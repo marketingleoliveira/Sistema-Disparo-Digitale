@@ -267,26 +267,27 @@ function ContactsPage() {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-primary">Contatos</h1>
-          <p className="text-sm text-muted-foreground">
-            Gerencie e segmente sua base de contatos.
+          <h1 className="text-3xl font-bold tracking-tight text-primary">Contatos</h1>
+          <p className="text-sm font-medium text-muted-foreground mt-1">
+            Gestão inteligente de audiência para a Digitale Têxtil.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" className="text-xs font-bold shadow-sm">
+        <div className="flex items-center gap-3">
+          <Button variant="outline" className="text-xs font-bold border-border/60 hover:bg-secondary hidden sm:flex px-4">
             <Upload size={14} className="mr-2" />
-            Importar contatos
+            Importar
           </Button>
-          <Button className="bg-accent text-accent-foreground font-bold shadow-sm active:scale-95 transition-all">
+          <Button className="bg-accent text-accent-foreground font-bold shadow-lg shadow-accent/20 active:scale-95 transition-all rounded-lg px-6">
             <Plus size={18} className="mr-2" />
-            Adicionar contato
+            Adicionar Contato
           </Button>
         </div>
       </div>
+
 
       {/* Toolbar & Filters */}
       <div className="rounded-xl border bg-card p-4 shadow-sm flex flex-col gap-4 md:flex-row md:items-center">
@@ -356,23 +357,24 @@ function ContactsPage() {
       {/* Contacts Table */}
       <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
         <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHead className="w-[50px]">
+          <TableHeader className="bg-muted/50">
+            <TableRow className="hover:bg-transparent border-b">
+              <TableHead className="w-[50px] pl-6">
                 <Checkbox 
                   checked={selectedContacts.length === contacts.length} 
                   onCheckedChange={toggleSelectAll}
                 />
               </TableHead>
-              <TableHead>Nome</TableHead>
-              <TableHead>Empresa</TableHead>
-              <TableHead>Listas</TableHead>
-              <TableHead>Tags</TableHead>
-              <TableHead>Engajamento</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="w-[50px]"></TableHead>
+              <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80 py-4">Nome</TableHead>
+              <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">Empresa</TableHead>
+              <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">Listas</TableHead>
+              <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">Tags</TableHead>
+              <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">Engajamento</TableHead>
+              <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">Status</TableHead>
+              <TableHead className="w-[50px] pr-6"></TableHead>
             </TableRow>
           </TableHeader>
+
           <TableBody>
             {contacts.map((contact) => (
               <TableRow 

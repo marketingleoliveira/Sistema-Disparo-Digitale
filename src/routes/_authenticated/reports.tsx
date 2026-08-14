@@ -120,13 +120,14 @@ function ReportsPage() {
   const [period, setPeriod] = useState("30");
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="space-y-8 animate-in fade-in duration-500">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-primary">Relatórios</h1>
-          <p className="text-muted-foreground mt-1">Análise detalhada do desempenho da Digitale Têxtil.</p>
+          <p className="text-sm font-medium text-muted-foreground mt-1">Análise estratégica de performance para a Digitale Têxtil.</p>
         </div>
+
         <div className="flex items-center gap-3">
           <Select value={period} onValueChange={setPeriod}>
             <SelectTrigger className="w-[180px] bg-card">
@@ -149,13 +150,14 @@ function ReportsPage() {
 
       {/* KPI Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <KPICard title="Enviados" value="48,250" change="+12%" icon={Mail} trend="up" />
-        <KPICard title="Entregues" value="47,980" change="+11%" icon={CheckCircle2} trend="up" />
-        <KPICard title="Aberturas" value="12,400" change="+8%" icon={Eye} trend="up" />
-        <KPICard title="Cliques" value="3,850" change="+5%" icon={MousePointer2} trend="up" />
-        <KPICard title="Bounce" value="0.45%" change="-2%" icon={AlertCircle} trend="down" />
-        <KPICard title="Descadastros" value="0.12%" change="+1%" icon={UserMinus} trend="down" />
+        <KPICard title="Enviados" value="48.250" change="+12%" icon={Mail} trend="up" />
+        <KPICard title="Entregues" value="47.980" change="+11%" icon={CheckCircle2} trend="up" />
+        <KPICard title="Aberturas" value="12.400" change="+8%" icon={Eye} trend="up" />
+        <KPICard title="Cliques" value="3.850" change="+5%" icon={MousePointer2} trend="up" />
+        <KPICard title="Bounce" value="0,45%" change="-2%" icon={AlertCircle} trend="down" />
+        <KPICard title="Descadastros" value="0,12%" change="+1%" icon={UserMinus} trend="down" />
       </div>
+
 
       {/* Main Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -321,8 +323,9 @@ function ReportsPage() {
                 {topCampaigns.map((camp, i) => (
                   <TableRow key={i} className="hover:bg-muted/30">
                     <TableCell className="pl-6 py-4">
-                      <span className="font-medium text-sm block truncate max-w-[200px]">{camp.name}</span>
-                      <span className="text-[10px] text-muted-foreground">{camp.sent} enviados</span>
+                      <span className="font-bold text-primary text-sm block truncate max-w-[200px]">{camp.name}</span>
+                      <span className="text-[10px] font-medium text-muted-foreground">{camp.sent} enviados</span>
+
                     </TableCell>
                     <TableCell className="text-center">
                       <Badge variant="outline" className="font-bold text-emerald-600 bg-emerald-50 border-emerald-100">
