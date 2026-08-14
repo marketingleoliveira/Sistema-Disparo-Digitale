@@ -154,12 +154,13 @@ export function AppSidebar() {
       </ScrollArea>
 
       {/* Footer */}
-      <div className="border-t p-4 space-y-1">
+      <div className="border-t border-white/10 p-4 space-y-1">
         <div
-          className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-all hover:bg-secondary hover:text-primary cursor-pointer group"
+          className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-white/70 transition-all hover:bg-white/10 hover:text-white cursor-pointer group"
         >
           <HelpCircle className="h-4 w-4 transition-transform group-hover:scale-110" />
           <span>Central de Ajuda</span>
+
         </div>
         <div className="flex items-center gap-3 rounded-xl px-3 py-3 bg-secondary/30 mt-2 border border-border/50">
           <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-xs text-primary font-bold shadow-inner">
