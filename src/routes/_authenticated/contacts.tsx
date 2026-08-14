@@ -184,6 +184,95 @@ function ContactDetailSheet({ contact, open, onOpenChange }: { contact: any, ope
   );
 }
 
+function AddContactSheet({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
+  const { addContact } = useDataStore();
+  const [formData, setFormData] = React.useState({
+    name: "",
+    email: "",
+    company: "",
+    phone: "",
+    status: "Ativo" as const,
+  });
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    // Simulação de delay
+    await new Promise(r => setTimeout(r, 600));
+    addContact({
+      ...formData,
+      lists: ["Importados"],
+      tags: ["Novo"],
+    });
+    setIsLoading(false);
+    onOpenChange(false);
+    setFormData({ name: "", email: "", company: "", phone: "", status: "Ativo" });
+  };
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="sm:max-w-md">
+        <SheetHeader>
+          <SheetTitle>Adicionar Novo Contato</SheetTitle>
+          <SheetDescription>
+            Preencha as informações básicas do contato para sua base de marketing.
+          </SheetDescription>
+        </SheetHeader>
+        <form onSubmit={handleSubmit} className="space-y-6 mt-8">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Nome Completo</Label>
+              <Input 
+                id="name" 
+                placeholder="Ex: João Silva" 
+                value={formData.name}
+                onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                required 
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">E-mail</Label>
+              <Input 
+                id="email" 
+                type="email" 
+                placeholder="joao@exemplo.com" 
+                value={formData.email}
+                onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                required 
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="company">Empresa</Label>
+              <Input 
+                id="company" 
+                placeholder="Nome da empresa" 
+                value={formData.company}
+                onChange={e => setFormData(prev => ({ ...prev, company: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone">Telefone</Label>
+              <Input 
+                id="phone" 
+                placeholder="+55 (11) 99999-9999" 
+                value={formData.phone}
+                onChange={e => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+              />
+            </div>
+          </div>
+          <SheetFooter>
+            <Button type="submit" className="w-full bg-accent text-accent-foreground" disabled={isLoading}>
+              {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
+              Salvar Contato
+            </Button>
+          </SheetFooter>
+        </form>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
 function ContactsPage() {
   const { contacts, deleteContact } = useDataStore();
   const [selectedContacts, setSelectedContacts] = React.useState<string[]>([]);
@@ -204,8 +293,16 @@ function ContactsPage() {
     );
   };
 
+  const [isAdding, setIsAdding] = React.useState(false);
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <AddContactSheet open={isAdding} onOpenChange={setIsAdding} />
+      <ContactDetailSheet 
+        contact={detailContact} 
+        open={!!detailContact} 
+        onOpenChange={(open) => !open && setDetailContact(null)} 
+      />
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -219,7 +316,10 @@ function ContactsPage() {
             <Upload size={14} className="mr-2" />
             Importar
           </Button>
-          <Button className="bg-accent text-accent-foreground font-bold shadow-lg shadow-accent/20 active:scale-95 transition-all rounded-lg px-6">
+          <Button 
+            onClick={() => setIsAdding(true)}
+            className="bg-accent text-accent-foreground font-bold shadow-lg shadow-accent/20 active:scale-95 transition-all rounded-lg px-6"
+          >
             <Plus size={18} className="mr-2" />
             Adicionar Contato
           </Button>
