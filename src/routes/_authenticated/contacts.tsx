@@ -357,23 +357,24 @@ function ContactsPage() {
       {/* Contacts Table */}
       <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
         <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHead className="w-[50px]">
+          <TableHeader className="bg-muted/50">
+            <TableRow className="hover:bg-transparent border-b">
+              <TableHead className="w-[50px] pl-6">
                 <Checkbox 
                   checked={selectedContacts.length === contacts.length} 
                   onCheckedChange={toggleSelectAll}
                 />
               </TableHead>
-              <TableHead>Nome</TableHead>
-              <TableHead>Empresa</TableHead>
-              <TableHead>Listas</TableHead>
-              <TableHead>Tags</TableHead>
-              <TableHead>Engajamento</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="w-[50px]"></TableHead>
+              <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80 py-4">Nome</TableHead>
+              <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">Empresa</TableHead>
+              <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">Listas</TableHead>
+              <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">Tags</TableHead>
+              <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">Engajamento</TableHead>
+              <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">Status</TableHead>
+              <TableHead className="w-[50px] pr-6"></TableHead>
             </TableRow>
           </TableHeader>
+
           <TableBody>
             {contacts.map((contact) => (
               <TableRow 
