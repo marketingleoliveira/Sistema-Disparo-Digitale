@@ -1,3 +1,4 @@
+import * as React from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { 
   Users, 
@@ -210,7 +211,5 @@ function DashboardPage() {
   );
 }
 
-// Utility function (simplified version of cn)
-function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(" ");
-}
+// cn utility is imported from @/lib/utils instead of local definition
+import { cn } from "@/lib/utils";
