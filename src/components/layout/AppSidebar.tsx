@@ -113,7 +113,7 @@ export function AppSidebar() {
   const [open, setOpen] = React.useState(false);
 
   const SidebarContent = () => (
-    <div className="flex h-full flex-col bg-card relative overflow-hidden">
+    <div className="flex h-full flex-col bg-primary relative overflow-hidden">
       {/* Pattern background */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03] pattern-grid" />
       
