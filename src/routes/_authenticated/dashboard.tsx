@@ -18,7 +18,8 @@ import {
   UserPlus,
   CheckCircle2,
   Clock,
-  Bell
+  Bell,
+  Loader2
 } from "lucide-react";
 
 import { 
@@ -115,8 +116,13 @@ function EmptyState({ title, description, actionLabel }: { title: string, descri
 
 function DashboardPage() {
   const { user } = useAuthStore();
-  const { contacts, campaigns } = useDataStore();
+  const { contacts, campaigns, fetchContacts, fetchCampaigns, isLoading } = useDataStore();
   
+  React.useEffect(() => {
+    fetchContacts();
+    fetchCampaigns();
+  }, [fetchContacts, fetchCampaigns]);
+
   const hasData = campaigns.length > 0 || contacts.length > 0;
 
   const dynamicKpiStats = [
@@ -127,6 +133,10 @@ function DashboardPage() {
     { label: "Descadastros", value: contacts.filter(c => c.status === 'Descadastrado').length.toLocaleString(), trend: "0%", trendType: "down" as const, icon: UserMinus },
     { label: "Bounce", value: "0%", trend: "0%", trendType: "down" as const, icon: AlertOctagon },
   ];
+
+  if (isLoading && !hasData) {
+    return <div className="flex h-64 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+  }
 
   if (!hasData) {
     return (

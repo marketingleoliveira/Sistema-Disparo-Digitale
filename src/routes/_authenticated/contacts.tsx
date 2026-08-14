@@ -274,10 +274,14 @@ function AddContactSheet({ open, onOpenChange }: { open: boolean, onOpenChange: 
 }
 
 function ContactsPage() {
-  const { contacts, deleteContact } = useDataStore();
+  const { contacts, deleteContact, fetchContacts, isLoading } = useDataStore();
   const [selectedContacts, setSelectedContacts] = React.useState<string[]>([]);
   const [detailContact, setDetailContact] = React.useState<any>(null);
   const [search, setSearch] = React.useState("");
+
+  React.useEffect(() => {
+    fetchContacts();
+  }, [fetchContacts]);
 
   const toggleSelectAll = () => {
     if (selectedContacts.length === contacts.length) {

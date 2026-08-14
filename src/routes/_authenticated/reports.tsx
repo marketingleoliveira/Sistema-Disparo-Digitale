@@ -1,5 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import * as React from "react";
 import { useState } from "react";
+import { createFileRoute } from "@tanstack/react-router";
 import { 
   BarChart3, 
   Download, 
@@ -45,6 +46,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { useDataStore } from "@/hooks/use-data";
 import { cn } from "@/lib/utils";
 import {
   Select,
@@ -56,12 +58,6 @@ import {
 
 const performanceData: any[] = [];
 const growthData: any[] = [];
-const engagementData = [
-  { name: "Muito Engajado", value: 0, color: "#0f172a" },
-  { name: "Engajado", value: 0, color: "#f97316" },
-  { name: "Pouco Engajado", value: 0, color: "#94a3b8" },
-  { name: "Inativo", value: 0, color: "#e2e8f0" },
-];
 const topCampaigns: any[] = [];
 
 export const Route = createFileRoute("/_authenticated/reports")({
@@ -94,7 +90,33 @@ function KPICard({ title, value, change, icon: Icon, trend }: { title: string, v
 }
 
 function ReportsPage() {
+  const { contacts, campaigns, fetchContacts, fetchCampaigns } = useDataStore();
   const [period, setPeriod] = useState("30");
+
+  React.useEffect(() => {
+    fetchContacts();
+    fetchCampaigns();
+  }, [fetchContacts, fetchCampaigns]);
+
+  // Cálculo dinâmico para o gráfico de pizza
+  const engajamento = contacts.reduce((acc: any, c: any) => {
+    if (c.engagement >= 80) acc.very++;
+    else if (c.engagement >= 40) acc.engaged++;
+    else if (c.engagement > 0) acc.low++;
+    else acc.inactive++;
+    return acc;
+  }, { very: 0, engaged: 0, low: 0, inactive: 0 });
+
+  const totalContacts = contacts.length || 1;
+  const engagementData = [
+    { name: "Muito Engajado", value: Math.round((engajamento.very / totalContacts) * 100), color: "#0f172a" },
+    { name: "Engajado", value: Math.round((engajamento.engaged / totalContacts) * 100), color: "#f97316" },
+    { name: "Pouco Engajado", value: Math.round((engajamento.low / totalContacts) * 100), color: "#94a3b8" },
+    { name: "Inativo", value: Math.round((engajamento.inactive / totalContacts) * 100), color: "#e2e8f0" },
+  ];
+
+  const enviadas = campaigns.filter((c: any) => c.status === 'Enviada');
+  const totalEnviados = enviadas.reduce((sum: number, c: any) => sum + c.recipients, 0);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -127,12 +149,12 @@ function ReportsPage() {
 
       {/* KPI Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <KPICard title="Enviados" value="48.250" change="+12%" icon={Mail} trend="up" />
-        <KPICard title="Entregues" value="47.980" change="+11%" icon={CheckCircle2} trend="up" />
-        <KPICard title="Aberturas" value="12.400" change="+8%" icon={Eye} trend="up" />
-        <KPICard title="Cliques" value="3.850" change="+5%" icon={MousePointer2} trend="up" />
-        <KPICard title="Bounce" value="0,45%" change="-2%" icon={AlertCircle} trend="down" />
-        <KPICard title="Descadastros" value="0,12%" change="+1%" icon={UserMinus} trend="down" />
+        <KPICard title="Enviados" value={totalEnviados.toLocaleString()} change="+0%" icon={Mail} trend="up" />
+        <KPICard title="Entregues" value={totalEnviados.toLocaleString()} change="+0%" icon={CheckCircle2} trend="up" />
+        <KPICard title="Aberturas" value={enviadas.length > 0 ? "0" : "0"} change="+0%" icon={Eye} trend="up" />
+        <KPICard title="Cliques" value="0" change="+0%" icon={MousePointer2} trend="up" />
+        <KPICard title="Bounce" value="0%" change="-0%" icon={AlertCircle} trend="down" />
+        <KPICard title="Descadastros" value={contacts.filter((c: any) => c.status === 'Descadastrado').length.toString()} change="+0%" icon={UserMinus} trend="down" />
       </div>
 
 
