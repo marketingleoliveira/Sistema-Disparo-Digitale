@@ -27,19 +27,20 @@ export const useAuthStore = create<AuthState>()(
         // Simulação de delay de rede
         await new Promise((resolve) => setTimeout(resolve, 800));
         
-        const nameParts = email.split('@')[0].split('.');
+        const localPart = email.split('@')[0] || 'usuario';
+        const nameParts = localPart.split('.');
         const name = nameParts.map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
-        const initials = nameParts.length > 0 
+        const initials = nameParts.length > 0 && nameParts[0]
           ? nameParts.map(n => n[0]).join('').toUpperCase().slice(0, 2)
-          : email[0].toUpperCase();
+          : localPart[0].toUpperCase();
 
         set({
           user: {
             id: crypto.randomUUID(),
             email,
-            name: email.includes('leonardo') ? 'Leonardo Oliveira' : name,
+            name: email.toLowerCase().includes('leonardo') ? 'Leonardo Oliveira' : name,
             role,
-            initials: email.includes('leonardo') ? 'LO' : initials,
+            initials: email.toLowerCase().includes('leonardo') ? 'LO' : initials,
           },
           isAuthenticated: true,
         });
