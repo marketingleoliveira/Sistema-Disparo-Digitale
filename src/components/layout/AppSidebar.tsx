@@ -25,6 +25,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import logoAsset from "@/assets/Digitale_ALTATECNOLOGIA.png.asset.json";
+import { useAuthStore } from "@/hooks/use-auth";
 import {
   Sheet,
   SheetContent,
@@ -112,71 +113,85 @@ const sidebarStructure: { group: string; items: NavItem[] }[] = [
 export function AppSidebar() {
   const isMobile = useIsMobile();
   const [open, setOpen] = React.useState(false);
+  const { user } = useAuthStore();
 
-  const SidebarContent = () => (
-    <div className="flex h-full flex-col bg-[#1e2d4d] relative overflow-hidden">
-      {/* Pattern background */}
-      <div className="absolute inset-0 pointer-events-none opacity-[0.05] pattern-grid" />
+  const SidebarContent = () => {
+    const isMarketing = user.role === 'Marketing';
+    const isDev = user.role === 'Desenvolvedor';
+
+    const filteredStructure = sidebarStructure.filter(group => {
+      // Marketing só vê Principal (Dashboard) e Analytics
+      if (isMarketing) {
+        return group.group === "Principal" || group.group === "Analytics";
+      }
       
-      {/* Logo */}
-      <div className="flex h-20 items-center border-b border-white/10 px-6 relative z-10 bg-[#1e2d4d]/80 backdrop-blur-sm">
-        <div className="flex w-full items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <img 
-              src={logoAsset.url} 
-              alt="Digitale Têxtil" 
-              className="h-10 w-auto object-contain brightness-0 invert"
-            />
-          </div>
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#163a3d] border border-[#1d4d50] text-[10px] font-bold text-[#20b88d] uppercase tracking-wider">
-            <div className="h-1.5 w-1.5 rounded-sm bg-[#20b88d]" />
-            #Sustentabilidade
+      // Configurações só para Desenvolvedor
+      if (group.group === "Configurações") {
+        return isDev;
+      }
+
+      return true;
+    });
+
+    return (
+      <div className="flex h-full flex-col bg-[#1e2d4d] relative overflow-hidden">
+        {/* Pattern background */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.05] pattern-grid" />
+        
+        {/* Logo */}
+        <div className="flex h-20 items-center border-b border-white/10 px-6 relative z-10 bg-[#1e2d4d]/80 backdrop-blur-sm">
+          <div className="flex w-full items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <img 
+                src={logoAsset.url} 
+                alt="Digitale Têxtil" 
+                className="h-10 w-auto object-contain brightness-0 invert"
+              />
+            </div>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#163a3d] border border-[#1d4d50] text-[10px] font-bold text-[#20b88d] uppercase tracking-wider">
+              <div className="h-1.5 w-1.5 rounded-sm bg-[#20b88d]" />
+              #Sustentabilidade
+            </div>
           </div>
         </div>
 
+        {/* Navigation */}
+        <ScrollArea className="flex-1 px-4 py-6 scrollbar-white">
+          {filteredStructure.map((group, idx) => (
+            <div key={group.group} className={cn("mb-8", idx === 0 && "mt-0")}>
+              <h2 className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.1em] text-white/40">
+                {group.group}
+              </h2>
+              <nav className="space-y-1">
+                {group.items.map((item) => (
+                  <SidebarItem key={item.label} item={item} />
+                ))}
+              </nav>
+            </div>
+          ))}
+        </ScrollArea>
+
+        {/* Footer */}
+        <div className="border-t border-white/10 p-4 space-y-1">
+          <div
+            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-white/70 transition-all hover:bg-white/10 hover:text-white cursor-pointer group"
+          >
+            <HelpCircle className="h-4 w-4 transition-transform group-hover:scale-110" />
+            <span>Central de Ajuda</span>
+          </div>
+          <div className="flex items-center gap-3 rounded-xl px-3 py-3 bg-white/5 mt-2 border border-white/10">
+            <div className="h-8 w-8 rounded-lg bg-white/10 flex items-center justify-center text-xs text-white font-bold shadow-inner border border-white/10">
+              {user.initials}
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <p className="truncate text-xs text-white font-bold">{user.name}</p>
+              <p className="truncate text-[10px] text-white/50 font-medium">{user.role}</p>
+            </div>
+          </div>
+        </div>
       </div>
-
-
-      {/* Navigation */}
-      <ScrollArea className="flex-1 px-4 py-6 scrollbar-white">
-        {sidebarStructure.map((group, idx) => (
-          <div key={group.group} className={cn("mb-8", idx === 0 && "mt-0")}>
-            <h2 className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.1em] text-white/40">
-              {group.group}
-            </h2>
-            <nav className="space-y-1">
-              {group.items.map((item) => (
-                <SidebarItem key={item.label} item={item} />
-              ))}
-            </nav>
-          </div>
-        ))}
-      </ScrollArea>
-
-      {/* Footer */}
-      <div className="border-t border-white/10 p-4 space-y-1">
-        <div
-          className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-white/70 transition-all hover:bg-white/10 hover:text-white cursor-pointer group"
-        >
-          <HelpCircle className="h-4 w-4 transition-transform group-hover:scale-110" />
-          <span>Central de Ajuda</span>
-
-        </div>
-        <div className="flex items-center gap-3 rounded-xl px-3 py-3 bg-white/5 mt-2 border border-white/10">
-          <div className="h-8 w-8 rounded-lg bg-white/10 flex items-center justify-center text-xs text-white font-bold shadow-inner border border-white/10">
-            LO
-          </div>
-          <div className="flex-1 overflow-hidden">
-            <p className="truncate text-xs text-white font-bold">Leonardo Oliveira</p>
-
-            <p className="truncate text-[10px] text-white/50 font-medium">Plano Enterprise</p>
-
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
+    );
+  };
 
   if (isMobile) {
     return (
@@ -203,7 +218,6 @@ export function AppSidebar() {
   );
 }
 
-
 function SidebarItem({ item }: { item: NavItem }) {
   const location = useLocation();
   const [isOpen, setIsOpen] = React.useState(false);
@@ -212,7 +226,6 @@ function SidebarItem({ item }: { item: NavItem }) {
   const hasSubItems = item.items && item.items.length > 0;
   const isChildActive = item.items?.some(child => location.pathname === child.href);
 
-  // Auto-open if child is active
   React.useEffect(() => {
     if (isChildActive) setIsOpen(true);
   }, [isChildActive]);
@@ -226,7 +239,6 @@ function SidebarItem({ item }: { item: NavItem }) {
             "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
             (isOpen || isChildActive) ? "text-white bg-white/15 shadow-sm" : "text-white/70",
             "hover:bg-white/10 hover:text-white active:scale-[0.98]"
-
           )}
         >
           <div className="flex items-center gap-3">
@@ -251,7 +263,6 @@ function SidebarItem({ item }: { item: NavItem }) {
                     : "text-white/60 hover:text-white hover:bg-white/5"
                 )}
               >
-
                 {sub.label}
               </Link>
             ))}
@@ -269,9 +280,7 @@ function SidebarItem({ item }: { item: NavItem }) {
         isActive 
           ? "bg-white text-primary shadow-xl scale-[1.02] translate-x-1" 
           : "text-white/80 hover:bg-white/10 hover:text-white active:scale-[0.98]"
-
       )}
-
     >
       <div className="flex items-center gap-3">
         <item.icon className="h-4 w-4 transition-transform group-hover:scale-110" />
@@ -280,4 +289,3 @@ function SidebarItem({ item }: { item: NavItem }) {
     </Link>
   );
 }
-
