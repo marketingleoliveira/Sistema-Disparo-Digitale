@@ -211,9 +211,10 @@ function DashboardPage() {
                 <Tooltip 
                   contentStyle={{ borderRadius: '8px', border: '1px solid oklch(0.92 0.01 260)', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                 />
-                <Area type="monotone" dataKey="enviados" stroke="oklch(0.20 0.05 260)" strokeWidth={2} fillOpacity={1} fill="url(#colorEnviados)" />
-                <Area type="monotone" dataKey="aberturas" stroke="oklch(0.65 0.20 45)" strokeWidth={2} fill="transparent" />
-                <Area type="monotone" dataKey="cliques" stroke="oklch(0.85 0.02 260)" strokeWidth={2} fill="transparent" />
+                <Area type="monotone" dataKey="enviados" stroke="var(--color-primary)" strokeWidth={3} fillOpacity={1} fill="url(#colorEnviados)" />
+                <Area type="monotone" dataKey="aberturas" stroke="var(--color-accent)" strokeWidth={3} fill="transparent" strokeDasharray="5 5" />
+                <Area type="monotone" dataKey="cliques" stroke="var(--color-muted-foreground)" strokeWidth={2} fill="transparent" />
+
               </AreaChart>
             </ResponsiveContainer>
           </div>
