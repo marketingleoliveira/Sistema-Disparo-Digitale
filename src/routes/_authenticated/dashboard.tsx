@@ -36,6 +36,8 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useAuthStore } from "@/hooks/use-auth";
+import { useDataStore } from "@/hooks/use-data";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: DashboardPage,
@@ -112,19 +114,33 @@ function EmptyState({ title, description, actionLabel }: { title: string, descri
 }
 
 function DashboardPage() {
-  const hasData = false; // Toggle for empty state testing
+  const { user } = useAuthStore();
+  const { contacts, campaigns } = useDataStore();
+  
+  const hasData = campaigns.length > 0 || contacts.length > 0;
+
+  const dynamicKpiStats = [
+    { label: "Contatos", value: contacts.length.toLocaleString(), trend: "0%", trendType: "up" as const, icon: Users },
+    { label: "E-mails enviados", value: campaigns.filter(c => c.status === 'Enviada').length.toLocaleString(), trend: "0%", trendType: "up" as const, icon: Mail },
+    { label: "Taxa de abertura", value: "0%", trend: "0%", trendType: "up" as const, icon: ArrowUpRight },
+    { label: "Taxa de cliques", value: "0%", trend: "0%", trendType: "up" as const, icon: MousePointer2 },
+    { label: "Descadastros", value: contacts.filter(c => c.status === 'Descadastrado').length.toLocaleString(), trend: "0%", trendType: "down" as const, icon: UserMinus },
+    { label: "Bounce", value: "0%", trend: "0%", trendType: "down" as const, icon: AlertOctagon },
+  ];
 
   if (!hasData) {
     return (
       <div className="space-y-8">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-primary">Visão geral</h1>
-          <Button className="bg-accent text-accent-foreground"><Plus size={16} className="mr-2" /> Criar campanha</Button>
+          <Link to="/campaigns">
+            <Button className="bg-accent text-accent-foreground"><Plus size={16} className="mr-2" /> Criar campanha</Button>
+          </Link>
         </div>
         <EmptyState 
-          title="Você ainda não enviou nenhuma campanha" 
-          description="Comece agora a se comunicar com sua base de contatos e veja os resultados aqui."
-          actionLabel="Criar primeira campanha"
+          title="Você ainda não possui dados" 
+          description="Comece adicionando contatos ou criando sua primeira campanha para ver os resultados aqui."
+          actionLabel="Adicionar primeiro contato"
         />
       </div>
     );
@@ -135,7 +151,7 @@ function DashboardPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-primary">Boa tarde, Leonardo!</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-primary">Boa tarde, {user?.name.split(' ')[0]}!</h1>
           <p className="text-sm font-medium text-muted-foreground mt-1">
             Confira as informações do seu painel.
           </p>
@@ -145,10 +161,12 @@ function DashboardPage() {
           <Button variant="outline" className="hidden sm:flex border-border/60 hover:bg-secondary">
              Exportar Dados
           </Button>
-          <Button className="w-full sm:w-auto bg-accent text-accent-foreground font-bold shadow-lg shadow-accent/20 active:scale-95 transition-all rounded-lg px-6">
-            <Plus size={18} className="mr-2" />
-            Nova Campanha
-          </Button>
+          <Link to="/campaigns">
+            <Button className="w-full sm:w-auto bg-accent text-accent-foreground font-bold shadow-lg shadow-accent/20 active:scale-95 transition-all rounded-lg px-6">
+              <Plus size={18} className="mr-2" />
+              Nova Campanha
+            </Button>
+          </Link>
         </div>
       </div>
 
@@ -317,7 +335,7 @@ function DashboardPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {recentCampaigns.map((camp) => (
+                {campaigns.slice(0, 5).map((camp) => (
                   <tr key={camp.id} className="group hover:bg-secondary/40 transition-all cursor-pointer">
                     <td className="px-6 py-5 font-bold text-primary text-sm">{camp.name}</td>
                     <td className="px-6 py-5 text-xs font-medium text-muted-foreground">{camp.date}</td>
