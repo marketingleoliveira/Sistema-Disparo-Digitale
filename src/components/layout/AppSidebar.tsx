@@ -53,7 +53,11 @@ const sidebarStructure: { group: string; items: NavItem[] }[] = [
       {
         label: "Campanhas",
         icon: Mail,
-        href: "/campaigns",
+        items: [
+          { label: "Todas as campanhas", icon: Mail, href: "/campaigns" },
+          { label: "SMS", icon: Smartphone, href: "/campaigns/sms" as any },
+          { label: "WhatsApp", icon: Zap, href: "/campaigns/whatsapp" as any },
+        ],
       },
       { label: "Templates", icon: FileText, href: "/templates" },
       { label: "Automações", icon: Zap, href: "/automations" },
@@ -63,21 +67,43 @@ const sidebarStructure: { group: string; items: NavItem[] }[] = [
   {
     group: "Contatos",
     items: [
-      { label: "Todos os contatos", icon: Users, href: "/contacts" },
-      { label: "Listas", icon: List, href: "/lists" },
-      { label: "Segmentos", icon: Target, href: "/segments" },
+      {
+        label: "Contatos",
+        icon: Users,
+        items: [
+          { label: "Todos os contatos", icon: Users, href: "/contacts" },
+          { label: "Listas", icon: List, href: "/lists" },
+          { label: "Segmentos", icon: Target, href: "/segments" },
+          { label: "Tags", icon: Tag, href: "/tags" as any },
+        ],
+      },
     ],
   },
   {
     group: "Analytics",
     items: [
-      { label: "Relatórios", icon: BarChart3, href: "/reports" },
+      {
+        label: "Desempenho",
+        icon: BarChart3,
+        items: [
+          { label: "Relatórios", icon: BarChart3, href: "/reports" },
+          { label: "Métricas", icon: TrendingUp, href: "/analytics/metrics" as any },
+        ],
+      },
     ],
   },
   {
     group: "Configurações",
     items: [
-      { label: "Configurações", icon: Settings, href: "/settings" },
+      {
+        label: "Ajustes",
+        icon: Settings,
+        items: [
+          { label: "Geral", icon: Settings, href: "/settings" },
+          { label: "Domínio", icon: Globe, href: "/settings/domain" as any },
+          { label: "Equipe", icon: ShieldCheck, href: "/settings/team" as any },
+        ],
+      },
     ],
   },
 ];
