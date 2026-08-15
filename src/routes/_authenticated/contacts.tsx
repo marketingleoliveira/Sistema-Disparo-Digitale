@@ -280,18 +280,58 @@ function ContactsPage() {
   const [selectedContacts, setSelectedContacts] = React.useState<string[]>([]);
   const [detailContact, setDetailContact] = React.useState<any>(null);
   const [search, setSearch] = React.useState("");
+  const [page, setPage] = React.useState(1);
+  const [pageSize, setPageSize] = React.useState(25);
 
   React.useEffect(() => {
     fetchContacts();
   }, [fetchContacts]);
 
+  // Busca aplicada sobre nome, e-mail e empresa
+  const filtered = React.useMemo(() => {
+    const term = search.trim().toLowerCase();
+    if (!term) return contacts;
+    return contacts.filter((c) =>
+      [c.name, c.email, c.company].some((v) => (v ?? "").toLowerCase().includes(term)),
+    );
+  }, [contacts, search]);
+
+  const total = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const startIndex = (currentPage - 1) * pageSize;
+  const pageContacts = React.useMemo(
+    () => filtered.slice(startIndex, startIndex + pageSize),
+    [filtered, startIndex, pageSize],
+  );
+
+  // Volta para a primeira página quando a busca ou o tamanho da página muda
+  React.useEffect(() => {
+    setPage(1);
+  }, [search, pageSize]);
+
+  const pageIds = pageContacts.map((c) => c.id);
+  const allPageSelected = pageIds.length > 0 && pageIds.every((id) => selectedContacts.includes(id));
+
   const toggleSelectAll = () => {
-    if (selectedContacts.length === contacts.length) {
-      setSelectedContacts([]);
+    if (allPageSelected) {
+      setSelectedContacts((prev) => prev.filter((id) => !pageIds.includes(id)));
     } else {
-      setSelectedContacts(contacts.map(c => c.id));
+      setSelectedContacts((prev) => Array.from(new Set([...prev, ...pageIds])));
     }
   };
+
+  const pageNumbers = React.useMemo<Array<number | "...">>(() => {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const items: Array<number | "..."> = [1];
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+    if (start > 2) items.push("...");
+    for (let p = start; p <= end; p++) items.push(p);
+    if (end < totalPages - 1) items.push("...");
+    items.push(totalPages);
+    return items;
+  }, [totalPages, currentPage]);
 
   const toggleSelect = (id: string) => {
     setSelectedContacts(prev => 
@@ -439,7 +479,7 @@ function ContactsPage() {
             <TableRow className="hover:bg-transparent border-b">
               <TableHead className="w-[50px] pl-6">
                 <Checkbox 
-                  checked={selectedContacts.length === contacts.length} 
+                  checked={allPageSelected}
                   onCheckedChange={toggleSelectAll}
                 />
               </TableHead>
@@ -454,7 +494,14 @@ function ContactsPage() {
           </TableHeader>
 
           <TableBody>
-            {contacts.map((contact) => (
+            {pageContacts.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={8} className="py-12 text-center text-xs text-muted-foreground">
+                  {isLoading ? "Carregando contatos..." : "Nenhum contato encontrado."}
+                </TableCell>
+              </TableRow>
+            )}
+            {pageContacts.map((contact) => (
               <TableRow 
                 key={contact.id} 
                 className={cn(
