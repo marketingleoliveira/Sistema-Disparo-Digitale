@@ -1,11 +1,26 @@
 import * as React from "react";
 import { Upload, FileSpreadsheet, CheckCircle2, AlertTriangle, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
-import { parseContactsFile, type ImportPreview } from "@/lib/contacts/import-parser";
+import {
+  buildPreview,
+  parseContactsFile,
+  IMPORT_FIELDS,
+  type ImportField,
+  type ImportPreview,
+} from "@/lib/contacts/import-parser";
 import { useDataStore } from "@/hooks/use-data";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -30,6 +45,8 @@ export interface ImportContactsDialogProps {
 
 const FIELD_LABELS: Record<string, string> = {
   name: "Nome",
+  firstname: "Primeiro nome",
+  lastname: "Sobrenome",
   email: "E-mail",
   company: "Empresa",
   phone: "Telefone",
@@ -38,6 +55,15 @@ const FIELD_LABELS: Record<string, string> = {
   lists: "Listas",
 };
 
+const IGNORE = "__ignore__";
+
+function splitDefaults(value: string): string[] {
+  return value
+    .split(/[,;|]/)
+    .map((v) => v.trim())
+    .filter(Boolean);
+}
+
 export function ImportContactsDialog({ open, onOpenChange }: ImportContactsDialogProps) {
   const importContacts = useDataStore((s) => s.importContacts);
   const [fileName, setFileName] = React.useState<string>("");
@@ -45,6 +71,9 @@ export function ImportContactsDialog({ open, onOpenChange }: ImportContactsDialo
   const [isParsing, setIsParsing] = React.useState(false);
   const [isImporting, setIsImporting] = React.useState(false);
   const [dragging, setDragging] = React.useState(false);
+  const [overrides, setOverrides] = React.useState<Record<number, ImportField | null>>({});
+  const [defaultLists, setDefaultLists] = React.useState("");
+  const [defaultTags, setDefaultTags] = React.useState("");
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   const reset = () => {
@@ -53,11 +82,23 @@ export function ImportContactsDialog({ open, onOpenChange }: ImportContactsDialo
     setIsParsing(false);
     setIsImporting(false);
     setDragging(false);
+    setOverrides({});
+    setDefaultLists("");
+    setDefaultTags("");
+  };
+
+  const applyOverride = (index: number, field: ImportField | null) => {
+    setOverrides((prev) => {
+      const next = { ...prev, [index]: field };
+      setPreview((current) => (current ? buildPreview(current.rawRows, next) : current));
+      return next;
+    });
   };
 
   const handleFile = async (file: File) => {
     setIsParsing(true);
     setFileName(file.name);
+    setOverrides({});
     try {
       const result = await parseContactsFile(file);
       if (result.contacts.length === 0) {
@@ -84,8 +125,15 @@ export function ImportContactsDialog({ open, onOpenChange }: ImportContactsDialo
 
   const handleImport = async () => {
     if (!preview || preview.contacts.length === 0) return;
+    const extraLists = splitDefaults(defaultLists);
+    const extraTags = splitDefaults(defaultTags);
+    const payload = preview.contacts.map((contact) => ({
+      ...contact,
+      lists: Array.from(new Set([...contact.lists, ...extraLists])),
+      tags: Array.from(new Set([...contact.tags, ...extraTags])),
+    }));
     setIsImporting(true);
-    const result = await importContacts(preview.contacts);
+    const result = await importContacts(payload);
     setIsImporting(false);
 
     if (result.error) {
@@ -204,9 +252,73 @@ export function ImportContactsDialog({ open, onOpenChange }: ImportContactsDialo
               {ignored.length > 0 && (
                 <p className="flex items-start gap-1.5 text-[11px] text-muted-foreground">
                   <AlertTriangle size={12} className="mt-0.5 shrink-0 text-orange-500" />
-                  Colunas ignoradas: {ignored.map(([header]) => header).join(", ")}
+                  Colunas não reconhecidas podem ser mapeadas manualmente abaixo.
                 </p>
               )}
+            </div>
+
+            {/* Mapeamento manual de colunas */}
+            <div className="space-y-2">
+              <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                Mapeamento manual de colunas
+              </p>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {preview.columns.map((column) => (
+                  <div key={column.index} className="flex items-center gap-2">
+                    <span className="min-w-0 flex-1 truncate text-xs font-medium" title={column.header}>
+                      {column.header}
+                    </span>
+                    <Select
+                      value={column.field ?? IGNORE}
+                      onValueChange={(value) =>
+                        applyOverride(column.index, value === IGNORE ? null : (value as ImportField))
+                      }
+                    >
+                      <SelectTrigger className="h-8 w-40 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={IGNORE} className="text-xs">
+                          Ignorar coluna
+                        </SelectItem>
+                        {IMPORT_FIELDS.map((field) => (
+                          <SelectItem key={field} value={field} className="text-xs">
+                            {FIELD_LABELS[field] ?? field}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Lista e tag padrão */}
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="default-lists" className="text-xs font-bold">
+                  Listas padrão
+                </Label>
+                <Input
+                  id="default-lists"
+                  placeholder="Ex: Newsletter, Clientes"
+                  value={defaultLists}
+                  onChange={(e) => setDefaultLists(e.target.value)}
+                  className="h-9 text-xs"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="default-tags" className="text-xs font-bold">
+                  Tags padrão
+                </Label>
+                <Input
+                  id="default-tags"
+                  placeholder="Ex: Importado, Brevo"
+                  value={defaultTags}
+                  onChange={(e) => setDefaultTags(e.target.value)}
+                  className="h-9 text-xs"
+                />
+              </div>
             </div>
 
             {preview.contacts.length > 0 && (
