@@ -62,6 +62,7 @@ const sidebarStructure: { group: string; items: NavItem[] }[] = [
         ],
       },
       { label: "Templates", icon: FileText, href: "/templates" },
+      { label: "E-mails", icon: Mail, href: "/email-templates" },
       { label: "Automações", icon: Zap, href: "/automations" },
       { label: "Formulários", icon: FormInput, href: "/forms" },
     ],

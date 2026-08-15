@@ -15,6 +15,7 @@ import { Route as AuthenticatedAutomationsRouteImport } from './routes/_authenti
 import { Route as AuthenticatedCampaignsRouteImport } from './routes/_authenticated/campaigns'
 import { Route as AuthenticatedContactsRouteImport } from './routes/_authenticated/contacts'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedEmailTemplatesRouteImport } from './routes/_authenticated/email-templates'
 import { Route as AuthenticatedFormsRouteImport } from './routes/_authenticated/forms'
 import { Route as AuthenticatedListsRouteImport } from './routes/_authenticated/lists'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
@@ -52,6 +53,12 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedEmailTemplatesRoute =
+  AuthenticatedEmailTemplatesRouteImport.update({
+    id: '/email-templates',
+    path: '/email-templates',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedFormsRoute = AuthenticatedFormsRouteImport.update({
   id: '/forms',
   path: '/forms',
@@ -89,6 +96,7 @@ export interface FileRoutesByFullPath {
   '/campaigns': typeof AuthenticatedCampaignsRoute
   '/contacts': typeof AuthenticatedContactsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/email-templates': typeof AuthenticatedEmailTemplatesRoute
   '/forms': typeof AuthenticatedFormsRoute
   '/lists': typeof AuthenticatedListsRoute
   '/reports': typeof AuthenticatedReportsRoute
@@ -102,6 +110,7 @@ export interface FileRoutesByTo {
   '/campaigns': typeof AuthenticatedCampaignsRoute
   '/contacts': typeof AuthenticatedContactsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/email-templates': typeof AuthenticatedEmailTemplatesRoute
   '/forms': typeof AuthenticatedFormsRoute
   '/lists': typeof AuthenticatedListsRoute
   '/reports': typeof AuthenticatedReportsRoute
@@ -117,6 +126,7 @@ export interface FileRoutesById {
   '/_authenticated/campaigns': typeof AuthenticatedCampaignsRoute
   '/_authenticated/contacts': typeof AuthenticatedContactsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/email-templates': typeof AuthenticatedEmailTemplatesRoute
   '/_authenticated/forms': typeof AuthenticatedFormsRoute
   '/_authenticated/lists': typeof AuthenticatedListsRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
@@ -132,6 +142,7 @@ export interface FileRouteTypes {
     | '/campaigns'
     | '/contacts'
     | '/dashboard'
+    | '/email-templates'
     | '/forms'
     | '/lists'
     | '/reports'
@@ -145,6 +156,7 @@ export interface FileRouteTypes {
     | '/campaigns'
     | '/contacts'
     | '/dashboard'
+    | '/email-templates'
     | '/forms'
     | '/lists'
     | '/reports'
@@ -159,6 +171,7 @@ export interface FileRouteTypes {
     | '/_authenticated/campaigns'
     | '/_authenticated/contacts'
     | '/_authenticated/dashboard'
+    | '/_authenticated/email-templates'
     | '/_authenticated/forms'
     | '/_authenticated/lists'
     | '/_authenticated/reports'
@@ -216,6 +229,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/email-templates': {
+      id: '/_authenticated/email-templates'
+      path: '/email-templates'
+      fullPath: '/email-templates'
+      preLoaderRoute: typeof AuthenticatedEmailTemplatesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/forms': {
       id: '/_authenticated/forms'
       path: '/forms'
@@ -266,6 +286,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedCampaignsRoute: typeof AuthenticatedCampaignsRoute
   AuthenticatedContactsRoute: typeof AuthenticatedContactsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedEmailTemplatesRoute: typeof AuthenticatedEmailTemplatesRoute
   AuthenticatedFormsRoute: typeof AuthenticatedFormsRoute
   AuthenticatedListsRoute: typeof AuthenticatedListsRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
@@ -279,6 +300,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCampaignsRoute: AuthenticatedCampaignsRoute,
   AuthenticatedContactsRoute: AuthenticatedContactsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedEmailTemplatesRoute: AuthenticatedEmailTemplatesRoute,
   AuthenticatedFormsRoute: AuthenticatedFormsRoute,
   AuthenticatedListsRoute: AuthenticatedListsRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
