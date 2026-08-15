@@ -143,10 +143,10 @@ export function AppSidebar() {
         <div className="flex h-20 items-center border-b border-white/10 px-6 relative z-10 bg-[#1e2d4d]/80 backdrop-blur-sm">
           <div className="flex w-full items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <img 
-                src={logoAsset.url} 
-                alt="Digitale Têxtil — Tecidos de Alta Tecnologia" 
-                className="h-11 w-auto object-contain"
+              <img
+                src={logoAsset.url}
+                alt="Digitale Têxtil — Tecidos de Alta Tecnologia"
+                className="h-[50px] w-[80px] object-contain"
               />
             </div>
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#163a3d] border border-[#1d4d50] text-[10px] font-bold text-[#20b88d] uppercase tracking-wider">
