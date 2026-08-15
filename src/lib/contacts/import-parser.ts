@@ -21,12 +21,29 @@ export interface ImportPreview {
   headers: string[];
   /** Cabeçalho original -> campo interno reconhecido */
   mapping: Record<string, keyof ParsedContact | null>;
+  /** Colunas com índice, cabeçalho e campo atribuído (permite mapeamento manual) */
+  columns: Array<{ index: number; header: string; field: ImportField | null }>;
+  /** Linhas brutas do arquivo, para reprocessar com novo mapeamento */
+  rawRows: string[][];
   totalRows: number;
   invalidEmails: number;
   duplicates: number;
 }
 
 type Field = keyof ParsedContact;
+export type ImportField = Field | "firstname" | "lastname";
+
+export const IMPORT_FIELDS: ImportField[] = [
+  "name",
+  "firstname",
+  "lastname",
+  "email",
+  "company",
+  "phone",
+  "status",
+  "tags",
+  "lists",
+];
 
 /** Aliases de cabeçalho (normalizados) por campo. Inclui os nomes usados pela Brevo. */
 const FIELD_ALIASES: Record<Field | "firstname" | "lastname", string[]> = {
@@ -159,21 +176,41 @@ function findHeaderIndex(rows: string[][]): number {
   return 0;
 }
 
-export function buildPreview(rows: string[][]): ImportPreview {
+export function buildPreview(
+  rows: string[][],
+  overrides: Record<number, ImportField | null> = {},
+): ImportPreview {
   const cleanRows = rows.filter((r) => r.some((c) => (c ?? "").toString().trim() !== ""));
   if (cleanRows.length === 0) {
-    return { contacts: [], headers: [], mapping: {}, totalRows: 0, invalidEmails: 0, duplicates: 0 };
+    return {
+      contacts: [],
+      headers: [],
+      mapping: {},
+      columns: [],
+      rawRows: rows,
+      totalRows: 0,
+      invalidEmails: 0,
+      duplicates: 0,
+    };
   }
 
   const headerIndex = findHeaderIndex(cleanRows);
   const headers = (cleanRows[headerIndex] ?? []).map((h) => (h ?? "").toString().trim());
-  const detected = headers.map(detectField);
+  const detected = headers.map((h, i) =>
+    Object.prototype.hasOwnProperty.call(overrides, i) ? overrides[i]! : detectField(h),
+  );
 
   const mapping: Record<string, Field | null> = {};
   headers.forEach((h, i) => {
     const f = detected[i];
     mapping[h || `Coluna ${i + 1}`] = f === "firstname" || f === "lastname" ? "name" : (f as Field | null) ?? null;
   });
+
+  const columns = headers.map((h, i) => ({
+    index: i,
+    header: h || `Coluna ${i + 1}`,
+    field: (detected[i] ?? null) as ImportField | null,
+  }));
 
   const dataRows = cleanRows.slice(headerIndex + 1);
   const seen = new Set<string>();
@@ -264,6 +301,8 @@ export function buildPreview(rows: string[][]): ImportPreview {
     contacts,
     headers,
     mapping,
+    columns,
+    rawRows: rows,
     totalRows: dataRows.length,
     invalidEmails,
     duplicates,
