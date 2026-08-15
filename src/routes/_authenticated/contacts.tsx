@@ -582,26 +582,68 @@ function ContactsPage() {
         
         {/* Pagination */}
         <div className="flex items-center justify-between border-t px-6 py-4 bg-muted/10">
-          <p className="text-xs text-muted-foreground font-medium">
-            Mostrando <span className="text-primary font-bold">1–50</span> de <span className="text-primary font-bold">2.384</span> contatos
-          </p>
+          <div className="flex items-center gap-4">
+            <p className="text-xs text-muted-foreground font-medium">
+              Mostrando{" "}
+              <span className="text-primary font-bold">
+                {total === 0 ? 0 : startIndex + 1}–{Math.min(startIndex + pageSize, total)}
+              </span>{" "}
+              de <span className="text-primary font-bold">{total.toLocaleString("pt-BR")}</span> contatos
+            </p>
+            <select
+              value={pageSize}
+              onChange={(e) => setPageSize(Number(e.target.value))}
+              className="h-8 rounded-md border bg-background px-2 text-xs font-medium"
+              aria-label="Contatos por página"
+            >
+              {[10, 25, 50, 100].map((size) => (
+                <option key={size} value={size}>
+                  {size} por página
+                </option>
+              ))}
+            </select>
+          </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" className="h-8 w-8" disabled>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              disabled={currentPage <= 1}
+              onClick={() => setPage(currentPage - 1)}
+              aria-label="Página anterior"
+            >
               <ChevronLeft size={16} />
             </Button>
             <div className="flex items-center gap-1">
-              {[1, 2, 3, '...', 48].map((p, i) => (
-                <Button 
-                  key={i} 
-                  variant={p === 1 ? "secondary" : "ghost"} 
-                  size="sm" 
-                  className={cn("h-8 w-8 text-xs font-bold", p === 1 ? "text-primary" : "text-muted-foreground")}
-                >
-                  {p}
-                </Button>
-              ))}
+              {pageNumbers.map((p, i) =>
+                p === "..." ? (
+                  <span key={`gap-${i}`} className="px-1 text-xs text-muted-foreground">
+                    …
+                  </span>
+                ) : (
+                  <Button
+                    key={p}
+                    variant={p === currentPage ? "secondary" : "ghost"}
+                    size="sm"
+                    onClick={() => setPage(p)}
+                    className={cn(
+                      "h-8 w-8 text-xs font-bold",
+                      p === currentPage ? "text-primary" : "text-muted-foreground",
+                    )}
+                  >
+                    {p}
+                  </Button>
+                ),
+              )}
             </div>
-            <Button variant="outline" size="icon" className="h-8 w-8">
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              disabled={currentPage >= totalPages}
+              onClick={() => setPage(currentPage + 1)}
+              aria-label="Próxima página"
+            >
               <ChevronRight size={16} />
             </Button>
           </div>
