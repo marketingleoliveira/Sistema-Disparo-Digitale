@@ -25,6 +25,7 @@ import {
   Loader2
 } from "lucide-react";
 import { useDataStore } from "@/hooks/use-data";
+import { downloadContactsCsv } from "@/lib/contacts/export-csv";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -301,6 +302,12 @@ function ContactsPage() {
   const [isAdding, setIsAdding] = React.useState(false);
   const [isImporting, setIsImporting] = React.useState(false);
 
+  const exportContacts = (ids?: string[]) => {
+    const rows = ids && ids.length > 0 ? contacts.filter((c) => ids.includes(c.id)) : contacts;
+    if (rows.length === 0) return;
+    downloadContactsCsv(rows);
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <AddContactSheet open={isAdding} onOpenChange={setIsAdding} />
@@ -319,6 +326,15 @@ function ContactsPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            onClick={() => exportContacts()}
+            disabled={contacts.length === 0}
+            className="text-xs font-bold border-border/60 hover:bg-secondary hidden sm:flex px-4"
+          >
+            <Download size={14} className="mr-2" />
+            Exportar CSV
+          </Button>
           <Button
             variant="outline"
             onClick={() => setIsImporting(true)}
@@ -387,7 +403,12 @@ function ContactsPage() {
               <Button size="sm" variant="ghost" className="h-8 px-2 text-xs font-bold text-white hover:bg-white/10">
                 <Plus size={14} className="mr-1.5" /> Lista
               </Button>
-              <Button size="sm" variant="ghost" className="h-8 px-2 text-xs font-bold text-white hover:bg-white/10">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => exportContacts(selectedContacts)}
+                className="h-8 px-2 text-xs font-bold text-white hover:bg-white/10"
+              >
                 <Download size={14} className="mr-1.5" /> Exportar
               </Button>
             </div>
