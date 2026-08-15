@@ -57,6 +57,7 @@ import {
 } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
+import { ImportContactsDialog } from "@/components/contacts/ImportContactsDialog";
 
 export const Route = createFileRoute("/_authenticated/contacts")({
   component: ContactsPage,
@@ -298,10 +299,12 @@ function ContactsPage() {
   };
 
   const [isAdding, setIsAdding] = React.useState(false);
+  const [isImporting, setIsImporting] = React.useState(false);
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <AddContactSheet open={isAdding} onOpenChange={setIsAdding} />
+      <ImportContactsDialog open={isImporting} onOpenChange={setIsImporting} />
       <ContactDetailSheet 
         contact={detailContact} 
         open={!!detailContact} 
@@ -316,7 +319,11 @@ function ContactsPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" className="text-xs font-bold border-border/60 hover:bg-secondary hidden sm:flex px-4">
+          <Button
+            variant="outline"
+            onClick={() => setIsImporting(true)}
+            className="text-xs font-bold border-border/60 hover:bg-secondary hidden sm:flex px-4"
+          >
             <Upload size={14} className="mr-2" />
             Importar
           </Button>

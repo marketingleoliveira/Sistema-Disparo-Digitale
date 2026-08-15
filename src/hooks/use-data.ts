@@ -36,6 +36,9 @@ interface DataState {
   fetchContacts: () => Promise<void>;
   fetchCampaigns: () => Promise<void>;
   addContact: (contact: Omit<Contact, 'id' | 'createdAt' | 'initials' | 'engagement' | 'lastActivity'>) => Promise<void>;
+  importContacts: (
+    contacts: Array<Omit<Contact, 'id' | 'createdAt' | 'initials' | 'engagement' | 'lastActivity'>>
+  ) => Promise<{ inserted: number; skipped: number; error?: string }>;
   deleteContact: (id: string) => Promise<void>;
   addCampaign: (campaign: Omit<Campaign, 'id' | 'createdAt'>) => Promise<void>;
   deleteCampaign: (id: string) => Promise<void>;
@@ -117,6 +120,46 @@ export const useDataStore = create<DataState>((set, get) => ({
     if (!error) await get().fetchContacts();
   },
 
+
+  importContacts: async (incoming) => {
+    if (incoming.length === 0) return { inserted: 0, skipped: 0 };
+
+    // Ignora e-mails já existentes na base para evitar duplicidade
+    const existing = new Set(get().contacts.map((c) => c.email.toLowerCase()));
+    const seen = new Set<string>();
+    const rows = incoming.filter((c) => {
+      const email = c.email.toLowerCase();
+      if (!email || existing.has(email) || seen.has(email)) return false;
+      seen.add(email);
+      return true;
+    });
+
+    const skipped = incoming.length - rows.length;
+    if (rows.length === 0) return { inserted: 0, skipped };
+
+    const CHUNK = 200;
+    let inserted = 0;
+    for (let i = 0; i < rows.length; i += CHUNK) {
+      const chunk = rows.slice(i, i + CHUNK).map((c) => ({
+        name: c.name,
+        email: c.email.toLowerCase(),
+        company: c.company || null,
+        status: c.status,
+        lists: c.lists as any,
+        tags: c.tags as any,
+        phone: c.phone || null,
+      }));
+      const { error } = await supabase.from('contacts').insert(chunk);
+      if (error) {
+        await get().fetchContacts();
+        return { inserted, skipped, error: error.message };
+      }
+      inserted += chunk.length;
+    }
+
+    await get().fetchContacts();
+    return { inserted, skipped };
+  },
   addCampaign: async (data) => {
     const { error } = await supabase.from('campaigns').insert([{
       name: data.name,
