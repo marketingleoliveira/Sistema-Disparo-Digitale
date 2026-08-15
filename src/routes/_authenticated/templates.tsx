@@ -21,6 +21,15 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { VisualEmailEditor } from "@/components/editor/VisualEmailEditor";
 import { motion, AnimatePresence } from "framer-motion";
+import { CanvaImportDialog } from "@/components/templates/CanvaImportDialog";
+import { useImportedTemplates } from "@/hooks/use-imported-templates";
+import type { ImportedTemplate } from "@/lib/templates/canva-import";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/_authenticated/templates")({
   component: TemplatesPage,
@@ -164,6 +173,8 @@ function TemplatesPage() {
   const [isEditing, setIsEditing] = React.useState(false);
   const [activeCategory, setActiveCategory] = React.useState("Todos");
   const [searchQuery, setSearchQuery] = React.useState("");
+  const { templates: importedTemplates, addTemplate, removeTemplate } = useImportedTemplates();
+  const [previewTemplate, setPreviewTemplate] = React.useState<ImportedTemplate | null>(null);
 
   const filteredTemplates = TEMPLATES.filter(t => {
     const matchesCategory = activeCategory === "Todos" || t.category === activeCategory;
@@ -173,6 +184,12 @@ function TemplatesPage() {
 
   const officialTemplates = filteredTemplates.filter(t => t.isOfficial);
   const userTemplates = filteredTemplates.filter(t => !t.isOfficial);
+
+  const filteredImported = importedTemplates.filter(t => {
+    const matchesCategory = activeCategory === "Todos" || t.category === activeCategory;
+    const matchesSearch = t.name.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
   if (isEditing) {
     return (
@@ -208,13 +225,16 @@ function TemplatesPage() {
             Escolha um modelo pronto ou crie seu próprio design personalizado.
           </p>
         </div>
-        <Button 
-          onClick={() => setIsEditing(true)}
-          className="bg-accent text-accent-foreground font-bold shadow-lg active:scale-95 transition-all"
-        >
-          <Plus size={18} className="mr-2" />
-          Criar template
-        </Button>
+        <div className="flex flex-wrap items-center gap-3">
+          <CanvaImportDialog onImported={addTemplate} />
+          <Button 
+            onClick={() => setIsEditing(true)}
+            className="bg-accent text-accent-foreground font-bold shadow-lg active:scale-95 transition-all"
+          >
+            <Plus size={18} className="mr-2" />
+            Criar template
+          </Button>
+        </div>
       </div>
 
       {/* Toolbar & Filters */}
@@ -277,6 +297,68 @@ function TemplatesPage() {
         </section>
       )}
 
+      {/* Imported from Canva */}
+      {filteredImported.length > 0 && (
+        <section className="space-y-6">
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-bold text-primary">Importados do Canva</h2>
+            <Badge variant="secondary" className="text-[10px] font-bold">
+              {filteredImported.length}
+            </Badge>
+          </div>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {filteredImported.map(template => (
+              <div
+                key={template.id}
+                className="group relative overflow-hidden rounded-xl border bg-card shadow-sm transition-all hover:shadow-md"
+              >
+                <div className="relative aspect-[4/5] overflow-hidden bg-muted">
+                  {template.image ? (
+                    <img
+                      src={template.image}
+                      alt={template.name}
+                      className="h-full w-full object-cover object-top"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                      <Layout size={40} />
+                    </div>
+                  )}
+                  <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 bg-primary/60 opacity-0 backdrop-blur-[2px] transition-all duration-300 group-hover:opacity-100">
+                    <Button
+                      size="sm"
+                      onClick={() => setPreviewTemplate(template)}
+                      className="w-32 bg-accent text-accent-foreground font-bold"
+                    >
+                      <Play size={14} className="mr-2" /> Pré-visualizar
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      className="w-32 font-bold"
+                      onClick={() => removeTemplate(template.id)}
+                    >
+                      <Trash2 size={14} className="mr-2" /> Excluir
+                    </Button>
+                  </div>
+                  <div className="absolute top-3 left-3 z-10">
+                    <Badge className="border-none bg-primary text-[9px] font-bold uppercase tracking-wider text-white shadow-sm">
+                      Canva
+                    </Badge>
+                  </div>
+                </div>
+                <div className="p-4">
+                  <h4 className="truncate text-sm font-bold text-primary">{template.name}</h4>
+                  <p className="mt-0.5 text-[10px] text-muted-foreground">
+                    {template.category} • pronto para disparo
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* User Templates Section */}
       {userTemplates.length > 0 && (
         <section className="space-y-6">
@@ -290,7 +372,7 @@ function TemplatesPage() {
       )}
 
       {/* Empty State */}
-      {filteredTemplates.length === 0 && (
+      {filteredTemplates.length === 0 && filteredImported.length === 0 && (
         <div className="flex flex-col items-center justify-center py-24 text-center">
           <div className="mb-6 rounded-full bg-muted p-6 text-muted-foreground">
             <Search size={48} />
@@ -311,6 +393,22 @@ function TemplatesPage() {
           </Button>
         </div>
       )}
+
+      <Dialog open={!!previewTemplate} onOpenChange={(open) => !open && setPreviewTemplate(null)}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-primary">{previewTemplate?.name}</DialogTitle>
+          </DialogHeader>
+          {previewTemplate && (
+            <iframe
+              title={`Pré-visualização de ${previewTemplate.name}`}
+              srcDoc={previewTemplate.html}
+              sandbox=""
+              className="h-[65vh] w-full rounded-lg border bg-white"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
