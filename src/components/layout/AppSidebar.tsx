@@ -153,10 +153,36 @@ export function AppSidebar() {
               alt="Digitale Têxtil — Tecidos de Alta Tecnologia"
               className="h-[50px] w-[80px] shrink-0 object-contain"
             />
-            <div className="flex shrink-0 items-center gap-1 px-2 py-1 rounded-full bg-[#163a3d] border border-[#1d4d50] text-[8px] font-bold text-[#20b88d] uppercase tracking-normal whitespace-nowrap">
-              <div className="h-1 w-1 rounded-sm bg-[#20b88d]" />
-              #Sustentabilidade
-            </div>
+            <HoverCard openDelay={80} closeDelay={80}>
+              <HoverCardTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Compromisso ambiental Digitale Têxtil"
+                  className="flex shrink-0 items-center gap-1 px-2 py-1 rounded-full bg-[#163a3d] border border-[#1d4d50] text-[8px] font-bold text-[#20b88d] uppercase tracking-normal whitespace-nowrap transition-colors hover:bg-[#1b4a4d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#20b88d]/60"
+                >
+                  <div className="h-1 w-1 rounded-sm bg-[#20b88d]" />
+                  #Sustentabilidade
+                </button>
+              </HoverCardTrigger>
+              <HoverCardContent
+                side="bottom"
+                align="start"
+                sideOffset={10}
+                className="w-72 rounded-xl border border-[#1d4d50] bg-[#0f2b2e] p-4 text-white shadow-2xl"
+              >
+                <div className="mb-2 flex items-center gap-2">
+                  <Leaf className="h-4 w-4 text-[#20b88d]" />
+                  <span className="text-sm font-bold text-[#20b88d]">
+                    Compromisso Ambiental
+                  </span>
+                </div>
+                <p className="text-xs leading-relaxed text-white/80">
+                  Estamos comprometidos com práticas sustentáveis, reduzindo
+                  nosso impacto ambiental e promovendo um futuro mais verde para
+                  as próximas gerações.
+                </p>
+              </HoverCardContent>
+            </HoverCard>
           </div>
         </div>
 
