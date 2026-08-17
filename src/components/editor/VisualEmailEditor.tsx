@@ -32,7 +32,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export interface VisualEmailEditorProps {
   /** Blocos iniciais; quando ausente, usa o layout padrão da marca. */
-  initialBlocks?: EditorBlock[];
+  initialBlocks?: EditorBlock[] | undefined;
   /** Chamado ao clicar em "Salvar Template". */
   onSave?: (blocks: EditorBlock[]) => void;
   /** Rótulo do botão de salvar. */
