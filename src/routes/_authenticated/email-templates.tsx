@@ -9,6 +9,16 @@ import { Badge } from "@/components/ui/badge";
 import { renderEmailPreview } from "@/lib/email-preview.functions";
 import { toast } from "sonner";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   useTransactionalTemplates,
   type TransactionalTemplate,
 } from "@/hooks/use-transactional-templates";
