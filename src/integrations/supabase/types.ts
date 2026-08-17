@@ -101,6 +101,69 @@ export type Database = {
         }
         Relationships: []
       }
+      email_domain_config: {
+        Row: {
+          created_at: string
+          dkim_selector: string
+          dkim_value: string | null
+          dkim_verified: boolean
+          dmarc_value: string
+          dmarc_verified: boolean
+          domain: string
+          id: string
+          last_checked_at: string | null
+          ownership_verified: boolean
+          provider: string
+          reply_to: string | null
+          sender_email: string
+          sender_name: string
+          spf_value: string
+          spf_verified: boolean
+          updated_at: string
+          verification_token: string
+        }
+        Insert: {
+          created_at?: string
+          dkim_selector?: string
+          dkim_value?: string | null
+          dkim_verified?: boolean
+          dmarc_value?: string
+          dmarc_verified?: boolean
+          domain: string
+          id?: string
+          last_checked_at?: string | null
+          ownership_verified?: boolean
+          provider?: string
+          reply_to?: string | null
+          sender_email?: string
+          sender_name?: string
+          spf_value?: string
+          spf_verified?: boolean
+          updated_at?: string
+          verification_token?: string
+        }
+        Update: {
+          created_at?: string
+          dkim_selector?: string
+          dkim_value?: string | null
+          dkim_verified?: boolean
+          dmarc_value?: string
+          dmarc_verified?: boolean
+          domain?: string
+          id?: string
+          last_checked_at?: string | null
+          ownership_verified?: boolean
+          provider?: string
+          reply_to?: string | null
+          sender_email?: string
+          sender_name?: string
+          spf_value?: string
+          spf_verified?: boolean
+          updated_at?: string
+          verification_token?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
