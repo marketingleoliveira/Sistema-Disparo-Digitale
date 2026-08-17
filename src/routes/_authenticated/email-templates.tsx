@@ -9,6 +9,16 @@ import { Badge } from "@/components/ui/badge";
 import { renderEmailPreview } from "@/lib/email-preview.functions";
 import { toast } from "sonner";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   useTransactionalTemplates,
   type TransactionalTemplate,
 } from "@/hooks/use-transactional-templates";
@@ -81,6 +91,9 @@ function EmailTemplatesPage() {
   const [editing, setEditing] = React.useState<TransactionalTemplate | null>(null);
   const [initialDraft, setInitialDraft] =
     React.useState<TransactionalTemplateDraft | null>(null);
+  /** Template aguardando confirmação de exclusão. */
+  const [pendingDelete, setPendingDelete] =
+    React.useState<TransactionalTemplate | null>(null);
 
   const selectedCustom = custom.find((t) => t.id === selected) ?? null;
   const isOfficial = TEMPLATE_LIST.some((t) => t.name === selected);
@@ -265,7 +278,7 @@ function EmailTemplatesPage() {
                       variant="ghost"
                       size="sm"
                       className="h-7 gap-1 text-xs text-destructive hover:text-destructive"
-                      onClick={() => handleRemove(tpl)}
+                      onClick={() => setPendingDelete(tpl)}
                       aria-label={`Excluir ${tpl.label}`}
                     >
                       <Trash2 size={13} /> Excluir
@@ -299,14 +312,24 @@ function EmailTemplatesPage() {
                   <Copy size={13} /> Duplicar para editar
                 </Button>
               ) : selectedCustom ? (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 gap-1 text-xs"
-                  onClick={() => openEdit(selectedCustom)}
-                >
-                  <Pencil size={13} /> Editar
-                </Button>
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 gap-1 text-xs"
+                    onClick={() => openEdit(selectedCustom)}
+                  >
+                    <Pencil size={13} /> Editar
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 gap-1 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    onClick={() => setPendingDelete(selectedCustom)}
+                  >
+                    <Trash2 size={13} /> Excluir
+                  </Button>
+                </>
               ) : null}
               <Button
                 variant={viewport === "desktop" ? "secondary" : "ghost"}
@@ -361,6 +384,35 @@ function EmailTemplatesPage() {
         initialDraft={initialDraft}
         onSubmit={handleSubmit}
       />
+
+      <AlertDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDelete(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir template de e-mail?</AlertDialogTitle>
+            <AlertDialogDescription>
+              “{pendingDelete?.label}” será removido permanentemente da biblioteca.
+              Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                if (pendingDelete) handleRemove(pendingDelete);
+                setPendingDelete(null);
+              }}
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
