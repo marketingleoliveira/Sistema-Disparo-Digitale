@@ -30,10 +30,29 @@ import {
 } from "./editor-types";
 import { motion, AnimatePresence } from "framer-motion";
 
-export function VisualEmailEditor() {
-  const [blocks, setBlocks] = React.useState<EditorBlock[]>(INITIAL_BLOCKS);
+export interface VisualEmailEditorProps {
+  /** Blocos iniciais; quando ausente, usa o layout padrão da marca. */
+  initialBlocks?: EditorBlock[] | undefined;
+  /** Chamado ao clicar em "Salvar Template". */
+  onSave?: (blocks: EditorBlock[]) => void;
+  /** Rótulo do botão de salvar. */
+  saveLabel?: string;
+}
+
+export function VisualEmailEditor({
+  initialBlocks,
+  onSave,
+  saveLabel = "Salvar Template",
+}: VisualEmailEditorProps = {}) {
+  const [blocks, setBlocks] = React.useState<EditorBlock[]>(initialBlocks ?? INITIAL_BLOCKS);
   const [selectedBlockId, setSelectedBlockId] = React.useState<string | null>(null);
   const [viewMode, setViewMode] = React.useState<"desktop" | "mobile">("desktop");
+
+  // Recarrega os blocos quando outro template é aberto no editor.
+  React.useEffect(() => {
+    setBlocks(initialBlocks ?? INITIAL_BLOCKS);
+    setSelectedBlockId(null);
+  }, [initialBlocks]);
 
   const selectedBlock = React.useMemo(
     () => blocks.find((b) => b.id === selectedBlockId) || null,
@@ -150,8 +169,21 @@ export function VisualEmailEditor() {
           </Tabs>
 
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="h-8 text-xs font-bold"><Eye size={14} className="mr-1.5" /> Preview</Button>
-            <Button className="h-8 bg-accent text-accent-foreground text-xs font-bold hover:bg-accent/90"><Save size={14} className="mr-1.5" /> Salvar Template</Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 text-xs font-bold"
+              onClick={() => setViewMode(viewMode === "desktop" ? "mobile" : "desktop")}
+            >
+              <Eye size={14} className="mr-1.5" /> Preview
+            </Button>
+            <Button
+              className="h-8 bg-accent text-accent-foreground text-xs font-bold hover:bg-accent/90"
+              onClick={() => onSave?.(blocks)}
+              disabled={!onSave}
+            >
+              <Save size={14} className="mr-1.5" /> {saveLabel}
+            </Button>
           </div>
         </div>
 

@@ -24,11 +24,11 @@ import {
   sanitizeUrl,
   validateImportFile,
   type CanvaImportKind,
-  type ImportedTemplate,
 } from "@/lib/templates/canva-import";
+import { createTemplateId, type StoredTemplate } from "@/lib/templates/stored-template";
 
 export interface CanvaImportDialogProps {
-  onImported: (template: ImportedTemplate) => void;
+  onImported: (template: StoredTemplate) => void;
   children?: React.ReactNode;
 }
 
@@ -111,7 +111,7 @@ export function CanvaImportDialog({ onImported, children }: CanvaImportDialogPro
       }
 
       onImported({
-        id: `canva-${Date.now()}`,
+        id: createTemplateId("canva"),
         name: finalName,
         category,
         image: thumbnail,
@@ -119,7 +119,7 @@ export function CanvaImportDialog({ onImported, children }: CanvaImportDialogPro
         kind,
         ...(safeLink ? { linkUrl: safeLink } : {}),
         createdAt: new Date().toISOString(),
-        isOfficial: false,
+        updatedAt: new Date().toISOString(),
       });
 
       toast.success("Template do Canva importado com sucesso.");
