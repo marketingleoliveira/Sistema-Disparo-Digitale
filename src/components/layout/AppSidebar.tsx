@@ -147,8 +147,8 @@ export function AppSidebar() {
               alt="Digitale Têxtil — Tecidos de Alta Tecnologia"
               className="h-[50px] w-[80px] shrink-0 object-contain"
             />
-            <div className="flex shrink-0 items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-[#163a3d] border border-[#1d4d50] text-[10px] font-bold text-[#20b88d] uppercase tracking-wider">
-              <div className="h-1.5 w-1.5 rounded-sm bg-[#20b88d]" />
+            <div className="flex shrink-0 items-center gap-1 px-2 py-1 rounded-full bg-[#163a3d] border border-[#1d4d50] text-[8px] font-bold text-[#20b88d] uppercase tracking-normal whitespace-nowrap">
+              <div className="h-1 w-1 rounded-sm bg-[#20b88d]" />
               #Sustentabilidade
             </div>
           </div>
