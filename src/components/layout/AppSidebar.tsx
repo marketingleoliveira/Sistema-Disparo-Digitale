@@ -20,7 +20,8 @@ import {
   Globe,
   Menu,
   ShieldCheck,
-  Smartphone
+  Smartphone,
+  Leaf
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -34,6 +35,11 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 interface NavItem {
   label: string;
