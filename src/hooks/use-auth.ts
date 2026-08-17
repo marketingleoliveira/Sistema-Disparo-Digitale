@@ -17,7 +17,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, role: UserRole) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   initialize: () => Promise<void>;
 }
 
@@ -44,8 +44,16 @@ export const useAuthStore = create<AuthState>()(
           isLoading: false,
         });
       },
-      logout: () => {
-        set({ user: null, isAuthenticated: false });
+      logout: async () => {
+        try {
+          await supabase.auth.signOut();
+        } catch {
+          // sessão local: ignora falha de rede ao encerrar sessão remota
+        }
+        set({ user: null, isAuthenticated: false, isLoading: false });
+        if (typeof window !== "undefined") {
+          window.localStorage.removeItem("digitale-auth-storage");
+        }
       },
       initialize: async () => {
         set({ isLoading: true });

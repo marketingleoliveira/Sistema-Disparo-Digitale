@@ -1,5 +1,5 @@
 import * as React from "react";
-import { createFileRoute, Outlet, redirect, useLocation } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect, useLocation, useNavigate } from "@tanstack/react-router";
 import { AppSidebar } from "../components/layout/AppSidebar";
 import { useAuthStore } from "@/hooks/use-auth";
 import { 
@@ -60,7 +60,13 @@ export const Route = createFileRoute("/_authenticated")({
 
 function AuthenticatedLayout() {
   const location = useLocation();
-  const { user } = useAuthStore();
+  const navigate = useNavigate();
+  const { user, logout } = useAuthStore();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate({ to: "/", replace: true });
+  };
   
   // Mapeamento simples de caminhos para títulos amigáveis
   const pathMap: Record<string, string> = {
@@ -163,7 +169,13 @@ function AuthenticatedLayout() {
                   <span className="text-sm font-medium">Configurações</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="opacity-50" />
-                <DropdownMenuItem className="text-destructive cursor-pointer rounded-lg mx-1 transition-colors hover:bg-destructive/10">
+                <DropdownMenuItem
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    void handleLogout();
+                  }}
+                  className="text-destructive cursor-pointer rounded-lg mx-1 transition-colors hover:bg-destructive/10"
+                >
                   <LogOut className="mr-2 h-4 w-4" />
                   <span className="text-sm font-bold">Sair do Sistema</span>
                 </DropdownMenuItem>
