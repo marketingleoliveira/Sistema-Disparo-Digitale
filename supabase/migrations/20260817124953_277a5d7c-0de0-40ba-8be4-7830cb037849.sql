@@ -1,0 +1,1 @@
+DELETE FROM public.email_domain_config WHERE domain = 'digitaletextil.com.br' AND dkim_value IS NULL;
