@@ -359,7 +359,7 @@ function TemplatesPage() {
       </div>
 
       {/* Modelos oficiais */}
-      {officialFiltered.length > 0 && (
+      {(officialFiltered.length > 0 || hidden.length > 0) && (
         <section className="space-y-6">
           <div className="flex flex-wrap items-center gap-2">
             <Sparkles className="text-accent" size={20} />
