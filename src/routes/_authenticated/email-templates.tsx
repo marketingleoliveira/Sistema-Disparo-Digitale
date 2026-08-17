@@ -91,6 +91,9 @@ function EmailTemplatesPage() {
   const [editing, setEditing] = React.useState<TransactionalTemplate | null>(null);
   const [initialDraft, setInitialDraft] =
     React.useState<TransactionalTemplateDraft | null>(null);
+  /** Template aguardando confirmação de exclusão. */
+  const [pendingDelete, setPendingDelete] =
+    React.useState<TransactionalTemplate | null>(null);
 
   const selectedCustom = custom.find((t) => t.id === selected) ?? null;
   const isOfficial = TEMPLATE_LIST.some((t) => t.name === selected);
@@ -275,7 +278,7 @@ function EmailTemplatesPage() {
                       variant="ghost"
                       size="sm"
                       className="h-7 gap-1 text-xs text-destructive hover:text-destructive"
-                      onClick={() => handleRemove(tpl)}
+                      onClick={() => setPendingDelete(tpl)}
                       aria-label={`Excluir ${tpl.label}`}
                     >
                       <Trash2 size={13} /> Excluir
