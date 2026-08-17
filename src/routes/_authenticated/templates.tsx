@@ -24,6 +24,7 @@ import { INITIAL_BLOCKS, type EditorBlock } from "@/components/editor/editor-typ
 import { motion } from "framer-motion";
 import { CanvaImportDialog } from "@/components/templates/CanvaImportDialog";
 import { useTemplateLibrary } from "@/hooks/use-template-library";
+import { useHiddenOfficialTemplates } from "@/hooks/use-hidden-official-templates";
 import { blocksToEmailHtml } from "@/lib/templates/blocks-to-html";
 import { createTemplateId, type StoredTemplate } from "@/lib/templates/stored-template";
 import {
@@ -128,6 +129,7 @@ function TemplatesPage() {
 
   const { templates, isLoaded, addTemplate, updateTemplate, removeTemplate, duplicateTemplate } =
     useTemplateLibrary();
+  const { hidden, hideOfficial, restoreAll } = useHiddenOfficialTemplates();
 
   const matches = React.useCallback(
     (name: string, category: string) => {
@@ -138,7 +140,9 @@ function TemplatesPage() {
     [activeCategory, searchQuery],
   );
 
-  const officialFiltered = OFFICIAL_TEMPLATES.filter((t) => matches(t.name, t.category));
+  const officialFiltered = OFFICIAL_TEMPLATES.filter(
+    (t) => !hidden.includes(t.id) && matches(t.name, t.category),
+  );
   const myFiltered = templates.filter((t) => matches(t.name, t.category));
 
   /** Cria um template novo no editor, partindo de um modelo oficial ou em branco. */
@@ -355,11 +359,24 @@ function TemplatesPage() {
       </div>
 
       {/* Modelos oficiais */}
-      {officialFiltered.length > 0 && (
+      {(officialFiltered.length > 0 || hidden.length > 0) && (
         <section className="space-y-6">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Sparkles className="text-accent" size={20} />
             <h2 className="text-lg font-bold text-primary">Modelos da Digitale Têxtil</h2>
+            {hidden.length > 0 && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="ml-auto text-xs font-bold"
+                onClick={() => {
+                  restoreAll();
+                  toast.success("Modelos oficiais restaurados.");
+                }}
+              >
+                Restaurar modelos removidos ({hidden.length})
+              </Button>
+            )}
           </div>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {officialFiltered.map((template) => (
@@ -392,6 +409,17 @@ function TemplatesPage() {
                       onClick={() => handleDuplicateOfficial(template)}
                     >
                       <Copy size={14} className="mr-2" /> Duplicar
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      className="w-36 font-bold"
+                      onClick={() => {
+                        hideOfficial(template.id);
+                        toast.success(`"${template.name}" removido da biblioteca.`);
+                      }}
+                    >
+                      <Trash2 size={14} className="mr-2" /> Excluir
                     </Button>
                   </div>
                   <div className="absolute left-3 top-3 z-10">
