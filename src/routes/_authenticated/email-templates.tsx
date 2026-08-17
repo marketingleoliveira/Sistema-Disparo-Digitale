@@ -1,12 +1,9 @@
 import * as React from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
-import { Copy, Loader2, Mail, Monitor, Pencil, Plus, Smartphone, Trash2 } from "lucide-react";
+import { Mail, Monitor, Pencil, Plus, Smartphone, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { renderEmailPreview } from "@/lib/email-preview.functions";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -48,43 +45,17 @@ export const Route = createFileRoute("/_authenticated/email-templates")({
   }),
 });
 
-/** Catálogo exibido na lateral. Os nomes correspondem às chaves do catálogo de templates. */
-const TEMPLATE_LIST = [
-  {
-    name: "boas-vindas",
-    label: "Boas-vindas",
-    description: "Enviado quando um contato é cadastrado na base.",
-  },
-  {
-    name: "confirmacao-contato",
-    label: "Confirmação de formulário",
-    description: "Recibo automático de mensagens recebidas pelo site.",
-  },
-  {
-    name: "novo-contato-interno",
-    label: "Alerta interno",
-    description: "Avisa a equipe comercial sobre um novo lead.",
-  },
-  {
-    name: "relatorio-campanha",
-    label: "Relatório de campanha",
-    description: "Resumo enviado ao responsável ao fim do processamento.",
-  },
-] as const;
-
 type ViewportMode = "desktop" | "mobile";
 
 function EmailTemplatesPage() {
-  const [selected, setSelected] = React.useState<string>(TEMPLATE_LIST[0].name);
+  const [selected, setSelected] = React.useState<string>("");
   const [viewport, setViewport] = React.useState<ViewportMode>("desktop");
-  const renderPreview = useServerFn(renderEmailPreview);
   const {
     templates: custom,
     isLoaded,
     createTemplate,
     updateTemplate,
     removeTemplate,
-    duplicateTemplate,
   } = useTransactionalTemplates();
 
   const [dialogOpen, setDialogOpen] = React.useState(false);
@@ -96,17 +67,9 @@ function EmailTemplatesPage() {
     React.useState<TransactionalTemplate | null>(null);
 
   const selectedCustom = custom.find((t) => t.id === selected) ?? null;
-  const isOfficial = TEMPLATE_LIST.some((t) => t.name === selected);
 
-  const { data, isPending, isError, error } = useQuery({
-    queryKey: ["email-preview", selected],
-    queryFn: () => renderPreview({ data: { name: selected } }),
-    staleTime: 5 * 60 * 1000,
-    enabled: isOfficial,
-  });
-
-  const previewHtml = selectedCustom ? selectedCustom.html : (data?.html ?? "");
-  const previewSubject = selectedCustom ? selectedCustom.subject : (data?.subject ?? "—");
+  const previewHtml = selectedCustom?.html ?? "";
+  const previewSubject = selectedCustom?.subject ?? "—";
 
   function openCreate() {
     setEditing(null);
@@ -118,23 +81,6 @@ function EmailTemplatesPage() {
     setEditing(template);
     setInitialDraft(null);
     setDialogOpen(true);
-  }
-
-  /** Cria uma cópia editável a partir do layout oficial já renderizado. */
-  function duplicateOfficial() {
-    const meta = TEMPLATE_LIST.find((t) => t.name === selected);
-    if (!meta || !data?.html) {
-      toast.error("Aguarde a renderização do layout para duplicá-lo.");
-      return;
-    }
-    const copy = duplicateTemplate({
-      label: meta.label,
-      description: meta.description,
-      subject: data.subject ?? "",
-      html: data.html,
-    });
-    setSelected(copy.id);
-    toast.success("Cópia editável criada.");
   }
 
   function handleSubmit(draft: TransactionalTemplateDraft) {
@@ -150,7 +96,7 @@ function EmailTemplatesPage() {
 
   function handleRemove(template: TransactionalTemplate) {
     removeTemplate(template.id);
-    if (selected === template.id) setSelected(TEMPLATE_LIST[0].name);
+    if (selected === template.id) setSelected("");
     toast.success("Template excluído.");
   }
 
@@ -162,8 +108,7 @@ function EmailTemplatesPage() {
             Templates de E-mail
           </h1>
           <p className="mt-1 text-sm font-medium text-muted-foreground">
-            Layouts oficiais com a identidade da Digitale Têxtil, prontos para o
-            disparo.
+            Crie e gerencie os layouts de e-mail usados nos disparos.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -183,53 +128,11 @@ function EmailTemplatesPage() {
         {/* Lista de templates */}
         <div className="space-y-3">
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-            Layouts oficiais
-          </p>
-          {TEMPLATE_LIST.map((tpl) => {
-            const isActive = tpl.name === selected;
-            return (
-              <button
-                key={tpl.name}
-                type="button"
-                onClick={() => setSelected(tpl.name)}
-                className={cn(
-                  "w-full rounded-xl border bg-card p-4 text-left transition-all",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                  isActive
-                    ? "border-accent shadow-md ring-1 ring-accent/20"
-                    : "hover:border-primary/20 hover:bg-muted/30",
-                )}
-                aria-pressed={isActive}
-              >
-                <div className="flex items-start gap-3">
-                  <div
-                    className={cn(
-                      "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg",
-                      isActive
-                        ? "bg-accent/10 text-accent"
-                        : "bg-secondary text-primary",
-                    )}
-                  >
-                    <Mail size={16} />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-bold text-primary">{tpl.label}</p>
-                    <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-                      {tpl.description}
-                    </p>
-                  </div>
-                </div>
-              </button>
-            );
-          })}
-
-          <p className="pt-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
             Meus templates
           </p>
           {!isLoaded ? null : custom.length === 0 ? (
             <p className="rounded-xl border border-dashed p-4 text-xs text-muted-foreground">
-              Nenhum template criado ainda. Use “Novo template” ou duplique um layout
-              oficial para editar.
+              Nenhum template criado ainda. Use “Novo template” para começar.
             </p>
           ) : (
             custom.map((tpl) => {
@@ -302,16 +205,7 @@ function EmailTemplatesPage() {
               </p>
             </div>
             <div className="flex shrink-0 gap-1">
-              {isOfficial ? (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 gap-1 text-xs"
-                  onClick={duplicateOfficial}
-                >
-                  <Copy size={13} /> Duplicar para editar
-                </Button>
-              ) : selectedCustom ? (
+              {selectedCustom ? (
                 <>
                   <Button
                     variant="ghost"
@@ -353,19 +247,13 @@ function EmailTemplatesPage() {
           </div>
 
           <div className="flex justify-center bg-muted/20 p-4 sm:p-6">
-            {isOfficial && isPending ? (
-              <div className="flex h-[520px] items-center justify-center text-muted-foreground">
-                <Loader2 className="h-5 w-5 animate-spin" />
-              </div>
-            ) : isOfficial && isError ? (
-              <div className="flex h-[520px] items-center justify-center px-6 text-center text-sm text-destructive">
-                {error instanceof Error
-                  ? error.message
-                  : "Não foi possível renderizar o template."}
+            {!selectedCustom ? (
+              <div className="flex h-[520px] items-center justify-center px-6 text-center text-sm text-muted-foreground">
+                Selecione ou crie um template para visualizar.
               </div>
             ) : (
               <iframe
-                title={`Pré-visualização do template ${selected}`}
+                title={`Pré-visualização do template ${selectedCustom.label}`}
                 srcDoc={previewHtml}
                 className={cn(
                   "h-[640px] rounded-lg border bg-white transition-all duration-300",
