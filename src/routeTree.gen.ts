@@ -23,6 +23,7 @@ import { Route as AuthenticatedSegmentsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedTemplatesRouteImport } from './routes/_authenticated/templates'
 import { Route as AuthenticatedSettingsDomainRouteImport } from './routes/_authenticated/settings_.domain'
+import { Route as AuthenticatedSettingsTeamRouteImport } from './routes/_authenticated/settings_.team'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -96,6 +97,12 @@ const AuthenticatedSettingsDomainRoute =
     path: '/settings/domain',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedSettingsTeamRoute =
+  AuthenticatedSettingsTeamRouteImport.update({
+    id: '/settings_/team',
+    path: '/settings/team',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -111,6 +118,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/templates': typeof AuthenticatedTemplatesRoute
   '/settings/domain': typeof AuthenticatedSettingsDomainRoute
+  '/settings/team': typeof AuthenticatedSettingsTeamRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -126,6 +134,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/templates': typeof AuthenticatedTemplatesRoute
   '/settings/domain': typeof AuthenticatedSettingsDomainRoute
+  '/settings/team': typeof AuthenticatedSettingsTeamRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -143,6 +152,7 @@ export interface FileRoutesById {
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/templates': typeof AuthenticatedTemplatesRoute
   '/_authenticated/settings_/domain': typeof AuthenticatedSettingsDomainRoute
+  '/_authenticated/settings_/team': typeof AuthenticatedSettingsTeamRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -160,6 +170,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/templates'
     | '/settings/domain'
+    | '/settings/team'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -175,6 +186,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/templates'
     | '/settings/domain'
+    | '/settings/team'
   id:
     | '__root__'
     | '/'
@@ -191,6 +203,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/_authenticated/templates'
     | '/_authenticated/settings_/domain'
+    | '/_authenticated/settings_/team'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -298,6 +311,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsDomainRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/settings_/team': {
+      id: '/_authenticated/settings_/team'
+      path: '/settings/team'
+      fullPath: '/settings/team'
+      preLoaderRoute: typeof AuthenticatedSettingsTeamRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
@@ -314,6 +334,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedTemplatesRoute: typeof AuthenticatedTemplatesRoute
   AuthenticatedSettingsDomainRoute: typeof AuthenticatedSettingsDomainRoute
+  AuthenticatedSettingsTeamRoute: typeof AuthenticatedSettingsTeamRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -329,6 +350,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedTemplatesRoute: AuthenticatedTemplatesRoute,
   AuthenticatedSettingsDomainRoute: AuthenticatedSettingsDomainRoute,
+  AuthenticatedSettingsTeamRoute: AuthenticatedSettingsTeamRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
