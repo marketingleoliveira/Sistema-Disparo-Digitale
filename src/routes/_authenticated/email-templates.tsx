@@ -312,14 +312,24 @@ function EmailTemplatesPage() {
                   <Copy size={13} /> Duplicar para editar
                 </Button>
               ) : selectedCustom ? (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 gap-1 text-xs"
-                  onClick={() => openEdit(selectedCustom)}
-                >
-                  <Pencil size={13} /> Editar
-                </Button>
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 gap-1 text-xs"
+                    onClick={() => openEdit(selectedCustom)}
+                  >
+                    <Pencil size={13} /> Editar
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 gap-1 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    onClick={() => setPendingDelete(selectedCustom)}
+                  >
+                    <Trash2 size={13} /> Excluir
+                  </Button>
+                </>
               ) : null}
               <Button
                 variant={viewport === "desktop" ? "secondary" : "ghost"}
@@ -374,6 +384,35 @@ function EmailTemplatesPage() {
         initialDraft={initialDraft}
         onSubmit={handleSubmit}
       />
+
+      <AlertDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDelete(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir template de e-mail?</AlertDialogTitle>
+            <AlertDialogDescription>
+              “{pendingDelete?.label}” será removido permanentemente da biblioteca.
+              Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                if (pendingDelete) handleRemove(pendingDelete);
+                setPendingDelete(null);
+              }}
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
