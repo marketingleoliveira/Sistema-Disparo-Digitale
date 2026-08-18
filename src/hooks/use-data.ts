@@ -27,6 +27,8 @@ export interface Campaign {
   status: 'Enviada' | 'Agendada' | 'Rascunho' | 'Em andamento';
   subject?: string;
   createdAt: string;
+  /** Conteúdo do disparo: html, listas, remetente, agendamento. */
+  content?: Record<string, unknown>;
 }
 
 interface DataState {
@@ -40,7 +42,7 @@ interface DataState {
     contacts: Array<Omit<Contact, 'id' | 'createdAt' | 'initials' | 'engagement' | 'lastActivity'>>
   ) => Promise<{ inserted: number; skipped: number; error?: string }>;
   deleteContact: (id: string) => Promise<void>;
-  addCampaign: (campaign: Omit<Campaign, 'id' | 'createdAt'>) => Promise<void>;
+  addCampaign: (campaign: Omit<Campaign, 'id' | 'createdAt'>) => Promise<string | null>;
   deleteCampaign: (id: string) => Promise<void>;
 }
 
@@ -95,6 +97,7 @@ export const useDataStore = create<DataState>((set, get) => ({
         status: (c.status as any) || 'Rascunho',
         subject: c.subject || '',
         createdAt: c.created_at || '',
+        content: (c.content as any) || undefined,
       }));
       set({ campaigns: mapped });
     }
@@ -161,7 +164,7 @@ export const useDataStore = create<DataState>((set, get) => ({
     return { inserted, skipped };
   },
   addCampaign: async (data) => {
-    const { error } = await supabase.from('campaigns').insert([{
+    const { data: inserted, error } = await supabase.from('campaigns').insert([{
       name: data.name,
       subject: data.subject || null,
       type: data.type,
@@ -169,9 +172,12 @@ export const useDataStore = create<DataState>((set, get) => ({
       recipients: data.recipients,
       open_rate: data.open,
       click_rate: data.clicks,
-    }]);
+      content: (data.content ?? null) as any,
+    }]).select('id').maybeSingle();
 
-    if (!error) await get().fetchCampaigns();
+    if (error) return null;
+    await get().fetchCampaigns();
+    return inserted?.id ?? null;
   },
 
   deleteCampaign: async (id) => {
