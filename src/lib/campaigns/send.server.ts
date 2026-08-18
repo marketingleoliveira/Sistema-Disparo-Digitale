@@ -11,13 +11,13 @@ export interface SendHtmlEmailInput {
   to: string;
   subject: string;
   html: string;
-  fromName?: string;
-  replyTo?: string;
-  idempotencyKey?: string;
+  fromName?: string | undefined;
+  replyTo?: string | undefined;
+  idempotencyKey?: string | undefined;
 }
 
 export type SendHtmlEmailResult =
-  | { sent: true; messageId?: string }
+  | { sent: true; messageId?: string | undefined }
   | { sent: false; reason: string };
 
 /** Converte o HTML do template em texto simples (fallback exigido pelo provedor). */

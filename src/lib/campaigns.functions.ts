@@ -5,8 +5,8 @@ interface TestEmailInput {
   to: string;
   subject: string;
   html: string;
-  fromName?: string;
-  replyTo?: string;
+  fromName?: string | undefined;
+  replyTo?: string | undefined;
 }
 
 function parseTestInput(input: TestEmailInput): TestEmailInput {
