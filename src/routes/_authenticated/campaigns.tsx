@@ -806,8 +806,7 @@ function CampaignWizard({ onDone }: { onDone: () => void }) {
               Confirmar envio
             </AlertDialogAction>
           </AlertDialogFooter>
-        </AlertDialogFooter>
-      </AlertDialogContent>
+        </AlertDialogContent>
       </AlertDialog>
     </div>
   );
