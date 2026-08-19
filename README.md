@@ -1,45 +1,37 @@
-Sistema de E-mail Marketing (Disparo Digitale)
-Plataforma moderna para gestão, automação e disparo de campanhas de e-mail marketing, focada em otimizar o relacionamento com clientes e aumentar a conversão de vendas.
+# 🚀 Sistema de E-mail Marketing (Disparo Digitale)
 
-🚀 Live App: disparodigitaletextil.lovable.app
+Plataforma desenvolvida para otimizar o fluxo de envio, automação e gestão de campanhas de e-mail marketing. O sistema foi construído com foco em alta performance, usabilidade e integração contínua com banco de dados para gerenciamento eficiente de contatos e disparos.
 
-💼 Portfólio do Autor: porfolioleoliveira.lovable.app
+🌐 **Live App:** [disparodigitaletextil.lovable.app](https://disparodigitaletextil.lovable.app)  
+👤 **Desenvolvido por:** Leonardo Oliveira  
+💼 **Portfólio:** [porfolioleoliveira.lovable.app](https://porfolioleoliveira.lovable.app)
 
-Funcionalidades Principais
+---
 
-Gestão de Campanhas: Criação, personalização e agendamento de disparos de e-mail.
+## 🛠️ Tecnologias Utilizadas
 
-Autenticação e Banco de Dados: Integração com backend seguro e escalável.
+- **Frontend:** TypeScript, React, Vite, Tailwind CSS
+- **Backend & Database:** Supabase (PL/pgSQL / PostgreSQL)
+- **Runtime & Package Manager:** Bun / npm
+- **Prototipagem e IA:** Lovable.dev
 
-Interface Responsiva: Design intuitivo adaptado para dispositivos móveis e desktop.
+---
 
-Dashboard de Métricas: Acompanhamento em tempo real de envios e desempenho.
+## ✨ Funcionalidades Principais
 
-Tecnologias Utilizadas
+- **Gestão de Disparos:** Interface para criação, personalização e envio de e-mails em massa.
+- **Integração com Supabase:** Autenticação segura e gerenciamento eficiente da base de dados e listas de transmissão.
+- **Interface Intuitiva:** Dashboard moderno e totalmente responsivo para navegação fluida em desktop e mobile.
 
-Frontend: TypeScript, React, Vite, Tailwind CSS
+---
 
-Backend & Database: Supabase (PostgreSQL / PLpgSQL)
+## 🚀 Como Executar o Projeto Localmente
 
-Gerenciador de Pacotes: Bun / npm
+### Pré-requisitos
+Certifique-se de ter instalado em sua máquina o [Node.js](https://nodejs.org/) (com `npm`) ou o [Bun](https://bun.sh/).
 
-Plataforma de IA/Desenvolvimento: Lovable
+### Passo a passo
 
-Como Executar o Projeto Localmente
-
-Clone o repositório:
-
-Bash
-git clone https://github.com/RennanLucas/Sistema-Disparo-Digitale.git
-cd Sistema-Disparo-Digitale
-Instale as dependências:
-
-Bash
-npm install
-Inicie o servidor de desenvolvimento:
-
-Bash
-npm run dev
-Desenvolvido por
-
-Leonardo Oliveira — GitHub | Portfólio
+1. **Clone o repositório:**
+   ```bash
+   git clone [https://github.com/RennanLucas/Sistema-Disparo-Digitale.git](https://github.com/RennanLucas/Sistema-Disparo-Digitale.git)
