@@ -1,26 +1,45 @@
-# Sistema E-mail Marketing
+Sistema de E-mail Marketing (Disparo Digitale)
+Plataforma moderna para gestão, automação e disparo de campanhas de e-mail marketing, focada em otimizar o relacionamento com clientes e aumentar a conversão de vendas.
 
-crie um projeto em branco, pagina em branco
+🚀 Live App: disparodigitaletextil.lovable.app
 
-This project was built with [Lovable](https://lovable.dev).
+💼 Portfólio do Autor: porfolioleoliveira.lovable.app
 
-**Live app**: https://disparodigitaletextil.lovable.app
+Funcionalidades Principais
 
-## Build with Lovable
+Gestão de Campanhas: Criação, personalização e agendamento de disparos de e-mail.
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/a5e892ba-5df6-44ff-b7a3-dfac2fec3c1a).
+Autenticação e Banco de Dados: Integração com backend seguro e escalável.
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+Interface Responsiva: Design intuitivo adaptado para dispositivos móveis e desktop.
 
-## Development
+Dashboard de Métricas: Acompanhamento em tempo real de envios e desempenho.
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+Tecnologias Utilizadas
 
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+Frontend: TypeScript, React, Vite, Tailwind CSS
+
+Backend & Database: Supabase (PostgreSQL / PLpgSQL)
+
+Gerenciador de Pacotes: Bun / npm
+
+Plataforma de IA/Desenvolvimento: Lovable
+
+Como Executar o Projeto Localmente
+
+Clone o repositório:
+
+Bash
+git clone https://github.com/RennanLucas/Sistema-Disparo-Digitale.git
+cd Sistema-Disparo-Digitale
+Instale as dependências:
+
+Bash
+npm install
+Inicie o servidor de desenvolvimento:
+
+Bash
 npm run dev
-```
+Desenvolvido por
+
+Leonardo Oliveira — GitHub | Portfólio
