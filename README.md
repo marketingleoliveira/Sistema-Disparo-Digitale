@@ -4,7 +4,7 @@ Plataforma desenvolvida para otimizar o fluxo de envio, automação e gestão de
 
 🌐 **Live App:** [disparodigitaletextil.lovable.app](https://disparodigitaletextil.lovable.app)  
 👤 **Desenvolvido por:** Leonardo Oliveira  
-💼 **Portfólio:** [porfolioleoliveira.lovable.app](https://porfolioleoliveira.lovable.app)
+💼 **Portfólio:** [porfolioleoliveira.lovable.app](https://portfolioleoliveira.lovable.app)
 
 ---
 
