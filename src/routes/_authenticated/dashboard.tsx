@@ -70,24 +70,24 @@ const recentCampaigns: any[] = [];
 const activities = [
   {
     id: "1",
-    title: "Auditoria Completa",
-    desc: "revise todo o sistema e toda a ferramenta de disparo, e verifique se esta tudo funcionando corretamente, faça uma auditoria completa. (on element 'body' at '/src/routes/index.tsx:1')",
+    title: "PDF para E-MAIL",
+    desc: "permita transformar um PDF em E-MAIL de disparo. independente do tamanho do arquivo PDF (on element 'body' at '/src/routes/index.tsx:1')",
     time: "Fase atual",
-    icon: Send,
+    icon: Mail,
   },
   {
     id: "2",
+    title: "Auditoria Completa",
+    desc: "revise todo o sistema e toda a ferramenta de disparo, e verifique se esta tudo funcionando corretamente, faça uma auditoria completa. (on element 'body' at '/src/routes/index.tsx:1')",
+    time: "Finalizado",
+    icon: Send,
+  },
+  {
+    id: "3",
     title: "Monitoramento",
     desc: "Monitorar o status das campanhas na lista geral após o envio.",
     time: "Próximo passo",
     icon: Clock,
-  },
-  {
-    id: "3",
-    title: "Segurança & Acesso",
-    desc: "Consolidar a autenticação via e-mail/senha em uma fase futura para unificar o controle de acesso.",
-    time: "Planejamento",
-    icon: ShieldCheck,
   },
 ];
 
