@@ -210,10 +210,11 @@ function AddContactSheet({ open, onOpenChange }: { open: boolean, onOpenChange: 
       toast.success("Contato salvo com sucesso!");
       setFormData({ name: "", email: "", company: "", phone: "", status: "Ativo" });
       onOpenChange(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to save contact:", error);
+      const errorMessage = error?.message || error?.details || "Tente novamente mais tarde.";
       toast.error("Erro ao salvar contato", { 
-        description: error instanceof Error ? error.message : "Tente novamente mais tarde." 
+        description: errorMessage 
       });
     } finally {
       setIsLoading(false);
