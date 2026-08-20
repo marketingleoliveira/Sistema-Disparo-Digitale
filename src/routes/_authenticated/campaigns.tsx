@@ -25,7 +25,9 @@ import { cn } from "@/lib/utils";
 import { useDataStore, type Campaign } from "@/hooks/use-data";
 import { useTemplateLibrary } from "@/hooks/use-template-library";
 import { blocksToEmailHtml } from "@/lib/templates/blocks-to-html";
+import type { EditorBlock } from "@/components/editor/editor-types";
 import { VisualEmailEditor } from "@/components/editor/VisualEmailEditor";
+
 import { sendCampaignTest, dispatchCampaign } from "@/lib/campaigns.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -527,14 +529,17 @@ function CampaignWizard({ onDone }: { onDone: () => void }) {
               </button>
 
               <PdfUploadDialog
-                onConverted={(html) => {
+                onConverted={(blocks) => {
                   patch({ 
-                    html, 
+                    html: blocksToEmailHtml(blocks, draft.subject || "Campanha PDF"), 
                     templateId: "pdf-import", 
                     templateName: "Importado de PDF" 
                   });
+                  // Opcional: abrir o editor automaticamente após a conversão
+                  setEditorOpen(true);
                 }}
               >
+
                 <button
                   type="button"
                   className="group rounded-2xl border-2 border-dashed p-8 text-center transition-all hover:border-accent hover:bg-accent/5"

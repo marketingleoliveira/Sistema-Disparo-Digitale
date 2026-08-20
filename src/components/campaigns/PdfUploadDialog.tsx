@@ -15,11 +15,13 @@ import {
 import { cn } from "@/lib/utils";
 import { useServerFn } from "@tanstack/react-start";
 import { processPdfToEmail } from "@/lib/campaigns/pdf-processor.functions";
+import type { EditorBlock } from "@/components/editor/editor-types";
 
 export interface PdfUploadDialogProps {
-  onConverted: (html: string) => void;
+  onConverted: (blocks: EditorBlock[]) => void;
   children?: React.ReactNode;
 }
+
 
 export function PdfUploadDialog({ onConverted, children }: PdfUploadDialogProps) {
   const [open, setOpen] = React.useState(false);
@@ -83,11 +85,12 @@ export function PdfUploadDialog({ onConverted, children }: PdfUploadDialogProps)
         setStatus("success");
         toast.success("PDF convertido com sucesso!");
         setTimeout(() => {
-          onConverted(result.html);
+          onConverted(result.blocks as EditorBlock[]);
           setOpen(false);
           reset();
         }, 800);
       } else {
+
         throw new Error(result.message || "Erro na conversão");
       }
     } catch (error) {
