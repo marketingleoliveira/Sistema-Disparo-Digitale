@@ -70,9 +70,9 @@ const recentCampaigns: any[] = [];
 const activities = [
   {
     id: "1",
-    title: "Disparo de Teste",
-    desc: "como resolvo esse problema (on element 'body' at '/src/routes/index.tsx:1')",
-    time: "Meta atual",
+    title: "Auditoria Completa",
+    desc: "revise todo o sistema e toda a ferramenta de disparo, e verifique se esta tudo funcionando corretamente, faça uma auditoria completa. (on element 'body' at '/src/routes/index.tsx:1')",
+    time: "Fase atual",
     icon: Send,
   },
   {
