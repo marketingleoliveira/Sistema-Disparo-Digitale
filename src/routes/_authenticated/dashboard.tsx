@@ -70,8 +70,8 @@ const recentCampaigns: any[] = [];
 const activities = [
   {
     id: "1",
-    title: "PDF para E-MAIL",
-    desc: "permita transformar um PDF em E-MAIL de disparo. independente do tamanho do arquivo PDF (on element 'body' at '/src/routes/index.tsx:1')",
+    title: "Upload de PDF",
+    desc: "Ao criar uma campanha, na terceira etapa, em design, permita realizar o UPLOAD de PDF para desparo, que será transformado no design do e-mail. (on element 'body' at '/src/routes/index.tsx:1')",
     time: "Fase atual",
     icon: Mail,
   },
