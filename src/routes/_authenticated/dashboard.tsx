@@ -77,8 +77,8 @@ const activities = [
   },
   {
     id: "2",
-    title: "Auditoria Completa",
-    desc: "revise todo o sistema e toda a ferramenta de disparo, e verifique se esta tudo funcionando corretamente, faça uma auditoria completa. (on element 'body' at '/src/routes/index.tsx:1')",
+    title: "Funcionalidade PDF",
+    desc: "Implementar o upload de PDF na etapa de design do wizard da campanha. e\n\nCriar a conversão do PDF para HTML para eu usar como base do design do e-mail. e\n\nAdicionar uma interface de edição do HTML convertido para eu ajustar o design do e-mail. e\n\nExibir uma barra de progresso e status da conversão do PDF para eu saber quando o processamento termina. e\n\nImplementar validações de tamanho/formato e mensagens de erro claras para eu saber quando o PDF não pode ser processado. (on element 'body' at '/src/routes/index.tsx:1')",
     time: "Finalizado",
     icon: Send,
   },
