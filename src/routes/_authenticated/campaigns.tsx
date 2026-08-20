@@ -194,6 +194,7 @@ function CampaignWizard({ onDone }: { onDone: () => void }) {
   const [step, setStep] = React.useState(1);
   const [draft, setDraft] = React.useState<CampaignDraft>(EMPTY_DRAFT);
   const [isEditorOpen, setEditorOpen] = React.useState(false);
+  const [editorBlocks, setEditorBlocks] = React.useState<EditorBlock[] | undefined>(undefined);
   const [previewMode, setPreviewMode] = React.useState<"desktop" | "mobile">("desktop");
   const [pending, setPending] = React.useState<null | "test" | "draft" | "schedule" | "send">(null);
   const [confirmSend, setConfirmSend] = React.useState(false);
@@ -379,6 +380,7 @@ function CampaignWizard({ onDone }: { onDone: () => void }) {
           <p className="text-xs text-muted-foreground">Conteúdo da campanha “{draft.name || "sem nome"}”</p>
         </div>
         <VisualEmailEditor
+          initialBlocks={editorBlocks}
           saveLabel="Usar este conteúdo"
           onSave={(blocks) => {
             patch({
@@ -540,12 +542,12 @@ function CampaignWizard({ onDone }: { onDone: () => void }) {
 
               <PdfUploadDialog
                 onConverted={(blocks) => {
+                  setEditorBlocks(blocks);
                   patch({ 
                     html: blocksToEmailHtml(blocks, draft.subject || "Campanha PDF"), 
                     templateId: "pdf-import", 
                     templateName: "Importado de PDF" 
                   });
-                  // Opcional: abrir o editor automaticamente após a conversão
                   setEditorOpen(true);
                 }}
               >
