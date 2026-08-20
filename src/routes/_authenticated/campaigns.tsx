@@ -18,6 +18,7 @@ import {
   Send,
   CalendarClock,
   Save,
+  FileText,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -39,6 +40,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { PdfUploadDialog } from "@/components/campaigns/PdfUploadDialog";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -510,7 +513,7 @@ function CampaignWizard({ onDone }: { onDone: () => void }) {
               </p>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-3">
               <button
                 type="button"
                 onClick={() => setEditorOpen(true)}
@@ -522,6 +525,28 @@ function CampaignWizard({ onDone }: { onDone: () => void }) {
                 <p className="font-bold text-primary">Criar do zero</p>
                 <p className="mt-1 text-xs text-muted-foreground">Editor drag &amp; drop</p>
               </button>
+
+              <PdfUploadDialog
+                onConverted={(html) => {
+                  patch({ 
+                    html, 
+                    templateId: "pdf-import", 
+                    templateName: "Importado de PDF" 
+                  });
+                }}
+              >
+                <button
+                  type="button"
+                  className="group rounded-2xl border-2 border-dashed p-8 text-center transition-all hover:border-accent hover:bg-accent/5"
+                >
+                  <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-muted text-muted-foreground transition-colors group-hover:bg-accent/20 group-hover:text-accent">
+                    <FileText size={28} />
+                  </div>
+                  <p className="font-bold text-primary">Importar PDF</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Converter arquivo</p>
+                </button>
+              </PdfUploadDialog>
+
 
               <div className="rounded-2xl border p-4">
                 <p className="mb-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">
