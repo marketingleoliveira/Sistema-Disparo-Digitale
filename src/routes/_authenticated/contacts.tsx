@@ -200,16 +200,23 @@ function AddContactSheet({ open, onOpenChange }: { open: boolean, onOpenChange: 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulação de delay
-    await new Promise(r => setTimeout(r, 600));
-    addContact({
-      ...formData,
-      lists: ["Importados"],
-      tags: ["Novo"],
-    });
-    setIsLoading(false);
-    onOpenChange(false);
-    setFormData({ name: "", email: "", company: "", phone: "", status: "Ativo" });
+    try {
+      await addContact({
+        ...formData,
+        lists: ["Contatos Diretos"],
+        tags: ["Manual"],
+      });
+      toast.success("Contato salvo com sucesso!");
+      setFormData({ name: "", email: "", company: "", phone: "", status: "Ativo" });
+      onOpenChange(false);
+    } catch (error) {
+      console.error("Failed to save contact:", error);
+      toast.error("Erro ao salvar contato", { 
+        description: error instanceof Error ? error.message : "Tente novamente mais tarde." 
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

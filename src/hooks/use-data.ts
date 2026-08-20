@@ -105,7 +105,8 @@ export const useDataStore = create<DataState>((set, get) => ({
   },
 
   addContact: async (data) => {
-    const { error } = await supabase.from('contacts').insert([{
+    console.log("Adding contact:", data);
+    const { data: inserted, error } = await supabase.from('contacts').insert([{
       name: data.name,
       email: data.email,
       company: data.company || null,
@@ -113,9 +114,17 @@ export const useDataStore = create<DataState>((set, get) => ({
       lists: data.lists as any,
       tags: data.tags as any,
       phone: data.phone || null,
-    }]);
+      last_activity: 'Recém adicionado',
+      engagement: 0
+    }]).select();
 
-    if (!error) await get().fetchContacts();
+    if (error) {
+      console.error("Error adding contact:", error);
+      throw error;
+    }
+    
+    console.log("Contact inserted successfully:", inserted);
+    await get().fetchContacts();
   },
 
   deleteContact: async (id) => {
