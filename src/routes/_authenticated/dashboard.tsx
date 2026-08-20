@@ -19,7 +19,8 @@ import {
   CheckCircle2,
   Clock,
   Bell,
-  Loader2
+  Loader2,
+  ShieldCheck
 } from "lucide-react";
 
 import { 
@@ -66,7 +67,29 @@ const engagementLevels = [
 
 const recentCampaigns: any[] = [];
 
-const activities: any[] = [];
+const activities = [
+  {
+    id: "1",
+    title: "Disparo de Teste",
+    desc: "Realizar um disparo de teste na etapa 5 do Wizard para confirmar o recebimento na caixa de entrada.",
+    time: "Meta atual",
+    icon: Send,
+  },
+  {
+    id: "2",
+    title: "Monitoramento",
+    desc: "Monitorar o status das campanhas na lista geral após o envio.",
+    time: "Próximo passo",
+    icon: Clock,
+  },
+  {
+    id: "3",
+    title: "Segurança & Acesso",
+    desc: "Consolidar a autenticação via e-mail/senha em uma fase futura para unificar o controle de acesso.",
+    time: "Planejamento",
+    icon: ShieldCheck,
+  },
+];
 
 // --- Components ---
 
