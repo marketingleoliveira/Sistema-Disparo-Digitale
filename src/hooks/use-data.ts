@@ -16,6 +16,23 @@ export interface Contact {
   createdAt: string;
 }
 
+export interface ContactList {
+  id: string;
+  name: string;
+  description: string;
+  contactCount?: number;
+  createdAt: string;
+}
+
+export interface ContactSegment {
+  id: string;
+  name: string;
+  description: string;
+  filters: any;
+  contactCount?: number;
+  createdAt: string;
+}
+
 export interface Campaign {
   id: string;
   name: string;
@@ -34,9 +51,13 @@ export interface Campaign {
 interface DataState {
   contacts: Contact[];
   campaigns: Campaign[];
+  lists: ContactList[];
+  segments: ContactSegment[];
   isLoading: boolean;
   fetchContacts: () => Promise<void>;
   fetchCampaigns: () => Promise<void>;
+  fetchLists: () => Promise<void>;
+  fetchSegments: () => Promise<void>;
   addContact: (contact: Omit<Contact, 'id' | 'createdAt' | 'initials' | 'engagement' | 'lastActivity'>) => Promise<void>;
   importContacts: (
     contacts: Array<Omit<Contact, 'id' | 'createdAt' | 'initials' | 'engagement' | 'lastActivity'>>
@@ -44,11 +65,17 @@ interface DataState {
   deleteContact: (id: string) => Promise<void>;
   addCampaign: (campaign: Omit<Campaign, 'id' | 'createdAt'>) => Promise<string | null>;
   deleteCampaign: (id: string) => Promise<void>;
+  addList: (name: string, description: string) => Promise<void>;
+  deleteList: (id: string) => Promise<void>;
+  addSegment: (name: string, description: string, filters: any) => Promise<void>;
+  deleteSegment: (id: string) => Promise<void>;
 }
 
 export const useDataStore = create<DataState>((set, get) => ({
   contacts: [],
   campaigns: [],
+  lists: [],
+  segments: [],
   isLoading: false,
 
   fetchContacts: async () => {
@@ -104,8 +131,48 @@ export const useDataStore = create<DataState>((set, get) => ({
     set({ isLoading: false });
   },
 
+  fetchLists: async () => {
+    set({ isLoading: true });
+    const { data, error } = await supabase
+      .from('contact_lists')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (!error && data) {
+      const allContacts = get().contacts;
+      const mapped = data.map(l => ({
+        id: l.id,
+        name: l.name,
+        description: l.description || '',
+        createdAt: l.created_at,
+        contactCount: allContacts.filter(c => c.lists.includes(l.name)).length
+      }));
+      set({ lists: mapped });
+    }
+    set({ isLoading: false });
+  },
+
+  fetchSegments: async () => {
+    set({ isLoading: true });
+    const { data, error } = await supabase
+      .from('contact_segments')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (!error && data) {
+      const mapped = data.map(s => ({
+        id: s.id,
+        name: s.name,
+        description: s.description || '',
+        filters: s.filters,
+        createdAt: s.created_at,
+      }));
+      set({ segments: mapped });
+    }
+    set({ isLoading: false });
+  },
+
   addContact: async (data) => {
-    console.log("Adding contact:", data);
     const { data: inserted, error } = await supabase.from('contacts').insert([{
       name: data.name,
       email: data.email,
@@ -118,12 +185,7 @@ export const useDataStore = create<DataState>((set, get) => ({
       engagement: 0
     }]).select();
 
-    if (error) {
-      console.error("Error adding contact:", error);
-      throw error;
-    }
-    
-    console.log("Contact inserted successfully:", inserted);
+    if (error) throw error;
     await get().fetchContacts();
   },
 
@@ -132,11 +194,8 @@ export const useDataStore = create<DataState>((set, get) => ({
     if (!error) await get().fetchContacts();
   },
 
-
   importContacts: async (incoming) => {
     if (incoming.length === 0) return { inserted: 0, skipped: 0 };
-
-    // Busca contatos existentes para evitar duplicidade de e-mail
     const { data: existingData } = await supabase.from('contacts').select('email');
     const existingEmails = new Set((existingData || []).map(c => c.email.toLowerCase()));
     
@@ -168,7 +227,6 @@ export const useDataStore = create<DataState>((set, get) => ({
       
       const { error } = await supabase.from('contacts').insert(chunk);
       if (error) {
-        console.error("Error importing chunk:", error);
         await get().fetchContacts();
         return { inserted, skipped, error: error.message };
       }
@@ -178,6 +236,7 @@ export const useDataStore = create<DataState>((set, get) => ({
     await get().fetchContacts();
     return { inserted, skipped };
   },
+
   addCampaign: async (data) => {
     const { data: inserted, error } = await supabase.from('campaigns').insert([{
       name: data.name,
@@ -198,5 +257,29 @@ export const useDataStore = create<DataState>((set, get) => ({
   deleteCampaign: async (id) => {
     const { error } = await supabase.from('campaigns').delete().eq('id', id);
     if (!error) await get().fetchCampaigns();
+  },
+
+  addList: async (name, description) => {
+    const { error } = await supabase.from('contact_lists').insert([{ name, description }]);
+    if (error) throw error;
+    await get().fetchLists();
+  },
+
+  deleteList: async (id) => {
+    const { error } = await supabase.from('contact_lists').delete().eq('id', id);
+    if (error) throw error;
+    await get().fetchLists();
+  },
+
+  addSegment: async (name, description, filters) => {
+    const { error } = await supabase.from('contact_segments').insert([{ name, description, filters }]);
+    if (error) throw error;
+    await get().fetchSegments();
+  },
+
+  deleteSegment: async (id) => {
+    const { error } = await supabase.from('contact_segments').delete().eq('id', id);
+    if (error) throw error;
+    await get().fetchSegments();
   },
 }));
