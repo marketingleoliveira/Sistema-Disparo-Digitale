@@ -14,6 +14,7 @@ export const processPdfToEmail = createServerFn({ method: "POST" })
     await new Promise(resolve => setTimeout(resolve, 2500));
 
     // Estrutura de blocos que o editor visual entende
+    // Em produção, isso viria da análise do PDF.
     const blocks = [
       {
         id: "pdf-logo-" + Date.now(),
@@ -42,19 +43,19 @@ export const processPdfToEmail = createServerFn({ method: "POST" })
       {
         id: "pdf-text-1-" + Date.now(),
         type: "text",
-        content: { text: "Conteúdo extraído com sucesso do seu documento. Este layout foi gerado automaticamente para facilitar o seu disparo de e-mail marketing." },
+        content: { text: "Documento processado: " + data.fileName },
         styles: { fontSize: "18px", lineHeight: "1.6", textAlign: "left", color: "#1e2d4d", fontWeight: "600", paddingTop: "10px", paddingBottom: "10px" }
       },
       {
         id: "pdf-text-2-" + Date.now(),
         type: "text",
-        content: { text: "Os textos e imagens acima foram identificados no PDF original. Você pode editar qualquer parte deste conteúdo, alterar cores ou adicionar novos botões usando o editor ao lado." },
+        content: { text: "Conteúdo extraído com sucesso. Este layout foi gerado automaticamente para facilitar o seu disparo de e-mail marketing da Digitale Têxtil." },
         styles: { fontSize: "16px", lineHeight: "1.5", textAlign: "left", color: "#5b6579", paddingTop: "5px", paddingBottom: "20px" }
       },
       {
         id: "pdf-btn-" + Date.now(),
         type: "button",
-        content: { text: "CONFIRA NO SITE", url: "https://www.digitaletextil.com.br" },
+        content: { text: "VER DETALHES", url: "https://www.digitaletextil.com.br" },
         styles: { backgroundColor: "#ee6c1f", color: "#ffffff", borderRadius: "8px", textAlign: "center", paddingTop: "12px", paddingBottom: "12px", paddingLeft: "30px", paddingRight: "30px" }
       },
       {

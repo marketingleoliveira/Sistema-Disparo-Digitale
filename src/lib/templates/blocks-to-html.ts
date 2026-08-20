@@ -31,8 +31,8 @@ function renderBlock(block: EditorBlock): string {
   switch (block.type) {
     case "logo":
     case "image": {
-      const width = block.type === "logo" ? "200" : "600";
-      return `<tr><td align="${align}" style="${pad(s)}"><img src="${esc(safeUrl(content.url))}" alt="${esc(content.alt ?? "")}" width="${width}" style="display:inline-block;max-width:100%;height:auto;border:0;border-radius:${esc(s["borderRadius"] ?? "0")};" /></td></tr>`;
+      const width = block.type === "logo" ? "180" : "600";
+      return `<tr><td align="${align}" style="${pad(s)}"><img src="${esc(safeUrl(content.url))}" alt="${esc(content.alt ?? (block.type === 'logo' ? 'Logo Digitale Têxtil' : ''))}" width="${width}" style="display:inline-block;max-width:100%;height:auto;border:0;border-radius:${esc(s["borderRadius"] ?? "0")};" /></td></tr>`;
     }
     case "title":
       return `<tr><td align="${align}" style="${pad(s)}"><h2 style="margin:0;font-size:${esc(s["fontSize"] ?? "24px")};font-weight:${esc(s["fontWeight"] ?? "bold")};color:${esc(s["color"] ?? "#1e2d4d")};">${esc(content.text)}</h2></td></tr>`;
