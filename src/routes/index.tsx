@@ -111,7 +111,7 @@ function LoginPage() {
         </div>
 
         <p className="text-center text-xs font-medium text-blue-200/40">
-          Implementar um modo que aplique alterações sempre no código e nunca em textos visuais do rodapé. (on element 'body' at '/src/routes/index.tsx:1')
+          resolva esse erro (on element 'body' at '/src/routes/index.tsx:1')
         </p>
       </div>
     </div>
