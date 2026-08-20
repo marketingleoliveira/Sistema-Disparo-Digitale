@@ -80,101 +80,121 @@ export const useDataStore = create<DataState>((set, get) => ({
 
   fetchContacts: async () => {
     set({ isLoading: true });
-    const { data, error } = await supabase
-      .from('contacts')
-      .select('*')
-      .order('created_at', { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from('contacts')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-    if (!error && data) {
-      const mapped = data.map(c => ({
-        id: c.id,
-        name: c.name,
-        email: c.email,
-        company: c.company || '',
-        status: (c.status as any) || 'Ativo',
-        lists: (c.lists as any) || [],
-        tags: (c.tags as any) || [],
-        engagement: c.engagement || 0,
-        lastActivity: c.last_activity || '',
-        phone: c.phone || '',
-        initials: c.name.slice(0, 2).toUpperCase(),
-        createdAt: c.created_at || '',
-      }));
-      set({ contacts: mapped });
+      if (error) {
+        console.error("Error fetching contacts:", error);
+      } else if (data) {
+        const mapped = data.map(c => ({
+          id: c.id,
+          name: c.name,
+          email: c.email,
+          company: c.company || '',
+          status: (c.status as any) || 'Ativo',
+          lists: (c.lists as any) || [],
+          tags: (c.tags as any) || [],
+          engagement: c.engagement || 0,
+          lastActivity: c.last_activity || '',
+          phone: c.phone || '',
+          initials: c.name.slice(0, 2).toUpperCase(),
+          createdAt: c.created_at || '',
+        }));
+        set({ contacts: mapped });
+      }
+    } finally {
+      set({ isLoading: false });
     }
-    set({ isLoading: false });
   },
 
   fetchCampaigns: async () => {
     set({ isLoading: true });
-    const { data, error } = await supabase
-      .from('campaigns')
-      .select('*')
-      .order('created_at', { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from('campaigns')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-    if (!error && data) {
-      const mapped = data.map(c => ({
-        id: c.id,
-        name: c.name,
-        type: c.type || 'E-mail',
-        date: c.created_at || '',
-        recipients: c.recipients || 0,
-        open: c.open_rate || '0%',
-        clicks: c.click_rate || '0%',
-        status: (c.status as any) || 'Rascunho',
-        subject: c.subject || '',
-        createdAt: c.created_at || '',
-        content: (c.content as any) || undefined,
-      }));
-      set({ campaigns: mapped });
+      if (error) {
+        console.error("Error fetching campaigns:", error);
+      } else if (data) {
+        const mapped = data.map(c => ({
+          id: c.id,
+          name: c.name,
+          type: c.type || 'E-mail',
+          date: c.created_at || '',
+          recipients: c.recipients || 0,
+          open: c.open_rate || '0%',
+          clicks: c.click_rate || '0%',
+          status: (c.status as any) || 'Rascunho',
+          subject: c.subject || '',
+          createdAt: c.created_at || '',
+          content: (c.content as any) || undefined,
+        }));
+        set({ campaigns: mapped });
+      }
+    } finally {
+      set({ isLoading: false });
     }
-    set({ isLoading: false });
   },
 
   fetchLists: async () => {
     set({ isLoading: true });
-    const { data, error } = await supabase
-      .from('contact_lists')
-      .select('*')
-      .order('created_at', { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from('contact_lists')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-    if (!error && data) {
-      const allContacts = get().contacts;
-      const mapped = data.map(l => ({
-        id: l.id,
-        name: l.name,
-        description: l.description || '',
-        createdAt: l.created_at,
-        contactCount: allContacts.filter(c => c.lists.includes(l.name)).length
-      }));
-      set({ lists: mapped });
+      if (error) {
+        console.error("Error fetching lists:", error);
+      } else if (data) {
+        const allContacts = get().contacts;
+        const mapped = data.map(l => ({
+          id: l.id,
+          name: l.name,
+          description: l.description || '',
+          createdAt: l.created_at,
+          contactCount: allContacts.filter(c => c.lists.includes(l.name)).length
+        }));
+        set({ lists: mapped });
+      }
+    } finally {
+      set({ isLoading: false });
     }
-    set({ isLoading: false });
   },
 
   fetchSegments: async () => {
     set({ isLoading: true });
-    const { data, error } = await supabase
-      .from('contact_segments')
-      .select('*')
-      .order('created_at', { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from('contact_segments')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-    if (!error && data) {
-      const mapped = data.map(s => ({
-        id: s.id,
-        name: s.name,
-        description: s.description || '',
-        filters: s.filters,
-        createdAt: s.created_at,
-      }));
-      set({ segments: mapped });
+      if (error) {
+        console.error("Error fetching segments:", error);
+      } else if (data) {
+        const mapped = data.map(s => ({
+          id: s.id,
+          name: s.name,
+          description: s.description || '',
+          filters: s.filters,
+          createdAt: s.created_at,
+        }));
+        set({ segments: mapped });
+      }
+    } finally {
+      set({ isLoading: false });
     }
-    set({ isLoading: false });
   },
 
   addContact: async (data) => {
     try {
-      const { data: inserted, error } = await supabase.from('contacts').insert([{
+      const { error } = await supabase.from('contacts').insert([{
         name: data.name,
         email: data.email,
         company: data.company || null,
@@ -184,15 +204,15 @@ export const useDataStore = create<DataState>((set, get) => ({
         phone: data.phone || null,
         last_activity: 'Recém adicionado',
         engagement: 0
-      }]).select();
+      }]);
 
       if (error) {
-        console.error("Supabase insert error details:", error);
-        throw error;
+        console.error("Supabase contact insert failed:", error);
+        throw new Error(error.message || "Falha ao inserir contato no banco de dados.");
       }
       await get().fetchContacts();
     } catch (err) {
-      console.error("addContact caught error:", err);
+      console.error("addContact exception:", err);
       throw err;
     }
   },
