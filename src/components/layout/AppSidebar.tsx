@@ -123,13 +123,12 @@ export function AppSidebar() {
   const { user } = useAuthStore();
 
   const SidebarContent = () => {
-    const isMarketing = user?.role === 'Marketing';
     const isDev = user?.role === 'Desenvolvedor';
 
     const filteredStructure = sidebarStructure.filter(group => {
-      // Marketing só vê Principal (Dashboard) e Analytics
-      if (isMarketing) {
-        return group.group === "Principal" || group.group === "Analytics";
+      // Configurações só para Desenvolvedor
+      if (group.group === "Configurações") {
+        return isDev;
       }
       
       // Configurações só para Desenvolvedor
