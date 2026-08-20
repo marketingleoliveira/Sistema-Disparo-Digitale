@@ -50,6 +50,7 @@ export const dispatchCampaign = createServerFn({ method: "POST" })
     return { campaignId };
   })
   .handler(async ({ data }) => {
+    // Usamos supabaseAdmin para ignorar RLS e middleware de auth enquanto o sistema de login é consolidado.
     const { supabaseAdmin: supabase } = await import("@/integrations/supabase/client.server");
 
     const { data: campaign, error } = await supabase
