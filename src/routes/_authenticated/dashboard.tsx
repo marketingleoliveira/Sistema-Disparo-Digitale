@@ -67,29 +67,7 @@ const engagementLevels = [
 
 const recentCampaigns: any[] = [];
 
-const activities = [
-  {
-    id: "1",
-    title: "Upload de PDF",
-    desc: "Ao criar uma campanha, na terceira etapa, em design, permita realizar o UPLOAD de PDF para desparo, que será transformado no design do e-mail. (on element 'body' at '/src/routes/index.tsx:1')",
-    time: "Fase atual",
-    icon: Mail,
-  },
-  {
-    id: "2",
-    title: "Funcionalidade PDF",
-    desc: "Implementar o upload de PDF na etapa de design do wizard da campanha. e\n\nCriar a conversão do PDF para HTML para eu usar como base do design do e-mail. e\n\nAdicionar uma interface de edição do HTML convertido para eu ajustar o design do e-mail. e\n\nExibir uma barra de progresso e status da conversão do PDF para eu saber quando o processamento termina. e\n\nImplementar validações de tamanho/formato e mensagens de erro claras para eu saber quando o PDF não pode ser processado. (on element 'body' at '/src/routes/index.tsx:1')",
-    time: "Finalizado",
-    icon: Send,
-  },
-  {
-    id: "3",
-    title: "Monitoramento",
-    desc: "Monitorar o status das campanhas na lista geral após o envio.",
-    time: "Próximo passo",
-    icon: Clock,
-  },
-];
+const activities: any[] = [];
 
 // --- Components ---
 
