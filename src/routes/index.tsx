@@ -1,4 +1,4 @@
-import * as React from "react";
+Revisar se existem links quebrados no AppSidebar.tsx que estejam apontando para rotas não implementadas. e Adicionar logs de erro 404 no banco de dados para monitorar links obsoletos. (on element 'body' at '/src/routes/index.tsx:1')
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useAuthStore, UserRole } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
