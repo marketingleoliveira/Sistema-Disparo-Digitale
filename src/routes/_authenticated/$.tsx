@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Home, AlertTriangle } from "lucide-react";
 
-export const Route = createFileRoute("/$")({
+export const Route = createFileRoute("/_authenticated/$")({
   component: NotFoundPage,
 });
 

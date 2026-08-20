@@ -1,3 +1,4 @@
+quando eu clico no menu 404, da erro, resolva isso (on element 'body' at '/src/routes/index.tsx:1')
 import * as React from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useAuthStore, UserRole } from "@/hooks/use-auth";
