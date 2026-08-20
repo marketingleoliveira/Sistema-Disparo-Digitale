@@ -71,7 +71,7 @@ const activities = [
   {
     id: "1",
     title: "Disparo de Teste",
-    desc: "Realizar um disparo de teste na etapa 5 do Wizard para confirmar o recebimento na caixa de entrada.",
+    desc: "como resolvo esse problema (on element 'body' at '/src/routes/index.tsx:1')",
     time: "Meta atual",
     icon: Send,
   },
