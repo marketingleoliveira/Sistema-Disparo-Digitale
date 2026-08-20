@@ -63,8 +63,8 @@ const sidebarStructure: { group: string; items: NavItem[] }[] = [
         icon: Mail,
         items: [
           { label: "Todas as campanhas", icon: Mail, href: "/campaigns" },
-          { label: "SMS", icon: Smartphone, href: "/campaigns/sms" as any },
-          { label: "WhatsApp", icon: Zap, href: "/campaigns/whatsapp" as any },
+          { label: "SMS", icon: Smartphone, href: "/campaigns" },
+          { label: "WhatsApp", icon: Zap, href: "/campaigns" },
         ],
       },
       { label: "Templates", icon: FileText, href: "/templates" },
@@ -83,7 +83,7 @@ const sidebarStructure: { group: string; items: NavItem[] }[] = [
           { label: "Todos os contatos", icon: Users, href: "/contacts" },
           { label: "Listas", icon: List, href: "/lists" },
           { label: "Segmentos", icon: Target, href: "/segments" },
-          { label: "Tags", icon: Tag, href: "/tags" as any },
+          { label: "Tags", icon: Tag, href: "/contacts" },
         ],
       },
     ],
@@ -96,7 +96,7 @@ const sidebarStructure: { group: string; items: NavItem[] }[] = [
         icon: BarChart3,
         items: [
           { label: "Relatórios", icon: BarChart3, href: "/reports" },
-          { label: "Métricas", icon: TrendingUp, href: "/analytics/metrics" as any },
+          { label: "Métricas", icon: TrendingUp, href: "/reports" },
         ],
       },
     ],
