@@ -515,7 +515,17 @@ function CampaignWizard({ onDone }: { onDone: () => void }) {
               </p>
             </div>
 
+            <div className="mb-6 rounded-xl border bg-accent/5 p-4 text-sm text-accent">
+              <div className="flex gap-3">
+                <Info className="h-5 w-5 shrink-0" />
+                <p>
+                  Escolha como deseja criar o conteúdo do seu e-mail. Você pode usar nosso editor visual ou importar um arquivo pronto (PDF/Canva).
+                </p>
+              </div>
+            </div>
+
             <div className="grid gap-4 sm:grid-cols-3">
+
               <button
                 type="button"
                 onClick={() => setEditorOpen(true)}
