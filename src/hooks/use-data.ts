@@ -105,7 +105,8 @@ export const useDataStore = create<DataState>((set, get) => ({
   },
 
   addContact: async (data) => {
-    const { error } = await supabase.from('contacts').insert([{
+    console.log("Adding contact:", data);
+    const { data: inserted, error } = await supabase.from('contacts').insert([{
       name: data.name,
       email: data.email,
       company: data.company || null,
@@ -113,9 +114,17 @@ export const useDataStore = create<DataState>((set, get) => ({
       lists: data.lists as any,
       tags: data.tags as any,
       phone: data.phone || null,
-    }]);
+      last_activity: 'Recém adicionado',
+      engagement: 0
+    }]).select();
 
-    if (!error) await get().fetchContacts();
+    if (error) {
+      console.error("Error adding contact:", error);
+      throw error;
+    }
+    
+    console.log("Contact inserted successfully:", inserted);
+    await get().fetchContacts();
   },
 
   deleteContact: async (id) => {
@@ -127,12 +136,14 @@ export const useDataStore = create<DataState>((set, get) => ({
   importContacts: async (incoming) => {
     if (incoming.length === 0) return { inserted: 0, skipped: 0 };
 
-    // Ignora e-mails já existentes na base para evitar duplicidade
-    const existing = new Set(get().contacts.map((c) => c.email.toLowerCase()));
+    // Busca contatos existentes para evitar duplicidade de e-mail
+    const { data: existingData } = await supabase.from('contacts').select('email');
+    const existingEmails = new Set((existingData || []).map(c => c.email.toLowerCase()));
+    
     const seen = new Set<string>();
     const rows = incoming.filter((c) => {
       const email = c.email.toLowerCase();
-      if (!email || existing.has(email) || seen.has(email)) return false;
+      if (!email || existingEmails.has(email) || seen.has(email)) return false;
       seen.add(email);
       return true;
     });
@@ -140,7 +151,7 @@ export const useDataStore = create<DataState>((set, get) => ({
     const skipped = incoming.length - rows.length;
     if (rows.length === 0) return { inserted: 0, skipped };
 
-    const CHUNK = 200;
+    const CHUNK = 100;
     let inserted = 0;
     for (let i = 0; i < rows.length; i += CHUNK) {
       const chunk = rows.slice(i, i + CHUNK).map((c) => ({
@@ -151,9 +162,13 @@ export const useDataStore = create<DataState>((set, get) => ({
         lists: c.lists as any,
         tags: c.tags as any,
         phone: c.phone || null,
+        last_activity: 'Importado',
+        engagement: 0
       }));
+      
       const { error } = await supabase.from('contacts').insert(chunk);
       if (error) {
+        console.error("Error importing chunk:", error);
         await get().fetchContacts();
         return { inserted, skipped, error: error.message };
       }
