@@ -111,7 +111,7 @@ function LoginPage() {
         </div>
 
         <p className="text-center text-xs font-medium text-blue-200/40">
-          Gere um e-mail de disparo. Para testar todo o sistema. (on element 'body' at '/src/routes/index.tsx:1')
+          Altere o sistema, não somente texto visual, para Implementar o fluxo ponta a ponta de disparo, desde a geração do e-mail até o envio final, para validar o sistema inteiro. Não deve alterar apenas textos do sistema e sim, alterar seus códigos. (on element 'body' at '/src/routes/index.tsx:1')
         </p>
       </div>
     </div>
