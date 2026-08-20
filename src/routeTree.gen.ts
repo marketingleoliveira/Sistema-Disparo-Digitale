@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as AuthenticatedSplatRouteImport } from './routes/_authenticated/$'
 import { Route as AuthenticatedAutomationsRouteImport } from './routes/_authenticated/automations'
 import { Route as AuthenticatedCampaignsRouteImport } from './routes/_authenticated/campaigns'
 import { Route as AuthenticatedContactsRouteImport } from './routes/_authenticated/contacts'
@@ -35,6 +36,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedSplatRoute = AuthenticatedSplatRouteImport.update({
+  id: '/$',
+  path: '/$',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedAutomationsRoute =
   AuthenticatedAutomationsRouteImport.update({
@@ -118,6 +124,7 @@ const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$': typeof AuthenticatedSplatRoute
   '/automations': typeof AuthenticatedAutomationsRoute
   '/campaigns': typeof AuthenticatedCampaignsRoute
   '/contacts': typeof AuthenticatedContactsRoute
@@ -136,6 +143,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$': typeof AuthenticatedSplatRoute
   '/automations': typeof AuthenticatedAutomationsRoute
   '/campaigns': typeof AuthenticatedCampaignsRoute
   '/contacts': typeof AuthenticatedContactsRoute
@@ -156,6 +164,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/_authenticated/$': typeof AuthenticatedSplatRoute
   '/_authenticated/automations': typeof AuthenticatedAutomationsRoute
   '/_authenticated/campaigns': typeof AuthenticatedCampaignsRoute
   '/_authenticated/contacts': typeof AuthenticatedContactsRoute
@@ -176,6 +185,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/$'
     | '/automations'
     | '/campaigns'
     | '/contacts'
@@ -194,6 +204,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/$'
     | '/automations'
     | '/campaigns'
     | '/contacts'
@@ -213,6 +224,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/_authenticated/$'
     | '/_authenticated/automations'
     | '/_authenticated/campaigns'
     | '/_authenticated/contacts'
@@ -252,6 +264,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/$': {
+      id: '/_authenticated/$'
+      path: '/$'
+      fullPath: '/$'
+      preLoaderRoute: typeof AuthenticatedSplatRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/automations': {
       id: '/_authenticated/automations'
@@ -362,6 +381,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedSplatRoute: typeof AuthenticatedSplatRoute
   AuthenticatedAutomationsRoute: typeof AuthenticatedAutomationsRoute
   AuthenticatedCampaignsRoute: typeof AuthenticatedCampaignsRoute
   AuthenticatedContactsRoute: typeof AuthenticatedContactsRoute
@@ -378,6 +398,7 @@ interface AuthenticatedRouteChildren {
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedSplatRoute: AuthenticatedSplatRoute,
   AuthenticatedAutomationsRoute: AuthenticatedAutomationsRoute,
   AuthenticatedCampaignsRoute: AuthenticatedCampaignsRoute,
   AuthenticatedContactsRoute: AuthenticatedContactsRoute,
