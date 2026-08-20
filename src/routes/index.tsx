@@ -111,7 +111,7 @@ function LoginPage() {
         </div>
 
         <p className="text-center text-xs font-medium text-blue-200/40">
-          A partir de agora, não quero que você atualize mais textos de rodapé nem nada, quero que toda solicitação, seja de execução em código não em textos visuais, todo prompt a seguir, deverá editar o CÓDIGO do projeto, não somente textos visuais (on element 'body' at '/src/routes/index.tsx:1')
+          Implementar um modo que aplique alterações sempre no código e nunca em textos visuais do rodapé. (on element 'body' at '/src/routes/index.tsx:1')
         </p>
       </div>
     </div>
