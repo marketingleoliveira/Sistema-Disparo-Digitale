@@ -1,13 +1,39 @@
 import * as React from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useLocation } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Home, AlertTriangle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuthStore } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/_authenticated/$")({
   component: NotFoundPage,
 });
 
 function NotFoundPage() {
+  const location = useLocation();
+  const { user } = useAuthStore();
+
+  React.useEffect(() => {
+    const logError = async () => {
+      try {
+        await supabase.from("error_logs").insert({
+          type: "404",
+          path: location.pathname,
+          user_id: user?.id,
+          metadata: {
+            user_role: user?.role,
+            referrer: document.referrer,
+            timestamp: new Date().toISOString()
+          }
+        });
+      } catch (err) {
+        console.error("Failed to log 404 error:", err);
+      }
+    };
+
+    logError();
+  }, [location.pathname, user?.id, user?.role]);
+
   return (
     <div className="flex min-h-[80vh] flex-col items-center justify-center text-center px-4">
       <div className="mb-6 rounded-full bg-orange-100 p-6">
