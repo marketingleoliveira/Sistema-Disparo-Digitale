@@ -111,7 +111,7 @@ function LoginPage() {
         </div>
 
         <p className="text-center text-xs font-medium text-blue-200/40">
-          © 2026 Digitale Têxtil — Tecnologia em Alta Performance
+          O PDF que foi convertido, não trouxe imagens nem textos reais do PDF, por favor Verificar se o blocksToEmailHtml renderiza corretamente os blocos de logo e footer nos clientes de e-mail mais comuns após a importação do PDF. (on element 'body' at '/src/routes/index.tsx:1')
         </p>
       </div>
     </div>
