@@ -19,7 +19,7 @@ function NotFoundPage() {
         await supabase.from("error_logs").insert({
           type: "404",
           path: location.pathname,
-          user_id: user?.id,
+          user_id: user?.id ?? null,
           metadata: {
             user_role: user?.role,
             referrer: document.referrer,
