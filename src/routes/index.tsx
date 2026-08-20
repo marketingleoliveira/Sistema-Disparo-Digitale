@@ -1,4 +1,3 @@
-Ao salvar um novo contato, adicionar um contato, o contato não é salvo na lista de contatos do sistema, revise todo o sistema de contato, listas, segmentos e tags. (on element 'body' at '/src/routes/index.tsx:1')
 import * as React from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useAuthStore, UserRole } from "@/hooks/use-auth";
