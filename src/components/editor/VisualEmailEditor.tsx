@@ -48,10 +48,12 @@ export function VisualEmailEditor({
   const [selectedBlockId, setSelectedBlockId] = React.useState<string | null>(null);
   const [viewMode, setViewMode] = React.useState<"desktop" | "mobile">("desktop");
 
-  // Recarrega os blocos quando outro template é aberto no editor.
+  // Recarrega os blocos quando outro template é aberto no editor ou PDF é convertido.
   React.useEffect(() => {
-    setBlocks(initialBlocks ?? INITIAL_BLOCKS);
-    setSelectedBlockId(null);
+    if (initialBlocks) {
+      setBlocks(initialBlocks);
+      setSelectedBlockId(null);
+    }
   }, [initialBlocks]);
 
   const selectedBlock = React.useMemo(
