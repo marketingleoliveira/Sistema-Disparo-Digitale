@@ -194,7 +194,8 @@ export const useDataStore = create<DataState>((set, get) => ({
 
   addContact: async (data) => {
     try {
-      const { error } = await supabase.from('contacts').insert([{
+      console.log("Iniciando inserção de contato:", data.email);
+      const { data: insertedData, error } = await supabase.from('contacts').insert([{
         name: data.name,
         email: data.email,
         company: data.company || null,
@@ -204,14 +205,21 @@ export const useDataStore = create<DataState>((set, get) => ({
         phone: data.phone || null,
         last_activity: 'Recém adicionado',
         engagement: 0
-      }]);
+      }]).select();
 
       if (error) {
-        console.error("Supabase contact insert failed:", error);
-        throw new Error(error.message || "Falha ao inserir contato no banco de dados.");
+        console.error("Supabase contact insert failed. Error details:", {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
+        throw new Error(`Erro ${error.code}: ${error.message}. ${error.hint || ''}`);
       }
+      
+      console.log("Contato inserido com sucesso:", insertedData);
       await get().fetchContacts();
-    } catch (err) {
+    } catch (err: any) {
       console.error("addContact exception:", err);
       throw err;
     }
