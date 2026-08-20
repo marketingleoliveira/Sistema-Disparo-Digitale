@@ -19,7 +19,8 @@ import {
   CheckCircle2,
   Clock,
   Bell,
-  Loader2
+  Loader2,
+  ShieldCheck
 } from "lucide-react";
 
 import { 
