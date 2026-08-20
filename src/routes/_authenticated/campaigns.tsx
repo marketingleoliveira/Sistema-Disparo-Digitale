@@ -18,13 +18,16 @@ import {
   Send,
   CalendarClock,
   Save,
+  FileText,
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useDataStore, type Campaign } from "@/hooks/use-data";
 import { useTemplateLibrary } from "@/hooks/use-template-library";
 import { blocksToEmailHtml } from "@/lib/templates/blocks-to-html";
+import type { EditorBlock } from "@/components/editor/editor-types";
 import { VisualEmailEditor } from "@/components/editor/VisualEmailEditor";
+
 import { sendCampaignTest, dispatchCampaign } from "@/lib/campaigns.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,6 +42,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { PdfUploadDialog } from "@/components/campaigns/PdfUploadDialog";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -510,7 +515,17 @@ function CampaignWizard({ onDone }: { onDone: () => void }) {
               </p>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="mb-6 rounded-xl border bg-accent/5 p-4 text-sm text-accent">
+              <div className="flex gap-3">
+                <Info className="h-5 w-5 shrink-0" />
+                <p>
+                  Escolha como deseja criar o conteúdo do seu e-mail. Você pode usar nosso editor visual ou importar um arquivo pronto (PDF/Canva).
+                </p>
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-3">
+
               <button
                 type="button"
                 onClick={() => setEditorOpen(true)}
@@ -522,6 +537,31 @@ function CampaignWizard({ onDone }: { onDone: () => void }) {
                 <p className="font-bold text-primary">Criar do zero</p>
                 <p className="mt-1 text-xs text-muted-foreground">Editor drag &amp; drop</p>
               </button>
+
+              <PdfUploadDialog
+                onConverted={(blocks) => {
+                  patch({ 
+                    html: blocksToEmailHtml(blocks, draft.subject || "Campanha PDF"), 
+                    templateId: "pdf-import", 
+                    templateName: "Importado de PDF" 
+                  });
+                  // Opcional: abrir o editor automaticamente após a conversão
+                  setEditorOpen(true);
+                }}
+              >
+
+                <button
+                  type="button"
+                  className="group rounded-2xl border-2 border-dashed p-8 text-center transition-all hover:border-accent hover:bg-accent/5"
+                >
+                  <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-muted text-muted-foreground transition-colors group-hover:bg-accent/20 group-hover:text-accent">
+                    <FileText size={28} />
+                  </div>
+                  <p className="font-bold text-primary">Importar PDF</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Converter arquivo</p>
+                </button>
+              </PdfUploadDialog>
+
 
               <div className="rounded-2xl border p-4">
                 <p className="mb-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">
