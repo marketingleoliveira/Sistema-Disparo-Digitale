@@ -111,13 +111,7 @@ function LoginPage() {
         </div>
 
         <p className="text-center text-xs font-medium text-blue-200/40">
-          Adicionar um painel de diagnóstico da conversão do PDF para eu ver quais imagens/textos foram extraídos, quais blocos foram gerados e quaisquer avisos durante o renderização. e
-
-Criar testes automatizados para validar que o blocksToEmailHtml renderiza corretamente os blocos de logo e footer nos cenários mais comuns após a importação do PDF. e
-
-Implementar fallback automático quando o PDF não trouxer imagens ou texto real, para eu conseguir inserir/confirmar manualmente logo e conteúdo essencial no editor sem quebrar o layout do e-mail. e
-
-Adicionar controles para eu ajustar tamanho, espaçamento e alinhamento do logo (incluindo alt text e padding) diretamente no editor para melhorar a compatibilidade entre clientes de e-mail. (on element 'body' at '/src/routes/index.tsx:1')
+          Gere um e-mail de disparo. Para testar todo o sistema. (on element 'body' at '/src/routes/index.tsx:1')
         </p>
       </div>
     </div>
