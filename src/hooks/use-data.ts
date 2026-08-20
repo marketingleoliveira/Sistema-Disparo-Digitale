@@ -16,6 +16,23 @@ export interface Contact {
   createdAt: string;
 }
 
+export interface ContactList {
+  id: string;
+  name: string;
+  description: string;
+  contactCount?: number;
+  createdAt: string;
+}
+
+export interface ContactSegment {
+  id: string;
+  name: string;
+  description: string;
+  filters: any;
+  contactCount?: number;
+  createdAt: string;
+}
+
 export interface Campaign {
   id: string;
   name: string;
@@ -34,9 +51,13 @@ export interface Campaign {
 interface DataState {
   contacts: Contact[];
   campaigns: Campaign[];
+  lists: ContactList[];
+  segments: ContactSegment[];
   isLoading: boolean;
   fetchContacts: () => Promise<void>;
   fetchCampaigns: () => Promise<void>;
+  fetchLists: () => Promise<void>;
+  fetchSegments: () => Promise<void>;
   addContact: (contact: Omit<Contact, 'id' | 'createdAt' | 'initials' | 'engagement' | 'lastActivity'>) => Promise<void>;
   importContacts: (
     contacts: Array<Omit<Contact, 'id' | 'createdAt' | 'initials' | 'engagement' | 'lastActivity'>>
@@ -44,6 +65,10 @@ interface DataState {
   deleteContact: (id: string) => Promise<void>;
   addCampaign: (campaign: Omit<Campaign, 'id' | 'createdAt'>) => Promise<string | null>;
   deleteCampaign: (id: string) => Promise<void>;
+  addList: (name: string, description: string) => Promise<void>;
+  deleteList: (id: string) => Promise<void>;
+  addSegment: (name: string, description: string, filters: any) => Promise<void>;
+  deleteSegment: (id: string) => Promise<void>;
 }
 
 export const useDataStore = create<DataState>((set, get) => ({
