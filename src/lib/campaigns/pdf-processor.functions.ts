@@ -3,8 +3,6 @@ import { z } from "zod";
 
 /**
  * Converte os metadados e conteúdo do PDF em blocos do editor visual.
- * Nota: Em um ambiente Edge, a conversão fiel de PDF para HTML complexo é limitada.
- * Esta implementação foca em extrair a estrutura base e gerar um template editável.
  */
 export const processPdfToEmail = createServerFn({ method: "POST" })
   .inputValidator((data) => z.object({
@@ -12,7 +10,7 @@ export const processPdfToEmail = createServerFn({ method: "POST" })
     fileName: z.string(),
   }).parse(data))
   .handler(async ({ data }) => {
-    // Simulação de processamento pesado
+    // Simulação de processamento pesado (em produção aqui haveria OCR/Extração real)
     await new Promise(resolve => setTimeout(resolve, 2500));
 
     // Estrutura de blocos que o editor visual entende
@@ -55,4 +53,5 @@ export const processPdfToEmail = createServerFn({ method: "POST" })
       message: "PDF convertido em blocos editáveis."
     };
   });
+
 
