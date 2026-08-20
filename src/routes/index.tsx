@@ -49,7 +49,7 @@ function LoginPage() {
       <div className="absolute inset-0 opacity-[0.05] pattern-grid pointer-events-none" />
       
       <div className="w-full max-w-md space-y-8 relative z-10 text-center text-white">
-        <h1 className="text-3xl font-bold">desenvolva o módulo de listas e de desenvolvimento</h1>
+        <h1 className="text-3xl font-bold">No menu contato, desenvolva os módulos de Listas e Segmentos</h1>
       </div>
     </div>
   );
