@@ -111,7 +111,7 @@ function LoginPage() {
         </div>
 
         <p className="text-center text-xs font-medium text-blue-200/40">
-          'Prosseguir com a revisão técnica do fluxo de campanhas.' (on element 'body' at '/src/routes/index.tsx:1')
+          'niciar a revisão técnica solicitada.' (on element 'body' at '/src/routes/index.tsx:1')
         </p>
       </div>
     </div>
