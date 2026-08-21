@@ -58,8 +58,12 @@ export async function sendHtmlEmail(input: SendHtmlEmailInput): Promise<SendHtml
         subject: input.subject,
         html: input.html,
         text: htmlToText(input.html),
+        // A API exige `purpose`; sem ele o envio é recusado com "missing_parameter".
+        purpose: "transactional",
+        label: input.label ?? "campaign",
         ...(input.replyTo ? { reply_to: input.replyTo } : {}),
         ...(input.idempotencyKey ? { idempotency_key: input.idempotencyKey } : {}),
+
       },
       { apiKey, sendUrl: process.env["LOVABLE_SEND_URL"] },
     );
