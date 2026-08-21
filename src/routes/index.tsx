@@ -111,7 +111,7 @@ function LoginPage() {
         </div>
 
         <p className="text-center text-xs font-medium text-blue-200/40">
-          'quero que meu disparo, seja enviado não somente a aba de promoções, mas também, apareça na caixa de entrada principal do usuário.' (on element 'body' at '/src/routes/index.tsx:1')
+          'Adicione logs e status de entrega para eu saber quando o disparo entra na caixa de entrada ou é rejeitado.' (on element 'body' at '/src/routes/index.tsx:1')
         </p>
       </div>
     </div>
