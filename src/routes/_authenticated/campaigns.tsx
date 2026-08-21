@@ -360,7 +360,13 @@ function CampaignWizard({ onDone }: { onDone: () => void }) {
             (result.failed > 0 ? ` ${result.failed} falharam.` : ""),
         );
       } else {
-        toast.error("Nenhum e-mail foi aceito para envio. Verifique o domínio remetente.");
+        const reason = result.failures[0]?.reason;
+        toast.error(
+          reason
+            ? `Nenhum e-mail foi aceito para envio (${reason}).`
+            : "Nenhum e-mail foi aceito para envio. Verifique o domínio remetente.",
+        );
+
       }
       onDone();
     } catch (error) {
