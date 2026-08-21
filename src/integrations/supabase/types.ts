@@ -14,6 +14,95 @@ export type Database = {
   }
   public: {
     Tables: {
+      campaign_events: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          id: string
+          recipient_id: string | null
+          type: string
+          url: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          id?: string
+          recipient_id?: string | null
+          type: string
+          url?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          id?: string
+          recipient_id?: string | null
+          type?: string
+          url?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_events_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_events_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_recipients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_recipients: {
+        Row: {
+          campaign_id: string
+          click_count: number
+          email: string
+          first_click_at: string | null
+          id: string
+          message_id: string | null
+          open_count: number
+          opened_at: string | null
+          sent_at: string
+        }
+        Insert: {
+          campaign_id: string
+          click_count?: number
+          email: string
+          first_click_at?: string | null
+          id?: string
+          message_id?: string | null
+          open_count?: number
+          opened_at?: string | null
+          sent_at?: string
+        }
+        Update: {
+          campaign_id?: string
+          click_count?: number
+          email?: string
+          first_click_at?: string | null
+          id?: string
+          message_id?: string | null
+          open_count?: number
+          opened_at?: string | null
+          sent_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_recipients_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaigns: {
         Row: {
           click_rate: string | null
