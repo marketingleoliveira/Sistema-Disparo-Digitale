@@ -111,7 +111,7 @@ function LoginPage() {
         </div>
 
         <p className="text-center text-xs font-medium text-blue-200/40">
-          'o que falta para o sistema ser 100% funcional' (on element 'body' at '/src/routes/index.tsx:1')
+          'Revise todo o sistema atual, e altere os códigos necessário pra permitir que o usuário marketing@digitaletextil.com.br tenha todos os direitos necessários para alterar todo e qualquer registro, tabela ou permissões totais no sistema criado.' (on element 'body' at '/src/routes/index.tsx:1')
         </p>
       </div>
     </div>
