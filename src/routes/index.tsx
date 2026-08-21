@@ -111,7 +111,7 @@ function LoginPage() {
         </div>
 
         <p className="text-center text-xs font-medium text-blue-200/40">
-          resolva esse erro (on element 'body' at '/src/routes/index.tsx:1')
+          'o que falta para o sistema ser 100% funcional' (on element 'body' at '/src/routes/index.tsx:1')
         </p>
       </div>
     </div>
