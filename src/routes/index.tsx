@@ -111,7 +111,7 @@ function LoginPage() {
         </div>
 
         <p className="text-center text-xs font-medium text-blue-200/40">
-          'niciar a revisão técnica solicitada.' (on element 'body' at '/src/routes/index.tsx:1')
+          'Não edite o texto visualmente apenas nem somente o rodapé, altere o código base do sistema, quero que simule um disparo de campanha, para verificar se todas as etapas estão corretas, simule um disparo.' (on element 'body' at '/src/routes/index.tsx:1')
         </p>
       </div>
     </div>
