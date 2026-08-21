@@ -111,7 +111,7 @@ function LoginPage() {
         </div>
 
         <p className="text-center text-xs font-medium text-blue-200/40">
-          'quando tento disparar uma campanha, o sistema alega uma mensagem de erro, envie um disparo de teste para o email leoprofessortec@gmail.com e revise o fluxo de envio de campanha' (on element 'body' at '/src/routes/index.tsx:1')
+          'Revisar o fluxo de envio de campanhas conforme indicado no texto de erro. e Realizar disparos de teste para validar a integração com o provedor de e-mail.' (on element 'body' at '/src/routes/index.tsx:1')
         </p>
       </div>
     </div>
