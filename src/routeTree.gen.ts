@@ -25,6 +25,7 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedTemplatesRouteImport } from './routes/_authenticated/templates'
 import { Route as AuthenticatedSettingsDomainRouteImport } from './routes/_authenticated/settings_.domain'
 import { Route as AuthenticatedSettingsTeamRouteImport } from './routes/_authenticated/settings_.team'
+import { Route as ApiPublicDiagEmailRouteImport } from './routes/api/public/diag-email'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 
@@ -111,6 +112,11 @@ const AuthenticatedSettingsTeamRoute =
     path: '/settings/team',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const ApiPublicDiagEmailRoute = ApiPublicDiagEmailRouteImport.update({
+  id: '/api/public/diag-email',
+  path: '/api/public/diag-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
   id: '/lovable/email/auth/preview',
   path: '/lovable/email/auth/preview',
@@ -138,6 +144,7 @@ export interface FileRoutesByFullPath {
   '/templates': typeof AuthenticatedTemplatesRoute
   '/settings/domain': typeof AuthenticatedSettingsDomainRoute
   '/settings/team': typeof AuthenticatedSettingsTeamRoute
+  '/api/public/diag-email': typeof ApiPublicDiagEmailRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
 }
@@ -157,6 +164,7 @@ export interface FileRoutesByTo {
   '/templates': typeof AuthenticatedTemplatesRoute
   '/settings/domain': typeof AuthenticatedSettingsDomainRoute
   '/settings/team': typeof AuthenticatedSettingsTeamRoute
+  '/api/public/diag-email': typeof ApiPublicDiagEmailRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
 }
@@ -178,6 +186,7 @@ export interface FileRoutesById {
   '/_authenticated/templates': typeof AuthenticatedTemplatesRoute
   '/_authenticated/settings_/domain': typeof AuthenticatedSettingsDomainRoute
   '/_authenticated/settings_/team': typeof AuthenticatedSettingsTeamRoute
+  '/api/public/diag-email': typeof ApiPublicDiagEmailRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
 }
@@ -199,6 +208,7 @@ export interface FileRouteTypes {
     | '/templates'
     | '/settings/domain'
     | '/settings/team'
+    | '/api/public/diag-email'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
   fileRoutesByTo: FileRoutesByTo
@@ -218,6 +228,7 @@ export interface FileRouteTypes {
     | '/templates'
     | '/settings/domain'
     | '/settings/team'
+    | '/api/public/diag-email'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
   id:
@@ -238,6 +249,7 @@ export interface FileRouteTypes {
     | '/_authenticated/templates'
     | '/_authenticated/settings_/domain'
     | '/_authenticated/settings_/team'
+    | '/api/public/diag-email'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
   fileRoutesById: FileRoutesById
@@ -245,6 +257,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  ApiPublicDiagEmailRoute: typeof ApiPublicDiagEmailRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
 }
@@ -363,6 +376,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsTeamRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/api/public/diag-email': {
+      id: '/api/public/diag-email'
+      path: '/api/public/diag-email'
+      fullPath: '/api/public/diag-email'
+      preLoaderRoute: typeof ApiPublicDiagEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/auth/preview': {
       id: '/lovable/email/auth/preview'
       path: '/lovable/email/auth/preview'
@@ -421,6 +441,7 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  ApiPublicDiagEmailRoute: ApiPublicDiagEmailRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
 }
