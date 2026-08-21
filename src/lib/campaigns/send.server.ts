@@ -14,7 +14,10 @@ export interface SendHtmlEmailInput {
   fromName?: string | undefined;
   replyTo?: string | undefined;
   idempotencyKey?: string | undefined;
+  /** Rótulo do envio usado nos logs de entrega (ex.: "campaign", "campaign-test"). */
+  label?: string | undefined;
 }
+
 
 export type SendHtmlEmailResult =
   | { sent: true; messageId?: string | undefined }
