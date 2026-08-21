@@ -111,7 +111,7 @@ function LoginPage() {
         </div>
 
         <p className="text-center text-xs font-medium text-blue-200/40">
-          'Revise todo o sistema atual, e altere os códigos necessário pra permitir que o usuário marketing@digitaletextil.com.br tenha todos os direitos necessários para alterar todo e qualquer registro, tabela ou permissões totais no sistema criado.' (on element 'body' at '/src/routes/index.tsx:1')
+          'quando tento disparar uma campanha, o sistema alega uma mensagem de erro, envie um disparo de teste para o email leoprofessortec@gmail.com e revise o fluxo de envio de campanha' (on element 'body' at '/src/routes/index.tsx:1')
         </p>
       </div>
     </div>
