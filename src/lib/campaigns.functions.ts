@@ -30,7 +30,9 @@ export const sendCampaignTest = createServerFn({ method: "POST" })
       html: data.html,
       ...(data.fromName ? { fromName: data.fromName } : {}),
       ...(data.replyTo ? { replyTo: data.replyTo } : {}),
+      label: "campaign-test",
       idempotencyKey: `campaign-test-${data.to}-${Date.now()}`,
+
     });
     return result;
   });
