@@ -111,7 +111,7 @@ function LoginPage() {
         </div>
 
         <p className="text-center text-xs font-medium text-blue-200/40">
-          'Adicione logs e status de entrega para eu saber quando o disparo entra na caixa de entrada ou é rejeitado.' (on element 'body' at '/src/routes/index.tsx:1')
+          'O desempenho da campanha, aberturas e cliques não está sendo monitorado, resolva isso.' (on element 'body' at '/src/routes/index.tsx:1')
         </p>
       </div>
     </div>
