@@ -111,7 +111,7 @@ function LoginPage() {
         </div>
 
         <p className="text-center text-xs font-medium text-blue-200/40">
-          'adicione um popup de bem vindo na index' (on element 'body' at '/src/routes/index.tsx:1')
+          Desenvolvido por Digitale Têxtil
         </p>
       </div>
     </div>
