@@ -1,16 +1,9 @@
 import * as React from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useAuthStore, UserRole } from "@/hooks/use-auth";
+import { useAuthStore } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
 import { ShieldCheck, Loader2 } from "lucide-react";
 import logoAsset from "@/assets/digitale-logo-white.png.asset.json";
 
@@ -22,8 +15,9 @@ function LoginPage() {
   const navigate = useNavigate();
   const { login, isAuthenticated } = useAuthStore();
   const [email, setEmail] = React.useState("");
-  const [role, setRole] = React.useState<UserRole>("Marketing");
+  const [password, setPassword] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (isAuthenticated) {
@@ -33,12 +27,15 @@ function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email || !password) return;
 
+    setError(null);
     setIsLoading(true);
     try {
-      await login(email, role);
+      await login(email, password);
       navigate({ to: "/dashboard" });
+    } catch {
+      setError("E-mail ou senha incorretos.");
     } finally {
       setIsLoading(false);
     }
@@ -81,19 +78,21 @@ function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="role" className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Departamento</Label>
-              <Select value={role} onValueChange={(value: UserRole) => setRole(value)}>
-                <SelectTrigger id="role" className="h-12 border-slate-200 rounded-xl">
-                  <SelectValue placeholder="Selecione seu cargo" />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl shadow-xl border-slate-100">
-                  <SelectItem value="Desenvolvedor" className="py-3 font-medium">🚀 Desenvolvedor</SelectItem>
-                  <SelectItem value="Diretoria" className="py-3 font-medium">🏛️ Diretoria</SelectItem>
-                  <SelectItem value="Gerência" className="py-3 font-medium">📋 Gerência</SelectItem>
-                  <SelectItem value="Marketing" className="py-3 font-medium">🎨 Marketing</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label htmlFor="password" className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Senha</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="h-12 border-slate-200 focus:ring-2 focus:ring-accent/20 rounded-xl"
+              />
             </div>
+
+            {error && (
+              <p className="text-sm font-medium text-destructive text-center">{error}</p>
+            )}
 
             <Button 
               type="submit" 

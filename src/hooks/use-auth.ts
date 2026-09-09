@@ -16,7 +16,7 @@ interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, role: UserRole) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   initialize: () => Promise<void>;
 }
@@ -27,18 +27,26 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isAuthenticated: false,
       isLoading: true,
-      login: async (email, role) => {
-        const localPart = email.split('@')[0] || 'usuario';
-        const initials = localPart.slice(0, 2).toUpperCase();
-        const name = localPart.charAt(0).toUpperCase() + localPart.slice(1);
+      login: async (email, password) => {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+
+        const sessionUser = data.user;
+        if (!sessionUser) throw new Error('Não foi possível autenticar.');
+
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', sessionUser.id)
+          .single();
 
         set({
           user: {
-            id: crypto.randomUUID(),
-            email,
-            name: email.toLowerCase().includes('leonardo') ? 'Leonardo Oliveira' : name,
-            role,
-            initials: email.toLowerCase().includes('leonardo') ? 'LO' : initials,
+            id: sessionUser.id,
+            email: sessionUser.email || email,
+            name: profile?.full_name || 'Usuário',
+            role: profile?.role || 'Marketing',
+            initials: (profile?.full_name || sessionUser.email || 'U').slice(0, 2).toUpperCase(),
           },
           isAuthenticated: true,
           isLoading: false,
