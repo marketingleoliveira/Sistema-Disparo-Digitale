@@ -1,62 +1,64 @@
-# Guia: como editar o projeto no chat e publicar no seu Git
+# 📘 Guia: Editando com o Zenly e Publicando no Lovable
 
-Este guia explica o fluxo completo: como pedir alterações de código para o assistente (eu) dentro do chat do Lovable, e como publicar essas alterações no seu repositório GitHub para que os outros sites conectados sejam atualizados.
+Este guia explica dois fluxos separados:
 
----
-
-## Parte 1 — Como editar o código aqui no chat
-
-1. **Descreva a alteração desejada em linguagem natural.**
-   Exemplo: *"Troque o texto do rodapé para 'Desenvolvido por Digitale Têxtil'"* ou *"O botão de salvar está com a cor errada, deixe igual ao botão primário."*
-
-2. **Se a alteração envolve uma imagem, link ou dado externo**, envie a URL real ou o arquivo — o assistente não pode adivinhar links de imagens ou textos que não foram fornecidos.
-
-3. **O assistente responde com blocos de código no formato `SEARCH/REPLACE`** (para arquivos existentes) ou `CREATE` (para arquivos novos). Você não precisa entender esse formato — ele é aplicado automaticamente pelo Lovable ao seu projeto.
-
-4. **Veja o resultado no preview** (painel ao lado do chat, dentro do editor Lovable). Se algo não ficou como esperado, descreva o problema no chat e o assistente ajusta.
-
-5. **Peça arquivos específicos quando o assistente solicitar.** Às vezes, para editar com segurança sem quebrar o projeto, o assistente precisa ver o conteúdo atual exato de um arquivo (ex.: a tela de login, um hook de autenticação). Basta colar o conteúdo do arquivo na conversa.
-
-> ⚠️ Alterações feitas no chat só existem dentro do ambiente do Lovable até você publicar (próxima seção). Elas **não** vão para o GitHub ou para os sites automaticamente.
+1. Como pedir edições de código aqui no chat (com a IA/Zenly).
+2. Como essas edições chegam até o projeto Lovable e como manter tudo sincronizado.
 
 ---
 
-## Parte 2 — Como publicar as alterações no GitHub
+## 1. Como editar o código aqui no chat
 
-1. **Abra o editor do projeto no Lovable** (não o chat isolado — o ambiente completo com preview).
+Este chat **não é o editor visual do Lovable** — é um assistente de código que aplica alterações diretamente nos arquivos do projeto (React + Tailwind + TanStack). O funcionamento é assim:
 
-2. **Localize o botão "Publish"** (geralmente no canto superior direito da tela, perto do preview).
+### Passo a passo
 
-3. **Verifique se o projeto está conectado ao GitHub:**
-   - Vá em **Settings → GitHub** dentro do projeto.
-   - Se aparecer um repositório listado como conectado, ótimo — o botão Publish já vai gerar um commit nesse repositório.
-   - Se **não estiver conectado**, clique em **"Connect to GitHub"**, autorize o acesso à sua conta/organização e escolha:
-     - **Create new repository** (se for a primeira publicação), ou
-     - **Link existing repository** (se você já tem um repo usado pelos outros sites).
+1. **Descreva o que você quer mudar**, sendo o mais específico possível:
+   - ✅ "Troque o texto do botão 'Enviar' para 'Disparar campanha' em `campaigns.tsx`"
+   - ✅ "Adicione um filtro por status na tela de contatos"
+   - 🚫 Evite pedidos muito vagos como "melhore o site", pois isso pode gerar mudanças amplas e arriscadas.
 
-4. **Clique em Publish.** Isso cria um commit no repositório conectado com todas as alterações aceitas na conversa.
+2. **Eu aplico a alteração como um "diff"**, ou seja, só a parte que muda — não o arquivo inteiro. Isso reduz o risco de:
+   - Quebrar imports existentes.
+   - Apagar lógica que já funcionava.
+   - Introduzir inconsistência entre como um componente é exportado (`export default` vs `export { Nome }`) e como ele é importado em outro arquivo — esse tipo de erro não avisa nada durante a edição, mas quebra o build inteiro na hora de compilar. Por isso, sempre que crio um componente novo, confirmo o padrão de export/import usado nos arquivos vizinhos antes de finalizar.
 
----
+3. **Se eu preciso ver o conteúdo atual de um arquivo** para editar com segurança (por exemplo, para bater exatamente o texto a ser substituído), eu vou pedir que você cole o conteúdo dele aqui. Isso acontece porque não tenho acesso automático a ler todo o código-fonte a qualquer momento — apenas à lista de arquivos e o que já foi trocado nesta conversa.
 
-## Parte 3 — Como isso chega aos "outros sites conectados"
+4. **Tipos de alteração possíveis:**
+   - **Editar arquivo existente** → altero só o trecho necessário.
+   - **Criar arquivo novo** → uso quando é um componente, hook ou página que ainda não existe.
+   - **Apagar arquivo** → só quando tenho certeza de que nada mais no projeto depende dele.
 
-Isso depende de como cada site foi configurado. Existem três cenários possíveis:
-
-| Cenário | O que acontece após o Publish |
-| --- | --- |
-| **Deploy automático** (Vercel, Netlify, Cloudflare Pages, etc. apontando para o mesmo repositório/branch) | O redeploy dispara sozinho assim que o commit chega no GitHub. Você não precisa fazer nada além do Publish. |
-| **Outro projeto Lovable separado** (uma cópia/fork, não o mesmo projeto) | **Não atualiza automaticamente.** É preciso repetir a alteração manualmente nesse outro projeto, ou reconfigurá-lo para apontar para o mesmo repositório GitHub central. |
-| **Deploy manual** (alguém precisa clicar em "Deploy" em algum painel externo) | O Publish do Lovable só atualiza o GitHub. O deploy nesse serviço externo precisa ser acionado manualmente por você. |
-
-### Como saber em qual cenário você está
-- Entre no painel do serviço onde o site está hospedado (Vercel, Netlify, outro Lovable, etc.).
-- Verifique se ele está "linkado" ao mesmo repositório GitHub que você conectou no passo 3 acima.
-- Se sim e tiver "Auto Deploy" ativado → cenário 1 (automático).
-- Se for outro projeto Lovable → cenário 2 (manual, precisa repetir a edição lá).
-- Se for deploy manual → cenário 3 (precisa clicar em deploy lá depois do Publish).
+5. **Depois que eu aplico a mudança**, ela já fica refletida no ambiente do projeto (os arquivos "reais" do Lovable) — não é necessário copiar/colar manualmente nada.
 
 ---
 
-## Resumo rápido
+## 2. Como sincronizar as edições daqui com o projeto base do Lovable
 
-1. Peça a alteração no chat → 2. Confira no preview → 3. Clique em **Publish** no editor Lovable → 4. Se os outros sites têm auto-deploy do mesmo repo, eles atualizam sozinhos; senão, repita manualmente em cada um.
+Aqui é importante entender a arquitetura: **o chat e o editor visual do Lovable operam sobre o mesmo projeto/repositório** — não são dois lugares separados que precisam de sincronização manual de código. Ou seja:
+
+- Quando uma edição é aplicada aqui no chat, ela já está no mesmo "estado" do projeto que você vê no editor visual do Lovable.
+- Você **não precisa exportar, baixar ou colar código manualmente** entre este chat e o Lovable.
+
+O que de fato exige uma ação sua é **publicar essas mudanças para fora do Lovable** (GitHub e, a partir daí, outros serviços de deploy). Esse fluxo funciona assim:
+
+### 2.1 Publicar do Lovable para o GitHub
+
+1. Abra o projeto no editor do Lovable.
+2. No topo da tela, use o botão **"Publish"** (pode aparecer como "Sync to GitHub" dependendo da versão da interface).
+3. Isso cria um commit no repositório GitHub conectado ao projeto, com todas as alterações feitas — seja pelo chat, seja pelo editor visual.
+
+> Se o projeto **ainda não estiver conectado a um repositório**, vá em **Project Settings → GitHub → Connect to GitHub**, autorize o acesso e escolha "Create new repository" (novo repo) ou "Link existing repository" (repo já existente).
+
+### 2.2 Do GitHub para os outros sites/deploys
+
+Depois que o commit chega no GitHub, o que acontece depende de como cada ambiente externo está configurado:
+
+| Situação | O que acontece |
+|---|---|
+| Deploy com auto-deploy (Vercel, Netlify, Cloudflare Pages, etc. apontando pro mesmo repo/branch) | Atualiza **sozinho** assim que o commit chega no GitHub. |
+| Outro projeto Lovable separado (não é o mesmo projeto, é uma cópia/fork) | **Não** sincroniza automaticamente — é preciso repetir a alteração manualmente nesse outro projeto, ou reconfigurá-lo para usar o mesmo repositório. |
+| Deploy manual (alguém precisa clicar em "Deploy" em algum painel) | O Publish do Lovable só atualiza o GitHub; o deploy nesse serviço específico precisa ser disparado manualmente lá. |
+
+### 2.3 Resumo do fluxo completo
