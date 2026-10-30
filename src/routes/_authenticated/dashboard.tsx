@@ -437,7 +437,24 @@ function ClickDetailsModal({
   );
 }
 
+import { BackupStatusCorner } from
+  "@/components/dashboard/BackupStatusCorner";
+
 function DashboardPage() {
+  const { user } = useAuthStore();
+
+  return (
+    <>
+      <DashboardPageContent />
+      {(
+        user?.email?.trim().toLowerCase() === "marketing@digitaletextil.com.br" ||
+        user?.email?.trim().toLowerCase() === "marketing2@digitaletextil.com.br"
+      ) && <BackupStatusCorner />}
+    </>
+  );
+}
+
+function DashboardPageContent() {
   const [selectedClickContact, setSelectedClickContact] =
     React.useState<{name: string; email: string} | null>(null);
 
