@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthenticatedSplatRouteImport } from './routes/_authenticated/$'
+import { Route as AuthenticatedAjudaRouteImport } from './routes/_authenticated/ajuda'
 import { Route as AuthenticatedAutomationsRouteImport } from './routes/_authenticated/automations'
 import { Route as AuthenticatedCampaignsRouteImport } from './routes/_authenticated/campaigns'
 import { Route as AuthenticatedContactsRouteImport } from './routes/_authenticated/contacts'
@@ -19,12 +20,29 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedEmailTemplatesRouteImport } from './routes/_authenticated/email-templates'
 import { Route as AuthenticatedFormsRouteImport } from './routes/_authenticated/forms'
 import { Route as AuthenticatedListsRouteImport } from './routes/_authenticated/lists'
+import { Route as AuthenticatedMetricsRouteImport } from './routes/_authenticated/metrics'
+import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedSegmentsRouteImport } from './routes/_authenticated/segments'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedTagsRouteImport } from './routes/_authenticated/tags'
 import { Route as AuthenticatedTemplatesRouteImport } from './routes/_authenticated/templates'
+import { Route as AuthenticatedUsuariosRouteImport } from './routes/_authenticated/usuarios'
+import { Route as ButtonGalleryIdRouteImport } from './routes/button-gallery.$id'
+import { Route as ButtonImageIdRouteImport } from './routes/button-image.$id'
+import { Route as EditorFontsFilenameRouteImport } from './routes/editor-fonts.$filename'
+import { Route as EditorMediaFilenameRouteImport } from './routes/editor-media.$filename'
+import { Route as EditorPdfsFilenameRouteImport } from './routes/editor-pdfs.$filename'
+import { Route as HotspotSliceFilenameRouteImport } from './routes/hotspot-slice.$filename'
+import { Route as TrackClickRouteImport } from './routes/track.click'
+import { Route as TrackOpenRouteImport } from './routes/track.open'
+import { Route as AuthenticatedReportsOpensRouteImport } from './routes/_authenticated/reports_.opens'
 import { Route as AuthenticatedSettingsDomainRouteImport } from './routes/_authenticated/settings_.domain'
+import { Route as AuthenticatedSettingsHelpRouteImport } from './routes/_authenticated/settings_.help'
 import { Route as AuthenticatedSettingsTeamRouteImport } from './routes/_authenticated/settings_.team'
+import { Route as AuthenticatedTemplatesSmsRouteImport } from './routes/_authenticated/templates.sms'
+import { Route as AuthenticatedTemplatesWhatsappRouteImport } from './routes/_authenticated/templates.whatsapp'
+import { Route as SocialIconNetworkColorRouteImport } from './routes/social-icon.$network.$color'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 
@@ -40,6 +58,11 @@ const AuthenticatedRoute = AuthenticatedRouteImport.update({
 const AuthenticatedSplatRoute = AuthenticatedSplatRouteImport.update({
   id: '/$',
   path: '/$',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedAjudaRoute = AuthenticatedAjudaRouteImport.update({
+  id: '/ajuda',
+  path: '/ajuda',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedAutomationsRoute =
@@ -79,6 +102,16 @@ const AuthenticatedListsRoute = AuthenticatedListsRouteImport.update({
   path: '/lists',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedMetricsRoute = AuthenticatedMetricsRouteImport.update({
+  id: '/metrics',
+  path: '/metrics',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
@@ -94,15 +127,77 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedTagsRoute = AuthenticatedTagsRouteImport.update({
+  id: '/tags',
+  path: '/tags',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedTemplatesRoute = AuthenticatedTemplatesRouteImport.update({
   id: '/templates',
   path: '/templates',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedUsuariosRoute = AuthenticatedUsuariosRouteImport.update({
+  id: '/usuarios',
+  path: '/usuarios',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const ButtonGalleryIdRoute = ButtonGalleryIdRouteImport.update({
+  id: '/button-gallery/$id',
+  path: '/button-gallery/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ButtonImageIdRoute = ButtonImageIdRouteImport.update({
+  id: '/button-image/$id',
+  path: '/button-image/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EditorFontsFilenameRoute = EditorFontsFilenameRouteImport.update({
+  id: '/editor-fonts/$filename',
+  path: '/editor-fonts/$filename',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EditorMediaFilenameRoute = EditorMediaFilenameRouteImport.update({
+  id: '/editor-media/$filename',
+  path: '/editor-media/$filename',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EditorPdfsFilenameRoute = EditorPdfsFilenameRouteImport.update({
+  id: '/editor-pdfs/$filename',
+  path: '/editor-pdfs/$filename',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HotspotSliceFilenameRoute = HotspotSliceFilenameRouteImport.update({
+  id: '/hotspot-slice/$filename',
+  path: '/hotspot-slice/$filename',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrackClickRoute = TrackClickRouteImport.update({
+  id: '/track/click',
+  path: '/track/click',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrackOpenRoute = TrackOpenRouteImport.update({
+  id: '/track/open',
+  path: '/track/open',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedReportsOpensRoute =
+  AuthenticatedReportsOpensRouteImport.update({
+    id: '/reports_/opens',
+    path: '/reports/opens',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedSettingsDomainRoute =
   AuthenticatedSettingsDomainRouteImport.update({
     id: '/settings_/domain',
     path: '/settings/domain',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedSettingsHelpRoute =
+  AuthenticatedSettingsHelpRouteImport.update({
+    id: '/settings_/help',
+    path: '/settings/help',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedSettingsTeamRoute =
@@ -111,6 +206,23 @@ const AuthenticatedSettingsTeamRoute =
     path: '/settings/team',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedTemplatesSmsRoute =
+  AuthenticatedTemplatesSmsRouteImport.update({
+    id: '/sms',
+    path: '/sms',
+    getParentRoute: () => AuthenticatedTemplatesRoute,
+  } as any)
+const AuthenticatedTemplatesWhatsappRoute =
+  AuthenticatedTemplatesWhatsappRouteImport.update({
+    id: '/whatsapp',
+    path: '/whatsapp',
+    getParentRoute: () => AuthenticatedTemplatesRoute,
+  } as any)
+const SocialIconNetworkColorRoute = SocialIconNetworkColorRouteImport.update({
+  id: '/social-icon/$network/$color',
+  path: '/social-icon/$network/$color',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
   id: '/lovable/email/auth/preview',
   path: '/lovable/email/auth/preview',
@@ -125,6 +237,7 @@ const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$': typeof AuthenticatedSplatRoute
+  '/ajuda': typeof AuthenticatedAjudaRoute
   '/automations': typeof AuthenticatedAutomationsRoute
   '/campaigns': typeof AuthenticatedCampaignsRoute
   '/contacts': typeof AuthenticatedContactsRoute
@@ -132,18 +245,36 @@ export interface FileRoutesByFullPath {
   '/email-templates': typeof AuthenticatedEmailTemplatesRoute
   '/forms': typeof AuthenticatedFormsRoute
   '/lists': typeof AuthenticatedListsRoute
+  '/metrics': typeof AuthenticatedMetricsRoute
+  '/perfil': typeof AuthenticatedPerfilRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/segments': typeof AuthenticatedSegmentsRoute
   '/settings': typeof AuthenticatedSettingsRoute
-  '/templates': typeof AuthenticatedTemplatesRoute
+  '/tags': typeof AuthenticatedTagsRoute
+  '/templates': typeof AuthenticatedTemplatesRouteWithChildren
+  '/usuarios': typeof AuthenticatedUsuariosRoute
+  '/button-gallery/$id': typeof ButtonGalleryIdRoute
+  '/button-image/$id': typeof ButtonImageIdRoute
+  '/editor-fonts/$filename': typeof EditorFontsFilenameRoute
+  '/editor-media/$filename': typeof EditorMediaFilenameRoute
+  '/editor-pdfs/$filename': typeof EditorPdfsFilenameRoute
+  '/hotspot-slice/$filename': typeof HotspotSliceFilenameRoute
+  '/track/click': typeof TrackClickRoute
+  '/track/open': typeof TrackOpenRoute
+  '/reports/opens': typeof AuthenticatedReportsOpensRoute
   '/settings/domain': typeof AuthenticatedSettingsDomainRoute
+  '/settings/help': typeof AuthenticatedSettingsHelpRoute
   '/settings/team': typeof AuthenticatedSettingsTeamRoute
+  '/templates/sms': typeof AuthenticatedTemplatesSmsRoute
+  '/templates/whatsapp': typeof AuthenticatedTemplatesWhatsappRoute
+  '/social-icon/$network/$color': typeof SocialIconNetworkColorRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$': typeof AuthenticatedSplatRoute
+  '/ajuda': typeof AuthenticatedAjudaRoute
   '/automations': typeof AuthenticatedAutomationsRoute
   '/campaigns': typeof AuthenticatedCampaignsRoute
   '/contacts': typeof AuthenticatedContactsRoute
@@ -151,12 +282,29 @@ export interface FileRoutesByTo {
   '/email-templates': typeof AuthenticatedEmailTemplatesRoute
   '/forms': typeof AuthenticatedFormsRoute
   '/lists': typeof AuthenticatedListsRoute
+  '/metrics': typeof AuthenticatedMetricsRoute
+  '/perfil': typeof AuthenticatedPerfilRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/segments': typeof AuthenticatedSegmentsRoute
   '/settings': typeof AuthenticatedSettingsRoute
-  '/templates': typeof AuthenticatedTemplatesRoute
+  '/tags': typeof AuthenticatedTagsRoute
+  '/templates': typeof AuthenticatedTemplatesRouteWithChildren
+  '/usuarios': typeof AuthenticatedUsuariosRoute
+  '/button-gallery/$id': typeof ButtonGalleryIdRoute
+  '/button-image/$id': typeof ButtonImageIdRoute
+  '/editor-fonts/$filename': typeof EditorFontsFilenameRoute
+  '/editor-media/$filename': typeof EditorMediaFilenameRoute
+  '/editor-pdfs/$filename': typeof EditorPdfsFilenameRoute
+  '/hotspot-slice/$filename': typeof HotspotSliceFilenameRoute
+  '/track/click': typeof TrackClickRoute
+  '/track/open': typeof TrackOpenRoute
+  '/reports/opens': typeof AuthenticatedReportsOpensRoute
   '/settings/domain': typeof AuthenticatedSettingsDomainRoute
+  '/settings/help': typeof AuthenticatedSettingsHelpRoute
   '/settings/team': typeof AuthenticatedSettingsTeamRoute
+  '/templates/sms': typeof AuthenticatedTemplatesSmsRoute
+  '/templates/whatsapp': typeof AuthenticatedTemplatesWhatsappRoute
+  '/social-icon/$network/$color': typeof SocialIconNetworkColorRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
 }
@@ -165,6 +313,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/_authenticated/$': typeof AuthenticatedSplatRoute
+  '/_authenticated/ajuda': typeof AuthenticatedAjudaRoute
   '/_authenticated/automations': typeof AuthenticatedAutomationsRoute
   '/_authenticated/campaigns': typeof AuthenticatedCampaignsRoute
   '/_authenticated/contacts': typeof AuthenticatedContactsRoute
@@ -172,12 +321,29 @@ export interface FileRoutesById {
   '/_authenticated/email-templates': typeof AuthenticatedEmailTemplatesRoute
   '/_authenticated/forms': typeof AuthenticatedFormsRoute
   '/_authenticated/lists': typeof AuthenticatedListsRoute
+  '/_authenticated/metrics': typeof AuthenticatedMetricsRoute
+  '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/segments': typeof AuthenticatedSegmentsRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
-  '/_authenticated/templates': typeof AuthenticatedTemplatesRoute
+  '/_authenticated/tags': typeof AuthenticatedTagsRoute
+  '/_authenticated/templates': typeof AuthenticatedTemplatesRouteWithChildren
+  '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
+  '/button-gallery/$id': typeof ButtonGalleryIdRoute
+  '/button-image/$id': typeof ButtonImageIdRoute
+  '/editor-fonts/$filename': typeof EditorFontsFilenameRoute
+  '/editor-media/$filename': typeof EditorMediaFilenameRoute
+  '/editor-pdfs/$filename': typeof EditorPdfsFilenameRoute
+  '/hotspot-slice/$filename': typeof HotspotSliceFilenameRoute
+  '/track/click': typeof TrackClickRoute
+  '/track/open': typeof TrackOpenRoute
+  '/_authenticated/reports_/opens': typeof AuthenticatedReportsOpensRoute
   '/_authenticated/settings_/domain': typeof AuthenticatedSettingsDomainRoute
+  '/_authenticated/settings_/help': typeof AuthenticatedSettingsHelpRoute
   '/_authenticated/settings_/team': typeof AuthenticatedSettingsTeamRoute
+  '/_authenticated/templates/sms': typeof AuthenticatedTemplatesSmsRoute
+  '/_authenticated/templates/whatsapp': typeof AuthenticatedTemplatesWhatsappRoute
+  '/social-icon/$network/$color': typeof SocialIconNetworkColorRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
 }
@@ -186,6 +352,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/$'
+    | '/ajuda'
     | '/automations'
     | '/campaigns'
     | '/contacts'
@@ -193,18 +360,36 @@ export interface FileRouteTypes {
     | '/email-templates'
     | '/forms'
     | '/lists'
+    | '/metrics'
+    | '/perfil'
     | '/reports'
     | '/segments'
     | '/settings'
+    | '/tags'
     | '/templates'
+    | '/usuarios'
+    | '/button-gallery/$id'
+    | '/button-image/$id'
+    | '/editor-fonts/$filename'
+    | '/editor-media/$filename'
+    | '/editor-pdfs/$filename'
+    | '/hotspot-slice/$filename'
+    | '/track/click'
+    | '/track/open'
+    | '/reports/opens'
     | '/settings/domain'
+    | '/settings/help'
     | '/settings/team'
+    | '/templates/sms'
+    | '/templates/whatsapp'
+    | '/social-icon/$network/$color'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/$'
+    | '/ajuda'
     | '/automations'
     | '/campaigns'
     | '/contacts'
@@ -212,12 +397,29 @@ export interface FileRouteTypes {
     | '/email-templates'
     | '/forms'
     | '/lists'
+    | '/metrics'
+    | '/perfil'
     | '/reports'
     | '/segments'
     | '/settings'
+    | '/tags'
     | '/templates'
+    | '/usuarios'
+    | '/button-gallery/$id'
+    | '/button-image/$id'
+    | '/editor-fonts/$filename'
+    | '/editor-media/$filename'
+    | '/editor-pdfs/$filename'
+    | '/hotspot-slice/$filename'
+    | '/track/click'
+    | '/track/open'
+    | '/reports/opens'
     | '/settings/domain'
+    | '/settings/help'
     | '/settings/team'
+    | '/templates/sms'
+    | '/templates/whatsapp'
+    | '/social-icon/$network/$color'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
   id:
@@ -225,6 +427,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/_authenticated/$'
+    | '/_authenticated/ajuda'
     | '/_authenticated/automations'
     | '/_authenticated/campaigns'
     | '/_authenticated/contacts'
@@ -232,12 +435,29 @@ export interface FileRouteTypes {
     | '/_authenticated/email-templates'
     | '/_authenticated/forms'
     | '/_authenticated/lists'
+    | '/_authenticated/metrics'
+    | '/_authenticated/perfil'
     | '/_authenticated/reports'
     | '/_authenticated/segments'
     | '/_authenticated/settings'
+    | '/_authenticated/tags'
     | '/_authenticated/templates'
+    | '/_authenticated/usuarios'
+    | '/button-gallery/$id'
+    | '/button-image/$id'
+    | '/editor-fonts/$filename'
+    | '/editor-media/$filename'
+    | '/editor-pdfs/$filename'
+    | '/hotspot-slice/$filename'
+    | '/track/click'
+    | '/track/open'
+    | '/_authenticated/reports_/opens'
     | '/_authenticated/settings_/domain'
+    | '/_authenticated/settings_/help'
     | '/_authenticated/settings_/team'
+    | '/_authenticated/templates/sms'
+    | '/_authenticated/templates/whatsapp'
+    | '/social-icon/$network/$color'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
   fileRoutesById: FileRoutesById
@@ -245,6 +465,15 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  ButtonGalleryIdRoute: typeof ButtonGalleryIdRoute
+  ButtonImageIdRoute: typeof ButtonImageIdRoute
+  EditorFontsFilenameRoute: typeof EditorFontsFilenameRoute
+  EditorMediaFilenameRoute: typeof EditorMediaFilenameRoute
+  EditorPdfsFilenameRoute: typeof EditorPdfsFilenameRoute
+  HotspotSliceFilenameRoute: typeof HotspotSliceFilenameRoute
+  TrackClickRoute: typeof TrackClickRoute
+  TrackOpenRoute: typeof TrackOpenRoute
+  SocialIconNetworkColorRoute: typeof SocialIconNetworkColorRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
 }
@@ -270,6 +499,13 @@ declare module '@tanstack/react-router' {
       path: '/$'
       fullPath: '/$'
       preLoaderRoute: typeof AuthenticatedSplatRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/ajuda': {
+      id: '/_authenticated/ajuda'
+      path: '/ajuda'
+      fullPath: '/ajuda'
+      preLoaderRoute: typeof AuthenticatedAjudaRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/automations': {
@@ -321,6 +557,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedListsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/metrics': {
+      id: '/_authenticated/metrics'
+      path: '/metrics'
+      fullPath: '/metrics'
+      preLoaderRoute: typeof AuthenticatedMetricsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/perfil': {
+      id: '/_authenticated/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof AuthenticatedPerfilRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/reports': {
       id: '/_authenticated/reports'
       path: '/reports'
@@ -342,11 +592,88 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/tags': {
+      id: '/_authenticated/tags'
+      path: '/tags'
+      fullPath: '/tags'
+      preLoaderRoute: typeof AuthenticatedTagsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/templates': {
       id: '/_authenticated/templates'
       path: '/templates'
       fullPath: '/templates'
       preLoaderRoute: typeof AuthenticatedTemplatesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/usuarios': {
+      id: '/_authenticated/usuarios'
+      path: '/usuarios'
+      fullPath: '/usuarios'
+      preLoaderRoute: typeof AuthenticatedUsuariosRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/button-gallery/$id': {
+      id: '/button-gallery/$id'
+      path: '/button-gallery/$id'
+      fullPath: '/button-gallery/$id'
+      preLoaderRoute: typeof ButtonGalleryIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/button-image/$id': {
+      id: '/button-image/$id'
+      path: '/button-image/$id'
+      fullPath: '/button-image/$id'
+      preLoaderRoute: typeof ButtonImageIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/editor-fonts/$filename': {
+      id: '/editor-fonts/$filename'
+      path: '/editor-fonts/$filename'
+      fullPath: '/editor-fonts/$filename'
+      preLoaderRoute: typeof EditorFontsFilenameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/editor-media/$filename': {
+      id: '/editor-media/$filename'
+      path: '/editor-media/$filename'
+      fullPath: '/editor-media/$filename'
+      preLoaderRoute: typeof EditorMediaFilenameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/editor-pdfs/$filename': {
+      id: '/editor-pdfs/$filename'
+      path: '/editor-pdfs/$filename'
+      fullPath: '/editor-pdfs/$filename'
+      preLoaderRoute: typeof EditorPdfsFilenameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hotspot-slice/$filename': {
+      id: '/hotspot-slice/$filename'
+      path: '/hotspot-slice/$filename'
+      fullPath: '/hotspot-slice/$filename'
+      preLoaderRoute: typeof HotspotSliceFilenameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/track/click': {
+      id: '/track/click'
+      path: '/track/click'
+      fullPath: '/track/click'
+      preLoaderRoute: typeof TrackClickRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/track/open': {
+      id: '/track/open'
+      path: '/track/open'
+      fullPath: '/track/open'
+      preLoaderRoute: typeof TrackOpenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/reports_/opens': {
+      id: '/_authenticated/reports_/opens'
+      path: '/reports/opens'
+      fullPath: '/reports/opens'
+      preLoaderRoute: typeof AuthenticatedReportsOpensRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/settings_/domain': {
@@ -356,12 +683,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsDomainRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/settings_/help': {
+      id: '/_authenticated/settings_/help'
+      path: '/settings/help'
+      fullPath: '/settings/help'
+      preLoaderRoute: typeof AuthenticatedSettingsHelpRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/settings_/team': {
       id: '/_authenticated/settings_/team'
       path: '/settings/team'
       fullPath: '/settings/team'
       preLoaderRoute: typeof AuthenticatedSettingsTeamRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/templates/sms': {
+      id: '/_authenticated/templates/sms'
+      path: '/sms'
+      fullPath: '/templates/sms'
+      preLoaderRoute: typeof AuthenticatedTemplatesSmsRouteImport
+      parentRoute: typeof AuthenticatedTemplatesRoute
+    }
+    '/_authenticated/templates/whatsapp': {
+      id: '/_authenticated/templates/whatsapp'
+      path: '/whatsapp'
+      fullPath: '/templates/whatsapp'
+      preLoaderRoute: typeof AuthenticatedTemplatesWhatsappRouteImport
+      parentRoute: typeof AuthenticatedTemplatesRoute
+    }
+    '/social-icon/$network/$color': {
+      id: '/social-icon/$network/$color'
+      path: '/social-icon/$network/$color'
+      fullPath: '/social-icon/$network/$color'
+      preLoaderRoute: typeof SocialIconNetworkColorRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/lovable/email/auth/preview': {
       id: '/lovable/email/auth/preview'
@@ -380,8 +735,25 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedTemplatesRouteChildren {
+  AuthenticatedTemplatesSmsRoute: typeof AuthenticatedTemplatesSmsRoute
+  AuthenticatedTemplatesWhatsappRoute: typeof AuthenticatedTemplatesWhatsappRoute
+}
+
+const AuthenticatedTemplatesRouteChildren: AuthenticatedTemplatesRouteChildren =
+  {
+    AuthenticatedTemplatesSmsRoute: AuthenticatedTemplatesSmsRoute,
+    AuthenticatedTemplatesWhatsappRoute: AuthenticatedTemplatesWhatsappRoute,
+  }
+
+const AuthenticatedTemplatesRouteWithChildren =
+  AuthenticatedTemplatesRoute._addFileChildren(
+    AuthenticatedTemplatesRouteChildren,
+  )
+
 interface AuthenticatedRouteChildren {
   AuthenticatedSplatRoute: typeof AuthenticatedSplatRoute
+  AuthenticatedAjudaRoute: typeof AuthenticatedAjudaRoute
   AuthenticatedAutomationsRoute: typeof AuthenticatedAutomationsRoute
   AuthenticatedCampaignsRoute: typeof AuthenticatedCampaignsRoute
   AuthenticatedContactsRoute: typeof AuthenticatedContactsRoute
@@ -389,16 +761,23 @@ interface AuthenticatedRouteChildren {
   AuthenticatedEmailTemplatesRoute: typeof AuthenticatedEmailTemplatesRoute
   AuthenticatedFormsRoute: typeof AuthenticatedFormsRoute
   AuthenticatedListsRoute: typeof AuthenticatedListsRoute
+  AuthenticatedMetricsRoute: typeof AuthenticatedMetricsRoute
+  AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedSegmentsRoute: typeof AuthenticatedSegmentsRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
-  AuthenticatedTemplatesRoute: typeof AuthenticatedTemplatesRoute
+  AuthenticatedTagsRoute: typeof AuthenticatedTagsRoute
+  AuthenticatedTemplatesRoute: typeof AuthenticatedTemplatesRouteWithChildren
+  AuthenticatedUsuariosRoute: typeof AuthenticatedUsuariosRoute
+  AuthenticatedReportsOpensRoute: typeof AuthenticatedReportsOpensRoute
   AuthenticatedSettingsDomainRoute: typeof AuthenticatedSettingsDomainRoute
+  AuthenticatedSettingsHelpRoute: typeof AuthenticatedSettingsHelpRoute
   AuthenticatedSettingsTeamRoute: typeof AuthenticatedSettingsTeamRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedSplatRoute: AuthenticatedSplatRoute,
+  AuthenticatedAjudaRoute: AuthenticatedAjudaRoute,
   AuthenticatedAutomationsRoute: AuthenticatedAutomationsRoute,
   AuthenticatedCampaignsRoute: AuthenticatedCampaignsRoute,
   AuthenticatedContactsRoute: AuthenticatedContactsRoute,
@@ -406,11 +785,17 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedEmailTemplatesRoute: AuthenticatedEmailTemplatesRoute,
   AuthenticatedFormsRoute: AuthenticatedFormsRoute,
   AuthenticatedListsRoute: AuthenticatedListsRoute,
+  AuthenticatedMetricsRoute: AuthenticatedMetricsRoute,
+  AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedSegmentsRoute: AuthenticatedSegmentsRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
-  AuthenticatedTemplatesRoute: AuthenticatedTemplatesRoute,
+  AuthenticatedTagsRoute: AuthenticatedTagsRoute,
+  AuthenticatedTemplatesRoute: AuthenticatedTemplatesRouteWithChildren,
+  AuthenticatedUsuariosRoute: AuthenticatedUsuariosRoute,
+  AuthenticatedReportsOpensRoute: AuthenticatedReportsOpensRoute,
   AuthenticatedSettingsDomainRoute: AuthenticatedSettingsDomainRoute,
+  AuthenticatedSettingsHelpRoute: AuthenticatedSettingsHelpRoute,
   AuthenticatedSettingsTeamRoute: AuthenticatedSettingsTeamRoute,
 }
 
@@ -421,6 +806,15 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  ButtonGalleryIdRoute: ButtonGalleryIdRoute,
+  ButtonImageIdRoute: ButtonImageIdRoute,
+  EditorFontsFilenameRoute: EditorFontsFilenameRoute,
+  EditorMediaFilenameRoute: EditorMediaFilenameRoute,
+  EditorPdfsFilenameRoute: EditorPdfsFilenameRoute,
+  HotspotSliceFilenameRoute: HotspotSliceFilenameRoute,
+  TrackClickRoute: TrackClickRoute,
+  TrackOpenRoute: TrackOpenRoute,
+  SocialIconNetworkColorRoute: SocialIconNetworkColorRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
 }

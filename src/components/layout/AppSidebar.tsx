@@ -8,7 +8,6 @@ import {
   Mail,
   FileText,
   Zap,
-  FormInput,
   BarChart3,
   Settings,
   HelpCircle,
@@ -24,7 +23,6 @@ import {
   Leaf
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useIsMobile } from "@/hooks/use-mobile";
 import logoAsset from "@/assets/digitale-logo-white.png.asset.json";
 import { useAuthStore } from "@/hooks/use-auth";
 import {
@@ -70,7 +68,6 @@ const sidebarStructure: { group: string; items: NavItem[] }[] = [
       { label: "Templates", icon: FileText, href: "/templates" },
       { label: "E-mails", icon: Mail, href: "/email-templates" },
       { label: "Automações", icon: Zap, href: "/automations" },
-      { label: "Formulários", icon: FormInput, href: "/forms" },
     ],
   },
   {
@@ -83,7 +80,7 @@ const sidebarStructure: { group: string; items: NavItem[] }[] = [
           { label: "Todos os contatos", icon: Users, href: "/contacts" },
           { label: "Listas", icon: List, href: "/lists" },
           { label: "Segmentos", icon: Target, href: "/segments" },
-          { label: "Tags", icon: Tag, href: "/contacts" },
+          { label: "Tags", icon: Tag, href: "/tags" },
         ],
       },
     ],
@@ -96,8 +93,18 @@ const sidebarStructure: { group: string; items: NavItem[] }[] = [
         icon: BarChart3,
         items: [
           { label: "Relatórios", icon: BarChart3, href: "/reports" },
-          { label: "Métricas", icon: TrendingUp, href: "/reports" },
+          { label: "Métricas", icon: TrendingUp, href: "/metrics" },
         ],
+      },
+    ],
+  },
+  {
+    group: "Administração",
+    items: [
+      {
+        label: "Usuários e Permissões",
+        icon: ShieldCheck,
+        href: "/usuarios",
       },
     ],
   },
@@ -111,6 +118,7 @@ const sidebarStructure: { group: string; items: NavItem[] }[] = [
           { label: "Geral", icon: Settings, href: "/settings" },
           { label: "Domínio", icon: Globe, href: "/settings/domain" as any },
           { label: "Equipe", icon: ShieldCheck, href: "/settings/team" as any },
+          { label: "Gerenciar Tutoriais", icon: HelpCircle, href: "/settings/help" as any },
         ],
       },
     ],
@@ -118,26 +126,28 @@ const sidebarStructure: { group: string; items: NavItem[] }[] = [
 ];
 
 export function AppSidebar() {
-  const isMobile = useIsMobile();
   const [open, setOpen] = React.useState(false);
   const { user } = useAuthStore();
 
   const SidebarContent = () => {
-    const isDev = user?.role === 'Desenvolvedor';
 
-    const filteredStructure = sidebarStructure.filter(group => {
-      // Configurações só para Desenvolvedor
-      if (group.group === "Configurações") {
-        return isDev;
-      }
-      
-      // Configurações só para Desenvolvedor
-      if (group.group === "Configurações") {
-        return isDev;
-      }
+    const isMaster = user?.role === "Desenvolvedor";
+    const isSdk = String(user?.role) === "SDK";
 
-      return true;
-    });
+    const filteredStructure = isSdk
+      ? [{
+          group: "Marketing",
+          items: sidebarStructure
+            .find((g) => g.group === "Marketing")!
+            .items.filter((item) => item.href === "/templates"),
+        }]
+      : sidebarStructure.filter((group) => {
+          if (group.group === "Administração" ||
+              group.group === "Configurações") {
+            return isMaster;
+          }
+          return true;
+        });
 
     return (
       <div className="flex h-full flex-col bg-[#1e2d4d] relative overflow-hidden">
@@ -203,12 +213,14 @@ export function AppSidebar() {
 
         {/* Footer */}
         <div className="border-t border-white/10 p-4 space-y-1">
-          <div
+          <Link
+            to={"/ajuda" as any}
+            onClick={() => setOpen(false)}
             className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-white/70 transition-all hover:bg-white/10 hover:text-white cursor-pointer group"
           >
             <HelpCircle className="h-4 w-4 transition-transform group-hover:scale-110" />
             <span>Central de Ajuda</span>
-          </div>
+          </Link>
           <div className="flex items-center gap-3 rounded-xl px-3 py-3 bg-white/5 mt-2 border border-white/10">
             <div className="h-8 w-8 rounded-lg bg-white/10 flex items-center justify-center text-xs text-white font-bold shadow-inner border border-white/10">
               {user?.initials || '??'}
@@ -223,28 +235,49 @@ export function AppSidebar() {
     );
   };
 
-  if (isMobile) {
-    return (
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetTrigger asChild>
-          <button className="fixed left-4 top-4 z-50 rounded-md border bg-white p-2 shadow-sm lg:hidden">
-            <Menu className="h-5 w-5 text-primary" />
-          </button>
-        </SheetTrigger>
-        <SheetContent side="left" className="p-0 w-[240px]">
-          <SheetHeader className="sr-only">
-            <SheetTitle>Menu</SheetTitle>
-          </SheetHeader>
-          <SidebarContent />
-        </SheetContent>
-      </Sheet>
-    );
-  }
+
+  const currentPath = useLocation().pathname;
+
+  React.useEffect(() => {
+    setOpen(false);
+  }, [currentPath]);
 
   return (
-    <aside className="fixed left-0 top-0 z-40 hidden h-screen w-[240px] border-r border-white/10 bg-[#1e2d4d] shadow-2xl transition-transform lg:block">
-      <SidebarContent />
-    </aside>
+    <>
+      <div className="lg:hidden">
+        <Sheet open={open} onOpenChange={setOpen}>
+          <SheetTrigger asChild>
+            <button
+              type="button"
+              aria-label="Abrir menu de navegacao"
+              className="fixed left-4 top-4 z-50 flex h-10 w-10
+                         items-center justify-center rounded-lg
+                         border bg-white shadow-md"
+            >
+              <Menu className="h-5 w-5 text-primary" />
+            </button>
+          </SheetTrigger>
+
+          <SheetContent
+            side="left"
+            className="h-[100dvh] w-[280px] max-w-[85vw] p-0"
+          >
+            <SheetHeader className="sr-only">
+              <SheetTitle>Menu de navegação</SheetTitle>
+            </SheetHeader>
+            <SidebarContent />
+          </SheetContent>
+        </Sheet>
+      </div>
+
+      <aside
+        className="fixed left-0 top-0 z-40 hidden
+                   h-screen w-[240px] border-r border-white/10
+                   bg-[#1e2d4d] shadow-2xl lg:block"
+      >
+        <SidebarContent />
+      </aside>
+    </>
   );
 }
 

@@ -13,7 +13,11 @@ export const Route = createFileRoute("/")({
 
 function LoginPage() {
   const navigate = useNavigate();
-  const { login, isAuthenticated } = useAuthStore();
+  const { login, isAuthenticated, initialize } = useAuthStore();
+
+  React.useEffect(() => {
+    void initialize();
+  }, [initialize]);
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
@@ -35,7 +39,7 @@ function LoginPage() {
       await login(email, password);
       navigate({ to: "/dashboard" });
     } catch {
-      setError("E-mail ou senha incorretos.");
+      setError("Nao foi possivel entrar. Verifique suas credenciais e utilize uma conexao segura.");
     } finally {
       setIsLoading(false);
     }

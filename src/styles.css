@@ -88,3 +88,35 @@
 }
 
 
+/* DIGITALE_WHITE_DARK_V1
+   Apenas cores da interface administrativa.
+   Nao modifica HTML armazenado nem estilos dos emails. */
+html.digitale-dark {
+  color-scheme: dark;
+  --color-background: #0c192b;
+  --color-foreground: #edf3fa;
+  --color-card: #162941;
+  --color-card-foreground: #edf3fa;
+  --color-popover: #162941;
+  --color-popover-foreground: #edf3fa;
+  --color-primary: #eaf2fc;
+  --color-primary-foreground: #102039;
+  --color-secondary: #203650;
+  --color-secondary-foreground: #eef4fb;
+  --color-muted: #223750;
+  --color-muted-foreground: #a8b9ce;
+  --color-accent: #ed8746;
+  --color-accent-foreground: #101d31;
+  --color-border: #354b64;
+  --color-input: #354b64;
+  --color-ring: #ed8746;
+  --color-destructive: #f38b93;
+}
+
+/* Corrige apenas o fundo fixo do layout administrativo. */
+html.digitale-dark .digitale-app-surface {
+  background-color: #0c192b;
+}
+
+/* Nao modificar cores dentro das pre-visualizacoes HTML.
+   Iframes de email permanecem isolados do tema. */

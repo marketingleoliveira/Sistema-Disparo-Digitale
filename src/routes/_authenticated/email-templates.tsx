@@ -124,7 +124,7 @@ function EmailTemplatesPage() {
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
+      <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(240px,300px)_minmax(0,1fr)]">
         {/* Lista de templates */}
         <div className="space-y-3">
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
@@ -257,7 +257,7 @@ function EmailTemplatesPage() {
                 srcDoc={previewHtml}
                 className={cn(
                   "h-[640px] rounded-lg border bg-white transition-all duration-300",
-                  viewport === "desktop" ? "w-full max-w-[680px]" : "w-[390px]",
+                  viewport === "desktop" ? "w-full max-w-[680px]" : "w-full max-w-[390px]",
                 )}
               />
             )}

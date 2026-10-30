@@ -13,6 +13,8 @@ import {
   Settings2
 } from "lucide-react";
 import { useDataStore } from "@/hooks/use-data";
+import { listPortalIaLeads } from "@/lib/portal-ia-leads.functions";
+import type { PortalIaLead } from "@/lib/portal-ia-leads.server";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,6 +38,33 @@ export const Route = createFileRoute("/_authenticated/segments")({
 
 function SegmentsPage() {
   const { segments, fetchSegments, addSegment, deleteSegment, isLoading } = useDataStore();
+
+  const [showIaContacts, setShowIaContacts] = React.useState(false);
+  const [iaSearch, setIaSearch] = React.useState("");
+  const [iaLeads, setIaLeads] = React.useState<PortalIaLead[]>([]);
+  const [iaLoading, setIaLoading] = React.useState(false);
+
+  const refreshIaLeads = React.useCallback(async () => {
+    setIaLoading(true);
+    try {
+      const leads = await listPortalIaLeads();
+      setIaLeads(leads);
+    } catch {
+      toast.error("Nao foi possivel consultar os leads da IA.");
+    } finally {
+      setIaLoading(false);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    void refreshIaLeads();
+  }, [refreshIaLeads]);
+
+  const iaVisibleContacts = iaLeads.filter(lead =>
+    [lead.company, lead.email, lead.phone]
+      .some(value => String(value || "").toLowerCase().includes(iaSearch.toLowerCase()))
+  );
+
   const [search, setSearch] = React.useState("");
   const [isAdding, setIsAdding] = React.useState(false);
   const [newName, setNewName] = React.useState("");
@@ -46,7 +75,8 @@ function SegmentsPage() {
     fetchSegments();
   }, [fetchSegments]);
 
-  const filteredSegments = segments.filter(s => 
+  const filteredSegments = segments.filter(s =>
+    s.name !== "IA PROSPECÇÃO" && 
     s.name.toLowerCase().includes(search.toLowerCase()) ||
     s.description.toLowerCase().includes(search.toLowerCase())
   );
@@ -112,6 +142,91 @@ function SegmentsPage() {
           />
         </div>
       </div>
+
+
+      {/* Segmento conectado ao MariaDB */}
+      {("IA PROSPECÇÃO".toLowerCase().includes(search.toLowerCase())) && (
+        <Card className="border-border/60">
+          <CardHeader>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Target size={20} />
+                  <CardTitle>IA PROSPECÇÃO</CardTitle>
+                </div>
+                <CardDescription className="mt-2">
+                  Leads empresariais da IA Digitale atribuidos a Nicolle, inclusive sem e-mail.
+                  Consulta somente leitura ao Portal Digitale.
+                </CardDescription>
+              </div>
+              <Badge variant="outline">Segmento automatico</Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <Users size={20} />
+                <span className="font-semibold">
+                  {iaLeads.length} leads
+                </span>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => {
+                  void refreshIaLeads();
+                }}>
+                  Atualizar
+                </Button>
+                <Button variant="outline"
+                  onClick={() => setShowIaContacts(value => !value)}>
+                  {showIaContacts ? "Ocultar contatos" : "Ver contatos"}
+                </Button>
+              </div>
+            </div>
+
+            {showIaContacts && (
+              <div className="space-y-3">
+                <Input
+                  placeholder="Buscar empresa, email ou telefone..."
+                  value={iaSearch}
+                  onChange={e => setIaSearch(e.target.value)}
+                />
+                <div className="max-h-96 overflow-auto rounded-lg border">
+                  {iaVisibleContacts.slice(0, 100).map(contact => (
+                    <div key={contact.id}
+                      className="flex flex-wrap items-center justify-between gap-2 border-b p-3 text-sm last:border-b-0">
+                      <div className="min-w-0">
+                        <p className="font-medium">
+                          {contact.company}
+                        </p>
+                        <p className="break-all text-muted-foreground">
+                          {contact.email || "Sem e-mail"}
+                        </p>
+                        <p className="text-muted-foreground">
+                          {contact.phone || "Sem telefone"}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Cadastro: {contact.createdAt || "Nao informado"}
+                        </p>
+                      </div>
+                      <Badge variant="outline">{contact.email ? "Com e-mail" : "Sem e-mail"}</Badge>
+                    </div>
+                  ))}
+                  {iaVisibleContacts.length === 0 && (
+                    <p className="p-4 text-sm text-muted-foreground">
+                      Nenhum lead encontrado.
+                    </p>
+                  )}
+                </div>
+                {iaVisibleContacts.length > 100 && (
+                  <p className="text-xs text-muted-foreground">
+                    Exibindo os primeiros 100 leads.
+                  </p>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Segments Grid */}
       {isLoading && segments.length === 0 ? (

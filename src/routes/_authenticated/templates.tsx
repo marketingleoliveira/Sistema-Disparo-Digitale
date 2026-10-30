@@ -20,11 +20,10 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { VisualEmailEditor } from "@/components/editor/VisualEmailEditor";
-import { INITIAL_BLOCKS, type EditorBlock } from "@/components/editor/editor-types";
+import { INITIAL_BLOCKS, withDigitaleBrandFrame, type EditorBlock } from "@/components/editor/editor-types";
 import { motion } from "framer-motion";
 import { CanvaImportDialog } from "@/components/templates/CanvaImportDialog";
 import { useTemplateLibrary } from "@/hooks/use-template-library";
-import { useHiddenOfficialTemplates } from "@/hooks/use-hidden-official-templates";
 import { blocksToEmailHtml } from "@/lib/templates/blocks-to-html";
 import { createTemplateId, type StoredTemplate } from "@/lib/templates/stored-template";
 import {
@@ -80,38 +79,8 @@ interface OfficialTemplate {
 }
 
 /** Modelos base da marca: sempre disponíveis e usados como ponto de partida. */
-const OFFICIAL_TEMPLATES: OfficialTemplate[] = [
-  {
-    id: "official-newsletter",
-    name: "Newsletter Institucional",
-    category: "Newsletter",
-    image:
-      "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=400&h=500&fit=crop",
-    blocks: INITIAL_BLOCKS,
-  },
-  {
-    id: "official-promocao",
-    name: "Promoção de Coleção",
-    category: "Promoção",
-    image:
-      "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=400&h=500&fit=crop",
-    blocks: INITIAL_BLOCKS.map((b) =>
-      b.type === "title"
-        ? { ...b, content: { text: "{{nome}}, sua coleção com condição especial" } }
-        : b,
-    ),
-  },
-  {
-    id: "official-lancamento",
-    name: "Lançamento de Linha",
-    category: "Lançamento",
-    image:
-      "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&h=500&fit=crop",
-    blocks: INITIAL_BLOCKS.map((b) =>
-      b.type === "title" ? { ...b, content: { text: "Nova linha disponível" } } : b,
-    ),
-  },
-];
+const OFFICIAL_TEMPLATES: OfficialTemplate[] = [];
+
 
 type EditorState =
   | { mode: "closed" }
@@ -129,7 +98,6 @@ function TemplatesPage() {
 
   const { templates, isLoaded, addTemplate, updateTemplate, removeTemplate, duplicateTemplate } =
     useTemplateLibrary();
-  const { hidden, hideOfficial, restoreAll } = useHiddenOfficialTemplates();
 
   const matches = React.useCallback(
     (name: string, category: string) => {
@@ -140,9 +108,6 @@ function TemplatesPage() {
     [activeCategory, searchQuery],
   );
 
-  const officialFiltered = OFFICIAL_TEMPLATES.filter(
-    (t) => !hidden.includes(t.id) && matches(t.name, t.category),
-  );
   const myFiltered = templates.filter((t) => matches(t.name, t.category));
 
   /** Cria um template novo no editor, partindo de um modelo oficial ou em branco. */
@@ -151,21 +116,22 @@ function TemplatesPage() {
       mode: "new",
       name: source ? `${source.name} — cópia` : "Novo template",
       category: source?.category ?? CATEGORY_OPTIONS[0]!,
-      blocks: source ? source.blocks : INITIAL_BLOCKS,
+      blocks: withDigitaleBrandFrame(source ? source.blocks : INITIAL_BLOCKS),
     });
   };
 
   const handleSaveFromEditor = (blocks: EditorBlock[]) => {
     if (editor.mode === "new") {
       const now = new Date().toISOString();
+      const fixedBlocks = withDigitaleBrandFrame(blocks);
       const created: StoredTemplate = {
         id: createTemplateId("editor"),
         name: editor.name.trim() || "Novo template",
         category: editor.category,
-        image: String(blocks.find((b) => b.type === "image")?.content?.url ?? ""),
-        html: blocksToEmailHtml(blocks, editor.name),
+        image: String(fixedBlocks.find((b) => b.type === "image")?.content?.url ?? ""),
+        html: blocksToEmailHtml(fixedBlocks, editor.name),
         kind: "editor",
-        blocks,
+        blocks: fixedBlocks,
         createdAt: now,
         updatedAt: now,
       };
@@ -290,6 +256,32 @@ function TemplatesPage() {
   // ----- Biblioteca -----
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+
+      {/* DIGITALE_TEMPLATE_CANAIS_V1 */}
+      <nav
+        aria-label="Canais de templates"
+        className="mb-6 flex flex-wrap items-center gap-2"
+      >
+        <a
+          href="/templates"
+          className="rounded-lg border bg-slate-900 px-4 py-2 text-sm font-medium text-white"
+        >
+          E-mail
+        </a>
+        <a
+          href="/templates/sms"
+          className="rounded-lg border px-4 py-2 text-sm font-medium hover:bg-slate-100"
+        >
+          SMS
+        </a>
+        <a
+          href="/templates/whatsapp"
+          className="rounded-lg border px-4 py-2 text-sm font-medium hover:bg-slate-100"
+        >
+          WhatsApp
+        </a>
+      </nav>
+
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-primary">Templates</h1>
@@ -358,85 +350,7 @@ function TemplatesPage() {
         </ScrollArea>
       </div>
 
-      {/* Modelos oficiais */}
-      {(officialFiltered.length > 0 || hidden.length > 0) && (
-        <section className="space-y-6">
-          <div className="flex flex-wrap items-center gap-2">
-            <Sparkles className="text-accent" size={20} />
-            <h2 className="text-lg font-bold text-primary">Modelos da Digitale Têxtil</h2>
-            {hidden.length > 0 && (
-              <Button
-                size="sm"
-                variant="ghost"
-                className="ml-auto text-xs font-bold"
-                onClick={() => {
-                  restoreAll();
-                  toast.success("Modelos oficiais restaurados.");
-                }}
-              >
-                Restaurar modelos removidos ({hidden.length})
-              </Button>
-            )}
-          </div>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {officialFiltered.map((template) => (
-              <motion.div
-                layout
-                key={template.id}
-                initial={{ opacity: 0, scale: 0.97 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="group relative overflow-hidden rounded-xl border bg-card shadow-sm transition-all hover:shadow-md"
-              >
-                <div className="relative aspect-[4/5] overflow-hidden bg-muted">
-                  <img
-                    src={template.image}
-                    alt={`Pré-visualização do modelo ${template.name}`}
-                    loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 bg-primary/60 opacity-0 backdrop-blur-[2px] transition-all duration-300 group-hover:opacity-100">
-                    <Button
-                      size="sm"
-                      onClick={() => openNewEditor(template)}
-                      className="w-36 bg-accent font-bold text-accent-foreground"
-                    >
-                      <Edit3 size={14} className="mr-2" /> Usar e editar
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      className="w-36 font-bold"
-                      onClick={() => handleDuplicateOfficial(template)}
-                    >
-                      <Copy size={14} className="mr-2" /> Duplicar
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      className="w-36 font-bold"
-                      onClick={() => {
-                        hideOfficial(template.id);
-                        toast.success(`"${template.name}" removido da biblioteca.`);
-                      }}
-                    >
-                      <Trash2 size={14} className="mr-2" /> Excluir
-                    </Button>
-                  </div>
-                  <div className="absolute left-3 top-3 z-10">
-                    <Badge className="flex items-center gap-1 border-none bg-accent text-[9px] font-bold uppercase tracking-wider text-accent-foreground shadow-sm">
-                      <Sparkles size={10} /> Oficial
-                    </Badge>
-                  </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="truncate text-sm font-bold text-primary">{template.name}</h3>
-                  <p className="mt-0.5 text-[10px] text-muted-foreground">{template.category}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-      )}
+      {/* Modelos oficiais excluidos permanentemente da biblioteca. */}
 
       {/* Meus templates */}
       <section className="space-y-6">

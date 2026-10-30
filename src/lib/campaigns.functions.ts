@@ -1,5 +1,21 @@
+
+// DIGITALE_REPLY_TO_ATENDIMENTO_V1
+function normalizeDisparoReplyTo(value: unknown): string {
+  const address = typeof value === "string"
+    ? value.trim()
+    : "";
+
+  if (
+    !address ||
+    address.toLowerCase() === "mailapi@envios.digitaletextil.com.br"
+  ) {
+    return "atendimento@digitaletextil.com.br";
+  }
+
+  return address;
+}
+
 import { createServerFn } from "@tanstack/react-start";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 interface TestEmailInput {
   to: string;
@@ -23,13 +39,15 @@ function parseTestInput(input: TestEmailInput): TestEmailInput {
 export const sendCampaignTest = createServerFn({ method: "POST" })
   .inputValidator(parseTestInput)
   .handler(async ({ data }) => {
+    const { requireDisparoUser } = await import("./disparo-auth.server");
+    await requireDisparoUser();
     const { sendHtmlEmail } = await import("./campaigns/send.server");
     const result = await sendHtmlEmail({
       to: data.to,
       subject: `[TESTE] ${data.subject}`,
       html: data.html,
       ...(data.fromName ? { fromName: data.fromName } : {}),
-      ...(data.replyTo ? { replyTo: data.replyTo } : {}),
+      ...{ replyTo: normalizeDisparoReplyTo(data.replyTo) },
       label: "campaign-test",
       idempotencyKey: `campaign-test-${data.to}-${Date.now()}`,
 
@@ -37,85 +55,172 @@ export const sendCampaignTest = createServerFn({ method: "POST" })
     return result;
   });
 
+
 interface DispatchInput {
   campaignId: string;
 }
 
 /**
- * Dispara a campanha para os contatos ativos das listas selecionadas.
- * Roda como o usuário autenticado (RLS aplicada) e atualiza o status ao final.
+ * Envio de campanhas utilizando exclusivamente MariaDB.
+ * A confirmacao manual continua na interface.
  */
 export const dispatchCampaign = createServerFn({ method: "POST" })
   .inputValidator((input: DispatchInput) => {
     const campaignId = String(input?.campaignId ?? "").trim();
-    if (!campaignId) throw new Error("Campanha não informada.");
+
+    if (
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+        .test(campaignId)
+    ) {
+      throw new Error("Identificador de campanha invalido.");
+    }
+
     return { campaignId };
   })
   .handler(async ({ data }) => {
-    // Usamos supabaseAdmin para ignorar RLS e middleware de auth enquanto o sistema de login é consolidado.
-    const { supabaseAdmin: supabase } = await import("@/integrations/supabase/client.server");
+    const { requireDisparoUser } =
+      await import("./disparo-auth.server");
 
-    const { data: campaign, error } = await supabase
-      .from("campaigns")
-      .select("*")
-      .eq("id", data.campaignId)
-      .maybeSingle();
+    const user = await requireDisparoUser();
 
-    if (error) throw new Error(error.message);
-    if (!campaign) throw new Error("Campanha não encontrada.");
-
-    const content = (campaign.content ?? {}) as Record<string, unknown>;
-    const html = String(content["html"] ?? "");
-    const subject = String(campaign.subject ?? content["subject"] ?? "").trim();
-    const lists = Array.isArray(content["lists"]) ? (content["lists"] as string[]) : [];
-    const fromName = typeof content["senderName"] === "string" ? content["senderName"] : undefined;
-    const replyTo = typeof content["replyTo"] === "string" ? content["replyTo"] : undefined;
-
-    if (!html.trim()) throw new Error("A campanha não possui conteúdo (etapa de design).");
-    if (!subject) throw new Error("A campanha não possui assunto.");
-
-    const { data: contacts, error: contactsError } = await supabase
-      .from("contacts")
-      .select("email, lists, status")
-      .eq("status", "Ativo");
-
-    if (contactsError) throw new Error(contactsError.message);
-
-    const audience = (contacts ?? []).filter((c) => {
-      if (!c.email) return false;
-      if (lists.length === 0) return true;
-      const contactLists = Array.isArray(c.lists) ? (c.lists as string[]) : [];
-      return contactLists.some((l) => lists.includes(l));
-    });
-
-    if (audience.length === 0) throw new Error("Nenhum contato ativo encontrado para esta seleção.");
-
-    const { sendHtmlEmail } = await import("./campaigns/send.server");
-
-    let sent = 0;
-    const failures: Array<{ email: string; reason: string }> = [];
-
-    for (const contact of audience) {
-      const result = await sendHtmlEmail({
-        to: contact.email,
-        subject,
-        html,
-        ...(fromName ? { fromName } : {}),
-        ...(replyTo ? { replyTo } : {}),
-        idempotencyKey: `campaign-${campaign.id}-${contact.email}`,
-      });
-      if (result.sent) sent += 1;
-      else failures.push({ email: contact.email, reason: result.reason });
+    if (![
+      "Desenvolvedor",
+      "Diretoria",
+      "Gerência"
+    ].includes(user.role)) {
+      throw new Error(
+        "Sem permissao para disparar campanhas."
+      );
     }
 
-    await supabase
-      .from("campaigns")
-      .update({
-        status: sent > 0 ? "Enviada" : "Rascunho",
-        recipients: sent,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", campaign.id);
+    const {
+      getDisparoCampaignByIdDB,
+      getDisparoRecipientsDB,
+      claimDisparoCampaignForSendingDB,
+      finishDisparoCampaignDB
+    } = await import("./disparo-campaigns.server");
 
-    return { total: audience.length, sent, failed: failures.length, failures: failures.slice(0, 20) };
+    const campaign =
+      await getDisparoCampaignByIdDB(data.campaignId);
+
+    if (campaign.status !== "Em andamento") {
+      throw new Error(
+        "Campanha nao esta liberada para execucao."
+      );
+    }
+
+    const content = campaign.content;
+
+    const html =
+      typeof content["html"] === "string"
+        ? content["html"]
+        : "";
+
+    const subject = campaign.subject.trim();
+
+    const lists = content["lists"];
+
+    if (!Array.isArray(lists) || !lists.every(
+      item => typeof item === "string"
+    )) {
+      throw new Error("Listas da campanha invalidas.");
+    }
+
+    if (!html.trim() || !subject) {
+      throw new Error(
+        "Assunto ou HTML da campanha ausente."
+      );
+    }
+
+    const audience = await getDisparoRecipientsDB(lists);
+
+    if (audience.length === 0) {
+      throw new Error("Nenhum contato ativo selecionado.");
+    }
+
+    if (audience.length > 100000) {
+      throw new Error(
+        "Volume excede limite de seguranca."
+      );
+    }
+
+    const fromName =
+      typeof content["senderName"] === "string"
+        ? content["senderName"]
+        : undefined;
+
+    const replyTo =
+      typeof content["replyTo"] === "string"
+        ? content["replyTo"]
+        : undefined;
+
+    // Nao chamar o provedor sem reservar a campanha.
+    await claimDisparoCampaignForSendingDB(campaign.id);
+
+    const { sendHtmlEmail } =
+      await import("./campaigns/send.server");
+
+    let sent = 0;
+    let simulated = 0;
+
+    const failures: Array<{
+      email: string;
+      reason: string;
+    }> = [];
+
+    for (const contact of audience) {
+      try {
+        const result = await sendHtmlEmail({
+          to: contact.email,
+          subject,
+          html,
+          ...(fromName ? { fromName } : {}),
+          ...{ replyTo: normalizeDisparoReplyTo(replyTo) },
+          campaignId: campaign.id,
+          tracking: {
+            contactId: contact.contactId,
+            listId: contact.listId
+          },
+          idempotencyKey:
+            `campaign-${campaign.id}-${contact.email}`,
+          label: "campaign"
+        });
+
+        if (result.sent) {
+          sent++;
+        } else if (
+          "simulated" in result &&
+          result.simulated
+        ) {
+          simulated++;
+        } else {
+          failures.push({
+            email: contact.email,
+            reason: "reason" in result
+              ? result.reason
+              : "unknown_error"
+          });
+        }
+      } catch {
+        failures.push({
+          email: contact.email,
+          reason: "unexpected_error"
+        });
+      }
+    }
+
+    await finishDisparoCampaignDB({
+      campaignId: campaign.id,
+      sent,
+      simulated,
+      failed: failures.length
+    });
+
+    return {
+      total: audience.length,
+      sent,
+      simulated,
+      failed: failures.length,
+      failures: failures.slice(0, 20)
+    };
   });

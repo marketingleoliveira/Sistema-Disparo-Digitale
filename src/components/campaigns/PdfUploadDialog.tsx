@@ -46,8 +46,8 @@ export function PdfUploadDialog({ onConverted, children }: PdfUploadDialogProps)
       return;
     }
 
-    if (selected.size > 10 * 1024 * 1024) {
-      toast.error("O arquivo deve ter no máximo 10MB.");
+    if (selected.size > 25 * 1024 * 1024) {
+      toast.error("O arquivo deve ter no máximo 25MB.");
       return;
     }
 
@@ -143,7 +143,7 @@ export function PdfUploadDialog({ onConverted, children }: PdfUploadDialogProps)
                   {file ? file.name : "Clique ou arraste o PDF aqui"}
                 </p>
                 <p className="text-[11px] text-muted-foreground mt-1">
-                  Máximo 10MB • Formato PDF
+                  Máximo 25MB • Formato PDF
                 </p>
               </div>
             </div>

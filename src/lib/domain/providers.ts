@@ -51,12 +51,6 @@ export const DOMAIN_PROVIDERS: readonly DomainProviderPreset[] = [
     dkimSelector: "s1",
   },
   {
-    id: "resend",
-    label: "Resend",
-    spf: "v=spf1 include:amazonses.com ~all",
-    dkimSelector: "resend",
-  },
-  {
     id: "outro",
     label: "Outro provedor",
     spf: "v=spf1 include:_spf.seuprovedor.com ~all",

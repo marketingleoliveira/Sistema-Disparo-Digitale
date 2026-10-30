@@ -23,7 +23,7 @@ export interface ImportedTemplate {
   isOfficial: false;
 }
 
-export const MAX_IMPORT_BYTES = 4 * 1024 * 1024; // 4 MB
+export const MAX_IMPORT_BYTES = 12 * 1024 * 1024; // 12 MB
 
 const IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"];
 
@@ -31,7 +31,7 @@ export function validateImportFile(
   file: File,
 ): { ok: true; kind: CanvaImportKind } | { ok: false; error: string } {
   if (file.size > MAX_IMPORT_BYTES) {
-    return { ok: false, error: "Arquivo maior que 4 MB. Reduza a qualidade da exportação no Canva." };
+    return { ok: false, error: "Arquivo maior que 12 MB. Limite de importação: 12 MB." };
   }
   if (IMAGE_TYPES.includes(file.type)) return { ok: true, kind: "image" };
   if (file.type === "text/html" || file.name.toLowerCase().endsWith(".html")) {

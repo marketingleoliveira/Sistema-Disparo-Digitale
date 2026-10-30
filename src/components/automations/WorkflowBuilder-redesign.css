@@ -1,0 +1,573 @@
+/* DIGITALE_WORKFLOW_REDESIGN_V1 */
+
+.digitale-workflow-redesign {
+  --dw-bg: #080f20;
+  --dw-panel: #101a31;
+  --dw-card: #18233c;
+  --dw-border: #293954;
+  --dw-text: #f5f7ff;
+  --dw-muted: #a6b5d2;
+
+  background: var(--dw-bg) !important;
+  color: var(--dw-text) !important;
+  font-family: Inter, "Helvetica Neue", Arial, sans-serif;
+  color-scheme: dark;
+}
+
+/* Cabecalho */
+
+.digitale-workflow-redesign > div:first-child {
+  min-height: 86px;
+  height: auto !important;
+  padding: 15px 24px !important;
+  background: linear-gradient(
+    105deg, #111c34 0%, #0b1226 100%
+  ) !important;
+  border-bottom: 1px solid #283651 !important;
+  box-shadow: 0 8px 30px #00000030;
+  gap: 16px;
+}
+
+.digitale-workflow-redesign > div:first-child h2 {
+  color: #f8faff !important;
+  font-size: 19px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.35px;
+}
+
+.digitale-workflow-redesign > div:first-child
+  .text-muted-foreground {
+  color: #a7b6d1 !important;
+}
+
+.digitale-workflow-redesign button {
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.digitale-workflow-redesign button:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+.digitale-workflow-redesign button:focus-visible {
+  outline: 2px solid #838cff;
+  outline-offset: 3px;
+}
+
+.digitale-workflow-redesign button:disabled {
+  cursor: not-allowed;
+}
+
+/* Menu de componentes */
+
+.digitale-workflow-redesign .cursor-grab {
+  background: linear-gradient(
+    120deg, #1b2945, #142039
+  ) !important;
+  border: 1px solid #354560 !important;
+  border-radius: 13px !important;
+  color: #e7edff !important;
+  box-shadow: 0 4px 14px #00000020;
+  padding: 13px !important;
+  cursor: default !important;
+}
+
+.digitale-workflow-redesign .cursor-grab:hover {
+  border-color: #687dba !important;
+  background: #243453 !important;
+  box-shadow: 0 8px 22px #00000035;
+}
+
+.digitale-workflow-redesign .cursor-grab
+  .text-muted-foreground {
+  color: #abb9d2 !important;
+}
+
+/* Areas do editor */
+
+.digitale-workflow-redesign .bg-muted {
+  background-color: #17243c !important;
+}
+
+.digitale-workflow-redesign .bg-background {
+  background-color: #101a30;
+}
+
+.digitale-workflow-redesign .border-border {
+  border-color: #30415e;
+}
+
+.digitale-workflow-redesign .text-muted-foreground {
+  color: #acbad3;
+}
+
+.digitale-workflow-redesign .bg-zinc-50 {
+  background-color: #1b2943 !important;
+}
+
+.digitale-workflow-redesign input {
+  color: #f5f7ff !important;
+  border-color: #3b4c69 !important;
+}
+
+.digitale-workflow-redesign input:disabled {
+  opacity: .65;
+}
+
+/* Canvas */
+
+.digitale-workflow-redesign .digitale-flow-canvas {
+  background-color: #0b1427 !important;
+  background-image:
+    radial-gradient(
+      circle at 55% 80%,
+      #283d772b,
+      transparent 55%
+    ),
+    radial-gradient(
+      #60739c72 0.8px,
+      transparent 0.8px
+    ) !important;
+  background-size: auto, 23px 23px !important;
+}
+
+/* Cards de etapas */
+
+.digitale-workflow-redesign .digitale-flow-node {
+  width: min(440px, 85vw) !important;
+  min-height: 132px;
+  padding: 23px !important;
+  border-width: 1px !important;
+  border-radius: 19px !important;
+  color: #f7f9ff !important;
+  box-shadow: 0 16px 38px #00000035;
+}
+
+.digitale-workflow-redesign
+  .digitale-flow-node h4 {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  line-height: 1.45 !important;
+  overflow: visible;
+  white-space: normal;
+  text-overflow: clip;
+}
+
+.digitale-workflow-redesign
+  .digitale-flow-node p {
+  color: #c2cee3 !important;
+  line-height: 1.5;
+}
+
+.digitale-workflow-redesign
+  .digitale-flow-node p:last-child {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.digitale-workflow-redesign
+  .digitale-flow-node[data-node-type="trigger"] {
+  border-color: #08c899 !important;
+  background: linear-gradient(
+    125deg, #083a36, #0c222d
+  ) !important;
+  box-shadow: 0 16px 40px #001a1b70;
+}
+
+.digitale-workflow-redesign
+  .digitale-flow-node[data-node-type="condition"] {
+  border-color: #e79a32 !important;
+  background: linear-gradient(
+    125deg, #422719, #281d24
+  ) !important;
+}
+
+.digitale-workflow-redesign
+  .digitale-flow-node[data-node-type="action"] {
+  border-color: #597cff !important;
+  background: linear-gradient(
+    125deg, #182d65, #151e3a
+  ) !important;
+}
+
+/* Botoes de insercao e indicadores */
+
+.digitale-workflow-redesign
+  .digitale-add-action {
+  height: 40px !important;
+  width: 40px !important;
+  border-radius: 50% !important;
+  background: #4c57ec !important;
+  color: #fff !important;
+  border: 2px solid #8793ff !important;
+  box-shadow: 0 0 0 5px #5562ec25,
+              0 0 23px #5e66ff55;
+}
+
+.digitale-workflow-redesign
+  .digitale-add-action:not(:disabled):hover {
+  background: #6473ff !important;
+  box-shadow: 0 0 0 7px #5562ec30,
+              0 0 27px #6674ffaa;
+}
+
+.digitale-workflow-redesign
+  .digitale-add-action:disabled {
+  background: #29334f !important;
+  border-color: #475471 !important;
+  color: #8995b1 !important;
+  box-shadow: none;
+}
+
+.digitale-workflow-redesign
+  .digitale-flow-node .group-hover\:opacity-100 {
+  z-index: 20;
+}
+
+@media (max-width: 900px) {
+  .digitale-workflow-redesign > div:first-child {
+    flex-wrap: wrap;
+    padding: 12px !important;
+  }
+
+  .digitale-workflow-redesign .digitale-flow-node {
+    width: min(370px, 82vw) !important;
+    padding: 17px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .digitale-workflow-redesign *,
+  .digitale-workflow-redesign *::before,
+  .digitale-workflow-redesign *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* DIGITALE_SIDEBAR_REDESIGN_V1 */
+
+.digitale-workflow-redesign .digitale-flow-sidebar {
+  width: 335px !important;
+  min-width: 295px;
+  padding: 20px 15px !important;
+  background: linear-gradient(
+    180deg, #101b32, #0d172b
+  ) !important;
+  border-right: 1px solid #293a58 !important;
+  color: #f3f6ff !important;
+  scrollbar-color: #354968 transparent;
+  scrollbar-width: thin;
+}
+
+.digitale-workflow-redesign
+  .digitale-flow-sidebar > div {
+  padding: 15px 11px;
+  background: #15223b;
+  border: 1px solid #263856;
+  border-radius: 17px;
+}
+
+.digitale-workflow-redesign
+  .digitale-sidebar-heading {
+  padding: 3px 3px 16px;
+}
+
+.digitale-workflow-redesign
+  .digitale-sidebar-heading h3 {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .75px;
+  text-transform: uppercase;
+  color: #f3f6ff;
+}
+
+.digitale-workflow-redesign
+  .digitale-sidebar-heading p {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #aebdda;
+}
+
+.digitale-workflow-redesign
+  .digitale-sidebar-item {
+  display: flex;
+  align-items: center;
+  min-height: 70px;
+  padding: 12px !important;
+  gap: 12px;
+  background: #1b2944 !important;
+  border: 1px solid #354663 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px #0000001c;
+  cursor: default;
+}
+
+.digitale-workflow-redesign
+  .digitale-sidebar-item:hover {
+  background: #233654 !important;
+  border-color: #6378ac !important;
+  box-shadow: 0 7px 18px #00000038;
+  transform: translateY(-1px);
+}
+
+.digitale-workflow-redesign
+  .digitale-sidebar-item > div:first-child {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+}
+
+.digitale-workflow-redesign
+  .digitale-sidebar-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.digitale-workflow-redesign
+  .digitale-sidebar-name {
+  color: #f7f9ff;
+  font-size: 13px;
+  line-height: 1.3;
+  font-weight: 700;
+}
+
+.digitale-workflow-redesign
+  .digitale-sidebar-description {
+  color: #b4c2db;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+@media (max-width: 1100px) {
+  .digitale-workflow-redesign
+    .digitale-flow-sidebar {
+    width: 285px !important;
+    min-width: 245px;
+    padding: 12px 9px !important;
+  }
+}
+
+@media (max-width: 700px) {
+  .digitale-workflow-redesign
+    .digitale-flow-sidebar {
+    width: 205px !important;
+    min-width: 185px;
+  }
+
+  .digitale-workflow-redesign
+    .digitale-sidebar-description {
+    font-size: 10px;
+  }
+}
+
+/* DIGITALE_CANVAS_REFINEMENT_V1 */
+
+.digitale-workflow-redesign .digitale-canvas-shell {
+  background:
+    radial-gradient(
+      ellipse at 50% 100%,
+      rgba(46, 70, 150, .20),
+      transparent 65%
+    ),
+    #0b1427 !important;
+  border-left: 1px solid #253550;
+  scrollbar-color: #364a6b #101a30;
+  scrollbar-width: thin;
+}
+
+.digitale-workflow-redesign
+  .digitale-canvas-shell > div:first-child {
+  display: none;
+}
+
+.digitale-workflow-redesign .digitale-flow-canvas {
+  background-color: transparent !important;
+  background-image:
+    radial-gradient(
+      circle,
+      rgba(121, 143, 190, .33) 0.8px,
+      transparent 1px
+    ) !important;
+  background-size: 22px 22px !important;
+  background-position: center top;
+}
+
+.digitale-workflow-redesign .digitale-flow-notice {
+  max-width: 440px;
+  padding: 12px 17px !important;
+  background: rgba(24, 37, 65, .86) !important;
+  border: 1px solid #344564 !important;
+  border-radius: 13px !important;
+  color: #b9c7e1 !important;
+  box-shadow: 0 8px 24px #00000026;
+}
+
+.digitale-workflow-redesign
+  .digitale-flow-notice .text-foreground {
+  color: #f3f6ff !important;
+}
+
+.digitale-workflow-redesign
+  .digitale-save-draft {
+  min-height: 40px;
+  padding: 0 19px;
+  border-radius: 11px;
+  font-weight: 700;
+  background: linear-gradient(
+    120deg, #4456f5, #6659f5
+  ) !important;
+  color: #fff !important;
+  border: 1px solid #777eff !important;
+  box-shadow: 0 7px 22px #404bea40;
+}
+
+.digitale-workflow-redesign
+  .digitale-save-draft:not(:disabled):hover {
+  background: linear-gradient(
+    120deg, #5768ff, #7870ff
+  ) !important;
+  box-shadow: 0 9px 28px #4b56fa65;
+}
+
+.digitale-workflow-redesign
+  .digitale-save-draft:disabled {
+  opacity: .55;
+  box-shadow: none;
+}
+
+.digitale-workflow-redesign
+  .digitale-flow-node[data-node-type="trigger"] h4,
+.digitale-workflow-redesign
+  .digitale-flow-node[data-node-type="condition"] h4,
+.digitale-workflow-redesign
+  .digitale-flow-node[data-node-type="action"] h4 {
+  color: #ffffff !important;
+}
+
+.digitale-workflow-redesign
+  .digitale-flow-node[data-node-type="trigger"] p,
+.digitale-workflow-redesign
+  .digitale-flow-node[data-node-type="condition"] p,
+.digitale-workflow-redesign
+  .digitale-flow-node[data-node-type="action"] p {
+  color: #d1dbee !important;
+}
+
+
+/* DIGITALE_PROPERTIES_REDESIGN_V1 */
+
+.digitale-workflow-redesign .digitale-properties-panel {
+  width: 360px !important;
+  min-width: 300px;
+  background: linear-gradient(
+    180deg, #131f37, #0d172b
+  ) !important;
+  border-left: 1px solid #344563 !important;
+  color: #f5f7ff !important;
+  padding: 26px 22px !important;
+  box-shadow: -10px 0 36px #00000025;
+  scrollbar-color: #425473 transparent;
+  scrollbar-width: thin;
+}
+
+.digitale-workflow-redesign
+  .digitale-properties-title {
+  font-size: 19px;
+  line-height: 1.4;
+  font-weight: 800;
+  letter-spacing: -.3px;
+  color: #fff;
+}
+
+.digitale-workflow-redesign
+  .digitale-properties-panel label {
+  display: block;
+  margin-bottom: 9px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .8px;
+  color: #bbc9e2 !important;
+}
+
+.digitale-workflow-redesign
+  .digitale-properties-input {
+  min-height: 46px;
+  background: #1d2d49 !important;
+  border: 1px solid #435678 !important;
+  border-radius: 12px !important;
+  color: #f8faff !important;
+  font-size: 14px;
+  padding: 11px 13px !important;
+  outline: none;
+}
+
+.digitale-workflow-redesign
+  .digitale-properties-input:focus-visible {
+  border-color: #8494ff !important;
+  box-shadow: 0 0 0 3px #687afa35;
+}
+
+.digitale-workflow-redesign
+  .digitale-properties-input:disabled {
+  opacity: .7;
+  background: #18243b !important;
+  cursor: not-allowed;
+}
+
+.digitale-workflow-redesign
+  .digitale-properties-placeholder {
+  min-height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px !important;
+  background: #1a2943 !important;
+  border: 1px dashed #4a5b7a !important;
+  border-radius: 13px !important;
+  color: #bdcbe4 !important;
+  font-style: normal !important;
+  font-size: 13px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.digitale-workflow-redesign
+  .digitale-properties-panel .border-t {
+  border-color: #344664 !important;
+}
+
+.digitale-workflow-redesign
+  .digitale-properties-panel button[disabled] {
+  opacity: .45;
+}
+
+@media (max-width: 1100px) {
+  .digitale-workflow-redesign
+    .digitale-properties-panel {
+    width: 300px !important;
+    min-width: 265px;
+    padding: 18px 14px !important;
+  }
+}
+
+@media (max-width: 700px) {
+  .digitale-workflow-redesign
+    .digitale-properties-panel {
+    width: min(300px, 75vw) !important;
+    min-width: 220px;
+  }
+}

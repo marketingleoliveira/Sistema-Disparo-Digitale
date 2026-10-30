@@ -1,5 +1,11 @@
 import * as React from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import {
+  listContactEngagement,
+  getContactEngagementDetails,
+  type ContactMetrics,
+  type ContactActivity,
+} from "@/lib/disparo-contact-engagement.functions";
 import { 
   Plus, 
   Upload, 
@@ -25,7 +31,7 @@ import {
   Loader2
 } from "lucide-react";
 import { toast } from "sonner";
-import { useDataStore } from "@/hooks/use-data";
+import { useDataStore, type Contact } from "@/hooks/use-data";
 import { downloadContactsCsv } from "@/lib/contacts/export-csv";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -60,6 +66,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { ImportContactsDialog } from "@/components/contacts/ImportContactsDialog";
+import { ContactBulkListsDialog } from "@/components/contacts/ContactBulkListsDialog";
 
 export const Route = createFileRoute("/_authenticated/contacts")({
   component: ContactsPage,
@@ -70,7 +77,20 @@ export const Route = createFileRoute("/_authenticated/contacts")({
 
 // --- Sub-components ---
 
-function EngagementScore({ score }: { score: number }) {
+// DIGITALE_ENGAJAMENTO_COLUNA_V3
+function EngagementScore({ score }: { score: number | null }) {
+  if (score === null || !Number.isFinite(score)) {
+    return (
+      <span
+        className="text-xs text-muted-foreground"
+        title="Nenhum envio aceito registrado"
+      >
+        —
+      </span>
+    );
+  }
+
+  score = Math.max(0, Math.min(100, score));
   let color = "bg-red-500";
   if (score >= 80) color = "bg-emerald-500";
   else if (score >= 40) color = "bg-orange-500";
@@ -86,6 +106,48 @@ function EngagementScore({ score }: { score: number }) {
 }
 
 function ContactDetailSheet({ contact, open, onOpenChange }: { contact: any, open: boolean, onOpenChange: (open: boolean) => void }) {
+  // DIGITALE_CONTATO_DETALHES_V4
+  const [metrics, setMetrics] = React.useState<ContactMetrics | null>(null);
+  // DIGITALE_ATIVIDADE_REAL_V5
+  const [history, setHistory] = React.useState<ContactActivity[]>([]);
+
+  const [metricsLoading, setMetricsLoading] = React.useState(false);
+  const [metricsError, setMetricsError] = React.useState(false);
+
+  React.useEffect(() => {
+    let active = true;
+
+    setMetrics(null);
+    setHistory([]);
+    setMetricsError(false);
+
+    if (!open || !contact?.email) {
+      setMetricsLoading(false);
+      return () => { active = false; };
+    }
+
+    setMetricsLoading(true);
+
+    getContactEngagementDetails({
+      data: { email: String(contact.email) },
+    })
+      .then(result => {
+        if (active) {
+          setMetrics(result.metrics);
+          setHistory(result.history ?? []);
+        }
+      })
+      .catch(error => {
+        console.error("Falha nas metricas do contato:", error);
+        if (active) setMetricsError(true);
+      })
+      .finally(() => {
+        if (active) setMetricsLoading(false);
+      });
+
+    return () => { active = false; };
+  }, [open, contact?.email]);
+
   if (!contact) return null;
 
   return (
@@ -147,15 +209,45 @@ function ContactDetailSheet({ contact, open, onOpenChange }: { contact: any, ope
 
           <Separator />
 
-          {/* Performance Metrics */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Performance Metrics — dados reais */}
+          <div className="grid grid-cols-2 gap-3">
             <div className="rounded-lg border bg-muted/20 p-3 text-center">
-              <p className="text-[10px] font-bold uppercase text-muted-foreground">Aberturas</p>
-              <p className="text-xl font-bold text-primary mt-1">84%</p>
+              <p className="text-[10px] font-bold uppercase text-muted-foreground">
+                Aberturas
+              </p>
+              <p className="mt-1 text-xl font-bold text-primary">
+                {metricsLoading ? "..." : metricsError ? "—" : metrics?.openEvents ?? "—"}
+              </p>
+              <p className="text-[10px] text-muted-foreground">
+                Eventos registrados
+              </p>
             </div>
+
             <div className="rounded-lg border bg-muted/20 p-3 text-center">
-              <p className="text-[10px] font-bold uppercase text-muted-foreground">Cliques</p>
-              <p className="text-xl font-bold text-primary mt-1">12%</p>
+              <p className="text-[10px] font-bold uppercase text-muted-foreground">
+                Engajamento
+              </p>
+              <p className="mt-1 text-xl font-bold text-primary">
+                {metricsLoading
+                  ? "..."
+                  : metrics?.rate === null || metrics?.rate === undefined
+                  ? "—"
+                  : `${metrics.rate.toLocaleString("pt-BR")}%`}
+              </p>
+              <p className="text-[10px] text-muted-foreground">
+                {metrics
+                  ? `${metrics.opened} de ${metrics.sent} e-mails abertos`
+                  : "Sem dados disponíveis"}
+              </p>
+            </div>
+
+            <div className="rounded-lg border bg-muted/20 p-3 text-center">
+              <p className="text-[10px] font-bold uppercase text-muted-foreground">
+                E-mails enviados
+              </p>
+              <p className="mt-1 text-xl font-bold text-primary">
+                {metricsLoading ? "..." : metrics?.sent ?? "—"}
+              </p>
             </div>
           </div>
 
@@ -163,22 +255,49 @@ function ContactDetailSheet({ contact, open, onOpenChange }: { contact: any, ope
           <div className="space-y-4">
             <h4 className="text-sm font-bold flex items-center gap-2"><History size={16} /> Atividade recente</h4>
             <div className="space-y-6 pl-4 border-l-2 border-muted/50 ml-2">
-              {[
-                { icon: Send, title: "Abriu campanha: Coleção Verão", time: "Hoje, 10:45", color: "text-emerald-500" },
-                { icon: MousePointer2, title: "Clicou no link: Categoria Algodão", time: "Ontem, 16:20", color: "text-primary" },
-                { icon: Send, title: "Recebeu campanha: Newsletter #42", time: "12 Ago, 09:00", color: "text-muted-foreground" },
-                { icon: UserPlus, title: "Entrou na lista: Clientes VIP", time: "10 Ago, 14:15", color: "text-accent" },
-              ].map((item, i) => (
+              {history.map((event, i) => {
+                const isOpen = event.kind === "open";
+                const campaignName =
+                  event.campaignName || "Campanha sem nome";
+
+                const title = isOpen
+                  ? `Abriu campanha: ${campaignName}`
+                  : `Recebeu campanha: ${campaignName}`;
+
+                const date = event.at
+                  ? event.at.replace("T", " ")
+                  : "Data indisponível";
+
+                const ActivityIcon = isOpen ? Mail : Send;
+
+                return (
+
                 <div key={i} className="relative">
                   <div className="absolute -left-[25px] top-0 h-4 w-4 rounded-full bg-background border-2 border-muted flex items-center justify-center">
-                    <item.icon size={8} />
+                    <ActivityIcon size={8} />
                   </div>
                   <div>
-                    <p className="text-xs font-bold leading-none">{item.title}</p>
-                    <p className="text-[10px] text-muted-foreground mt-1">{item.time}</p>
+                    <p className="text-xs font-bold leading-none">{title}</p>
+                    <p className="text-[10px] text-muted-foreground mt-1">{date}</p>
                   </div>
                 </div>
-              ))}
+              );
+              })}
+              {!metricsLoading && !metricsError && history.length === 0 && (
+                <p className="text-xs text-muted-foreground">
+                  Nenhuma atividade registrada para este contato.
+                </p>
+              )}
+              {metricsLoading && (
+                <p className="text-xs text-muted-foreground">
+                  Carregando atividades...
+                </p>
+              )}
+              {metricsError && (
+                <p className="text-xs text-muted-foreground">
+                  Histórico indisponível no momento.
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -187,27 +306,74 @@ function ContactDetailSheet({ contact, open, onOpenChange }: { contact: any, ope
   );
 }
 
-function AddContactSheet({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
-  const { addContact } = useDataStore();
+function AddContactSheet({
+  open,
+  onOpenChange,
+  contact
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  contact?: Contact | null;
+}) {
+  const {
+    addContact,
+    updateContact,
+    lists,
+    fetchLists
+  } = useDataStore();
   const [formData, setFormData] = React.useState({
     name: "",
     email: "",
     company: "",
     phone: "",
-    status: "Ativo" as const,
+    status: "Ativo" as Contact["status"],
   });
   const [isLoading, setIsLoading] = React.useState(false);
+  const [selectedLists, setSelectedLists] =
+    React.useState<string[]>([]);
+
+  React.useEffect(() => {
+    if (!open) return;
+
+    setSelectedLists(contact?.lists ?? []);
+
+    void fetchLists().catch(() => {
+      toast.error("Falha ao carregar as listas.");
+    });
+
+    setFormData({
+      name: contact?.name ?? "",
+      email: contact?.email ?? "",
+      company: contact?.company ?? "",
+      phone: contact?.phone ?? "",
+      status: contact?.status ?? "Ativo"
+    });
+  }, [open, contact, fetchLists]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await addContact({
-        ...formData,
-        lists: ["Contatos Diretos"],
-        tags: ["Manual"],
-      });
-      toast.success("Contato salvo com sucesso!");
+      if (contact) {
+        await updateContact(contact.id, {
+          ...formData,
+          status: contact.status,
+          lists: selectedLists,
+          tags: contact.tags
+        });
+      } else {
+        await addContact({
+          ...formData,
+          lists: selectedLists,
+          tags: ["Manual"]
+        });
+      }
+
+      toast.success(
+        contact
+          ? "Contato atualizado com sucesso!"
+          : "Contato salvo com sucesso!"
+      );
       setFormData({ name: "", email: "", company: "", phone: "", status: "Ativo" });
       onOpenChange(false);
     } catch (error: any) {
@@ -225,7 +391,9 @@ function AddContactSheet({ open, onOpenChange }: { open: boolean, onOpenChange: 
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-md">
         <SheetHeader>
-          <SheetTitle>Adicionar Novo Contato</SheetTitle>
+          <SheetTitle>
+            {contact ? "Editar Contato" : "Adicionar Novo Contato"}
+          </SheetTitle>
           <SheetDescription>
             Preencha as informações básicas do contato para sua base de marketing.
           </SheetDescription>
@@ -272,10 +440,56 @@ function AddContactSheet({ open, onOpenChange }: { open: boolean, onOpenChange: 
               />
             </div>
           </div>
+          <fieldset className="space-y-2">
+            <legend className="text-sm font-semibold">
+              Listas do contato
+            </legend>
+            <p className="text-xs text-muted-foreground">
+              Selecione uma ou mais listas existentes.
+              O e-mail sera cadastrado uma unica vez.
+            </p>
+
+            {lists.length === 0 ? (
+              <p className="rounded-lg border p-3 text-sm text-muted-foreground">
+                Nenhuma lista encontrada.
+                Crie uma no menu Contatos → Listas.
+              </p>
+            ) : (
+              <div className="max-h-44 space-y-2 overflow-y-auto rounded-lg border p-3">
+                {lists.map(list => (
+                  <label
+                    key={list.id}
+                    className="flex cursor-pointer items-center gap-3 text-sm"
+                  >
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 accent-primary"
+                      checked={selectedLists.includes(list.name)}
+                      onChange={event => {
+                        const checked = event.currentTarget.checked;
+
+                        setSelectedLists(previous =>
+                          checked
+                            ? Array.from(
+                                new Set([...previous, list.name])
+                              )
+                            : previous.filter(
+                                name => name !== list.name
+                              )
+                        );
+                      }}
+                    />
+                    <span>{list.name}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </fieldset>
+
           <SheetFooter>
             <Button type="submit" className="w-full bg-accent text-accent-foreground" disabled={isLoading}>
               {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-              Salvar Contato
+              {contact ? "Salvar Alterações" : "Salvar Contato"}
             </Button>
           </SheetFooter>
         </form>
@@ -285,10 +499,88 @@ function AddContactSheet({ open, onOpenChange }: { open: boolean, onOpenChange: 
 }
 
 function ContactsPage() {
-  const { contacts, deleteContact, fetchContacts, isLoading } = useDataStore();
+  const [engagementMap, setEngagementMap] = React.useState<
+    Record<string, ContactMetrics>
+  >({});
+
+  React.useEffect(() => {
+    let active = true;
+
+    const refreshEngagement = async () => {
+      try {
+        const result = await listContactEngagement();
+
+        if (active) {
+          setEngagementMap(result);
+        }
+      } catch (error) {
+        console.error(
+          "Falha ao carregar engajamento dos contatos:",
+          error
+        );
+      }
+    };
+
+    void refreshEngagement();
+
+    const interval = window.setInterval(
+      () => void refreshEngagement(),
+      60000
+    );
+
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+    };
+  }, []);
+  const { contacts, lists, deleteContact, fetchContacts, fetchLists, isLoading } = useDataStore();
   const [selectedContacts, setSelectedContacts] = React.useState<string[]>([]);
+  const [bulkListsOpen, setBulkListsOpen] = React.useState(false);
+
   const [detailContact, setDetailContact] = React.useState<any>(null);
   const [search, setSearch] = React.useState("");
+
+  // DIGITALE_CLICK_CONTACT_NAV_V1
+  // Localiza a ficha usando o email exato, sem alterar cadastros.
+  const clickContactHandled = React.useRef(false);
+
+  React.useEffect(() => {
+    const email = new URLSearchParams(
+      window.location.search
+    ).get("clickContact");
+
+    if (email) setSearch(email.trim());
+  }, []);
+
+  React.useEffect(() => {
+    if (clickContactHandled.current || isLoading) return;
+
+    const email = new URLSearchParams(
+      window.location.search
+    ).get("clickContact")?.trim().toLowerCase();
+
+    if (!email) return;
+
+    // Aguarda os contatos chegarem do store.
+    if (!contacts.length) return;
+
+    const matches = contacts.filter(contact =>
+      String(contact.email ?? "")
+        .trim()
+        .toLowerCase() === email
+    );
+
+    clickContactHandled.current = true;
+
+    if (matches.length === 1) {
+      setDetailContact(matches[0]);
+    }
+
+    // Com nenhum ou varios resultados, mantém a pesquisa
+    // preenchida para permitir localizacao manual.
+  }, [contacts, isLoading]);
+  const [tagFilter, setTagFilter] = React.useState("Todas");
+  const [listFilter, setListFilter] = React.useState("Todas");
   const [page, setPage] = React.useState(1);
   const [pageSize, setPageSize] = React.useState(25);
 
@@ -296,14 +588,45 @@ function ContactsPage() {
     fetchContacts();
   }, [fetchContacts]);
 
-  // Busca aplicada sobre nome, e-mail e empresa
+  React.useEffect(() => {
+    void fetchLists();
+  }, [fetchLists]);
+
+  const availableLists = React.useMemo(
+    () => [...lists].sort((a, b) => a.name.localeCompare(b.name, "pt-BR")),
+    [lists]
+  );
+
+  // Tags reais presentes nos contatos; IA sempre disponivel.
+  const availableTags = React.useMemo(
+    () => Array.from(
+      new Set(["IA", ...contacts.flatMap(
+        (c) => c.tags ?? []
+      )])
+    ).sort((a, b) => a.localeCompare(b, "pt-BR")),
+    [contacts]
+  );
+
   const filtered = React.useMemo(() => {
     const term = search.trim().toLowerCase();
-    if (!term) return contacts;
-    return contacts.filter((c) =>
-      [c.name, c.email, c.company].some((v) => (v ?? "").toLowerCase().includes(term)),
-    );
-  }, [contacts, search]);
+
+    const selectedList = lists.find((item) => item.id === listFilter);
+    return contacts.filter((c) => {
+      if (listFilter !== "Todas" && !(c.lists ?? []).some(
+        (value) => value === listFilter || value === selectedList?.name
+      )) return false;
+      if (
+        tagFilter !== "Todas" &&
+        !(c.tags ?? []).includes(tagFilter)
+      ) return false;
+
+      if (!term) return true;
+
+      return [c.name, c.email, c.company].some(
+        (v) => (v ?? "").toLowerCase().includes(term)
+      );
+    });
+  }, [contacts, search, tagFilter, lists, listFilter]);
 
   const total = filtered.length;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
@@ -317,7 +640,7 @@ function ContactsPage() {
   // Volta para a primeira página quando a busca ou o tamanho da página muda
   React.useEffect(() => {
     setPage(1);
-  }, [search, pageSize]);
+  }, [search, pageSize, tagFilter, listFilter]);
 
   const pageIds = pageContacts.map((c) => c.id);
   const allPageSelected = pageIds.length > 0 && pageIds.every((id) => selectedContacts.includes(id));
@@ -349,6 +672,8 @@ function ContactsPage() {
   };
 
   const [isAdding, setIsAdding] = React.useState(false);
+  const [editContact, setEditContact] =
+    React.useState<Contact | null>(null);
   const [isImporting, setIsImporting] = React.useState(false);
 
   const exportContacts = (ids?: string[]) => {
@@ -357,15 +682,79 @@ function ContactsPage() {
     downloadContactsCsv(rows);
   };
 
+  const excluirContato = async (contact: Contact) => {
+    if (!window.confirm(
+      `Deseja excluir o contato ${contact.name}?`
+    )) return;
+
+    try {
+      await deleteContact(contact.id);
+      setSelectedContacts(prev =>
+        prev.filter(id => id !== contact.id)
+      );
+      setDetailContact(null);
+      toast.success("Contato excluido com sucesso!");
+    } catch (error) {
+      toast.error("Erro ao excluir contato", {
+        description: error instanceof Error
+          ? error.message
+          : undefined
+      });
+    }
+  };
+
+  const excluirSelecionados = async () => {
+    const ids = [...selectedContacts];
+
+    if (!ids.length ||
+        !window.confirm(
+          `Deseja excluir ${ids.length} contato(s)?`
+        )) return;
+
+    let excluidos = 0;
+
+    for (const id of ids) {
+      try {
+        await deleteContact(id);
+        excluidos++;
+      } catch (error) {
+        console.error("Erro na exclusao:", error);
+      }
+    }
+
+    setSelectedContacts([]);
+    toast[excluidos === ids.length ? "success" : "error"](
+      `${excluidos} de ${ids.length} contato(s) excluido(s).`
+    );
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <AddContactSheet open={isAdding} onOpenChange={setIsAdding} />
+      <AddContactSheet
+        open={isAdding || !!editContact}
+        contact={editContact}
+        onOpenChange={open => {
+          if (!open) {
+            setIsAdding(false);
+            setEditContact(null);
+          }
+        }}
+      />
       <ImportContactsDialog open={isImporting} onOpenChange={setIsImporting} />
       <ContactDetailSheet 
         contact={detailContact} 
         open={!!detailContact} 
         onOpenChange={(open) => !open && setDetailContact(null)} 
       />
+      <ContactBulkListsDialog
+        open={bulkListsOpen}
+        selectedIds={selectedContacts}
+        onOpenChange={setBulkListsOpen}
+        onComplete={remainingIds => {
+          setSelectedContacts(remainingIds);
+        }}
+      />
+
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -374,7 +763,7 @@ function ContactsPage() {
             Gestão inteligente de audiência para a Digitale Têxtil.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <Button
             variant="outline"
             onClick={() => exportContacts()}
@@ -392,6 +781,7 @@ function ContactsPage() {
             <Upload size={14} className="mr-2" />
             Importar
           </Button>
+          
           <Button 
             onClick={() => setIsAdding(true)}
             className="bg-accent text-accent-foreground font-bold shadow-lg shadow-accent/20 active:scale-95 transition-all rounded-lg px-6"
@@ -404,7 +794,7 @@ function ContactsPage() {
 
 
       {/* Toolbar & Filters */}
-      <div className="rounded-xl border bg-card p-4 shadow-sm flex flex-col gap-4 md:flex-row md:items-center">
+      <div className="rounded-xl border bg-card p-4 shadow-sm flex flex-col gap-4 lg:flex-row lg:items-center">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
           <Input 
@@ -420,15 +810,51 @@ function ContactsPage() {
             <DropdownMenu key={filter}>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="h-9 px-3 text-xs font-medium border-dashed">
-                  {filter}
+                  {filter === "Lista" && listFilter !== "Todas"
+                    ? `Lista: ${lists.find((item) => item.id === listFilter)?.name ?? "Selecionada"}`
+                    : filter === "Tags" && tagFilter !== "Todas"
+                    ? `Tags: ${tagFilter}`
+                    : filter}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-48">
                 <DropdownMenuLabel>Filtrar por {filter}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Todos</DropdownMenuItem>
-                <DropdownMenuItem>Opção 1</DropdownMenuItem>
-                <DropdownMenuItem>Opção 2</DropdownMenuItem>
+                {filter === "Lista" ? (
+                  <>
+                    <DropdownMenuItem onSelect={() => setListFilter("Todas")}>Todas as listas</DropdownMenuItem>
+                    {availableLists.length === 0 && (
+                      <DropdownMenuItem disabled>Nenhuma lista cadastrada</DropdownMenuItem>
+                    )}
+                    {availableLists.map((list) => (
+                      <DropdownMenuItem key={list.id} onSelect={() => setListFilter(list.id)}>
+                        {list.name}
+                      </DropdownMenuItem>
+                    ))}
+                  </>
+                ) : filter === "Tags" ? (
+                  <>
+                    <DropdownMenuItem
+                      onSelect={() => setTagFilter("Todas")}
+                    >
+                      Todas as tags
+                    </DropdownMenuItem>
+                    {availableTags.map((tag) => (
+                      <DropdownMenuItem
+                        key={tag}
+                        onSelect={() => setTagFilter(tag)}
+                      >
+                        {tag}
+                      </DropdownMenuItem>
+                    ))}
+                  </>
+                ) : (
+                  <>
+                    <DropdownMenuItem>Todos</DropdownMenuItem>
+                    <DropdownMenuItem>Opção 1</DropdownMenuItem>
+                    <DropdownMenuItem>Opção 2</DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           ))}
@@ -441,7 +867,7 @@ function ContactsPage() {
 
       {/* Bulk Actions Bar */}
       {selectedContacts.length > 0 && (
-        <div className="sticky top-2 z-20 flex items-center justify-between rounded-lg bg-primary px-6 py-3 text-white shadow-lg animate-in fade-in slide-in-from-top-2 duration-300">
+        <div className="sticky top-2 z-20 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-primary px-3 py-3 sm:px-6 text-white shadow-lg animate-in fade-in slide-in-from-top-2 duration-300">
           <div className="flex items-center gap-4">
             <span className="text-sm font-bold">{selectedContacts.length} selecionados</span>
             <div className="h-4 w-px bg-white/20" />
@@ -449,7 +875,7 @@ function ContactsPage() {
               <Button size="sm" variant="ghost" className="h-8 px-2 text-xs font-bold text-white hover:bg-white/10">
                 <TagIcon size={14} className="mr-1.5" /> Tag
               </Button>
-              <Button size="sm" variant="ghost" className="h-8 px-2 text-xs font-bold text-white hover:bg-white/10">
+              <Button onClick={() => setBulkListsOpen(true)} size="sm" variant="ghost" className="h-8 px-2 text-xs font-bold text-white hover:bg-white/10">
                 <Plus size={14} className="mr-1.5" /> Lista
               </Button>
               <Button
@@ -468,8 +894,7 @@ function ContactsPage() {
               variant="ghost" 
               className="h-8 px-2 text-xs font-bold text-red-300 hover:bg-red-500/20"
               onClick={() => {
-                selectedContacts.forEach(id => deleteContact(id));
-                setSelectedContacts([]);
+                void excluirSelecionados();
               }}
             >
               <Trash2 size={14} className="mr-1.5" /> Excluir
@@ -485,13 +910,31 @@ function ContactsPage() {
       <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
         <Table>
           <TableHeader className="bg-muted/50">
-            <TableRow className="hover:bg-transparent border-b">
+            <TableRow className="group/header hover:bg-transparent border-b">
+              
               <TableHead className="w-[50px] pl-6">
-                <Checkbox 
-                  checked={allPageSelected}
-                  onCheckedChange={toggleSelectAll}
-                />
+                <span
+                  className={cn(
+                    "inline-flex items-center justify-center " +
+                    "opacity-0 pointer-events-none transition-opacity " +
+                    "group-hover/header:opacity-100 " +
+                    "group-hover/header:pointer-events-auto " +
+                    "focus-within:opacity-100 " +
+                    "focus-within:pointer-events-auto " +
+                    "[@media(hover:none)]:opacity-100 " +
+                    "[@media(hover:none)]:pointer-events-auto",
+                    selectedContacts.length > 0 &&
+                      "opacity-100 pointer-events-auto"
+                  )}
+                >
+                  <Checkbox
+                    aria-label="Selecionar contatos desta pagina"
+                    checked={allPageSelected}
+                    onCheckedChange={toggleSelectAll}
+                  />
+                </span>
               </TableHead>
+
               <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80 py-4">Nome</TableHead>
               <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">Empresa</TableHead>
               <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">Listas</TableHead>
@@ -519,12 +962,34 @@ function ContactsPage() {
                 )}
                 onClick={() => setDetailContact(contact)}
               >
-                <TableCell onClick={(e) => e.stopPropagation()}>
-                  <Checkbox 
-                    checked={selectedContacts.includes(contact.id)}
-                    onCheckedChange={() => toggleSelect(contact.id)}
-                  />
+                
+                <TableCell
+                  className="w-[50px] pl-6"
+                  onClick={event => event.stopPropagation()}
+                >
+                  <span
+                    className={cn(
+                      "inline-flex items-center justify-center " +
+                      "opacity-0 pointer-events-none transition-opacity " +
+                      "duration-150 " +
+                      "group-hover:opacity-100 " +
+                      "group-hover:pointer-events-auto " +
+                      "focus-within:opacity-100 " +
+                      "focus-within:pointer-events-auto " +
+                      "[@media(hover:none)]:opacity-100 " +
+                      "[@media(hover:none)]:pointer-events-auto",
+                      selectedContacts.includes(contact.id) &&
+                        "opacity-100 pointer-events-auto"
+                    )}
+                  >
+                    <Checkbox
+                      aria-label={`Selecionar ${contact.name}`}
+                      checked={selectedContacts.includes(contact.id)}
+                      onCheckedChange={() => toggleSelect(contact.id)}
+                    />
+                  </span>
                 </TableCell>
+
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <Avatar className="h-8 w-8 text-[10px]">
@@ -554,7 +1019,15 @@ function ContactsPage() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <EngagementScore score={contact.engagement} />
+                  <EngagementScore
+                    score={
+                      engagementMap[
+                        String(contact.email ?? "")
+                          .trim()
+                          .toLowerCase()
+                      ]?.rate ?? null
+                    }
+                  />
                 </TableCell>
                 <TableCell>
                   <Badge 
@@ -577,10 +1050,25 @@ function ContactsPage() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem>Editar</DropdownMenuItem>
-                      <DropdownMenuItem>Adicionar à lista</DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={e => {
+                          e.stopPropagation();
+                          setDetailContact(null);
+                          setEditContact(contact);
+                        }}
+                      >
+                        Editar
+                      </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-red-600" onClick={() => deleteContact(contact.id)}>Excluir</DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-red-600"
+                        onClick={e => {
+                          e.stopPropagation();
+                          void excluirContato(contact);
+                        }}
+                      >
+                        Excluir
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>

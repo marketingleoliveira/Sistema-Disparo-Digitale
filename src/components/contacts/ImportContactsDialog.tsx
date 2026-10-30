@@ -123,26 +123,81 @@ export function ImportContactsDialog({ open, onOpenChange }: ImportContactsDialo
     if (file) void handleFile(file);
   };
 
+  // DIGITALE_IMPORT_V3
+  const [existingListId, setExistingListId] = React.useState("");
+  const { lists: existingLists, fetchLists: fetchExistingLists } = useDataStore();
+  React.useEffect(() => {
+    if (!open) { setExistingListId(""); return; }
+    void fetchExistingLists().catch(() => toast.error("Nao foi possivel carregar as listas."));
+  }, [open, fetchExistingLists]);
+
   const handleImport = async () => {
     if (!preview || preview.contacts.length === 0) return;
+    const chosen = existingLists.find(list => list.id === existingListId);
+    if (existingListId && !chosen) {
+      toast.error("Lista selecionada nao encontrada.");
+      return;
+    }
     const extraLists = splitDefaults(defaultLists);
+    if (chosen) extraLists.push(chosen.name);
     const extraTags = splitDefaults(defaultTags);
     const payload = preview.contacts.map((contact) => ({
       ...contact,
-      lists: Array.from(new Set([...contact.lists, ...extraLists])),
+      lists: Array.from(new Set([...(contact.lists ?? []), ...extraLists])),
       tags: Array.from(new Set([...contact.tags, ...extraTags])),
     }));
     setIsImporting(true);
     const result = await importContacts(payload);
     setIsImporting(false);
 
-    if (result.error) {
-      toast.error("Erro ao importar contatos", { description: result.error });
-      return;
-    }
-    toast.success(`${result.inserted} contato(s) importado(s)`, {
-      description: result.skipped > 0 ? `${result.skipped} ignorado(s) por duplicidade.` : undefined,
+    // DIGITALE_IMPORT_COMPLETA_V2
+    // Relatório por e-mail, disponível ao final.
+    const report = result as typeof result & {
+      linked?: number;
+      rejected?: number;
+      details?: Array<{
+        email: string;
+        result: string;
+        reason: string;
+      }>;
+    };
+
+    const lines = [
+      ["EMAIL", "RESULTADO", "MOTIVO"],
+      ...(report.details ?? []).map(row => [
+        row.email,
+        row.result,
+        row.reason
+      ])
+    ];
+
+    const csv = lines.map(columns =>
+      columns.map(value =>
+        '"' + String(value ?? "").replace(/"/g, '""') + '"'
+      ).join(";")
+    ).join("\r\n");
+
+    const blob = new Blob(
+      ["\uFEFF" + csv],
+      { type: "text/csv;charset=utf-8;" }
+    );
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "relatorio-importacao-digitale.csv";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+    toast.success("Importação processada", {
+      description:
+        `${result.inserted} novos, ` +
+        `${report.linked ?? 0} vinculados, ` +
+        `${result.skipped} ignorados, ` +
+        `${report.rejected ?? 0} rejeitados.`
     });
+
     reset();
     onOpenChange(false);
   };
@@ -291,6 +346,25 @@ export function ImportContactsDialog({ open, onOpenChange }: ImportContactsDialo
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* DIGITALE_IMPORT_V3 - lista ja cadastrada */}
+            <div className="space-y-2 rounded-lg border p-3">
+              <Label htmlFor="existing-list-import" className="text-xs font-bold">
+                Adicionar a uma lista existente (opcional)
+              </Label>
+              <select id="existing-list-import" value={existingListId}
+                disabled={isImporting}
+                onChange={e => setExistingListId(e.target.value)}
+                className="h-10 w-full rounded-md border bg-background px-3 text-sm">
+                <option value="">Nenhuma lista</option>
+                {existingLists.map(list => (
+                  <option key={list.id} value={list.id}>{list.name}</option>
+                ))}
+              </select>
+              <p className="text-xs text-muted-foreground">
+                A lista escolhida sera atribuida aos contatos importados.
+              </p>
             </div>
 
             {/* Lista e tag padrão */}

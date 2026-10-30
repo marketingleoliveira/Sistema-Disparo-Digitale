@@ -1,3 +1,5 @@
+// DIGITALE_CAMPAIGN_DETAILS_MODAL_V1
+import { CampaignDetailsModal } from "@/components/campaigns/CampaignDetailsModal";
 import * as React from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -23,6 +25,8 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useDataStore, type Campaign } from "@/hooks/use-data";
+import { getDisparoSession } from "@/lib/disparo-auth.functions";
+import { listArchivedDisparoCampaigns, setDisparoCampaignArchived } from "@/lib/disparo-campaigns.functions";
 import { useTemplateLibrary } from "@/hooks/use-template-library";
 import { blocksToEmailHtml } from "@/lib/templates/blocks-to-html";
 import type { EditorBlock } from "@/components/editor/editor-types";
@@ -114,7 +118,7 @@ const EMPTY_DRAFT: CampaignDraft = {
   name: "",
   subject: "",
   senderName: "Digitale Têxtil",
-  replyTo: SENDER_EMAIL,
+  replyTo: "atendimento@digitaletextil.com.br",
   lists: [],
   templateId: null,
   templateName: "",
@@ -178,7 +182,7 @@ function EmailPreview({ html, mode }: { html: string; mode: "desktop" | "mobile"
         sandbox=""
         className={cn(
           "h-[280px] rounded border bg-white transition-all",
-          mode === "desktop" ? "w-full" : "w-[320px]",
+          mode === "desktop" ? "w-full" : "w-full max-w-[320px]",
         )}
       />
     </div>
@@ -338,8 +342,13 @@ function CampaignWizard({ onDone }: { onDone: () => void }) {
           replyTo: draft.replyTo,
         },
       });
-      if (result.sent) toast.success(`E-mail de teste enviado para ${email}.`);
-      else toast.error(`Não foi possível enviar o teste (${result.reason}).`);
+      if (result.sent) {
+        toast.success(`E-mail de teste enviado para ${email}.`);
+      } else if ("simulated" in result && result.simulated) {
+        toast.info(`Teste registrado em simulação para ${email}. Nenhum e-mail foi enviado.`);
+      } else {
+        toast.error(`Não foi possível enviar o teste (${"reason" in result ? result.reason : "unknown_error"}).`);
+      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Falha ao enviar o teste.");
     } finally {
@@ -348,15 +357,26 @@ function CampaignWizard({ onDone }: { onDone: () => void }) {
   };
 
   const handleSendNow = async () => {
+    // ETAPA2_GUARDA_LISTAS
+    if (draft.lists.length === 0 || audience.length === 0) {
+      toast.error("Selecione uma lista com contatos ativos.");
+      return;
+    }
+
     setConfirmSend(false);
     setPending("send");
     try {
       const id = await persist("Em andamento", audience.length);
       if (!id) throw new Error("Não foi possível registrar a campanha.");
       const result = await runDispatch({ data: { campaignId: id } });
-      if (result.sent > 0) {
+      if (result.simulated > 0) {
+        toast.info(
+          `${result.simulated} de ${result.total} mensagens registradas em simulação. Nenhum e-mail foi enviado.` +
+            (result.failed > 0 ? ` ${result.failed} falharam.` : ""),
+        );
+      } else if (result.sent > 0) {
         toast.success(
-          `Campanha enviada para ${result.sent} de ${result.total} contatos.` +
+          `API Digitale aceitou ${result.sent} de ${result.total} solicitacoes de envio.` +
             (result.failed > 0 ? ` ${result.failed} falharam.` : ""),
         );
       } else {
@@ -366,7 +386,6 @@ function CampaignWizard({ onDone }: { onDone: () => void }) {
             ? `Nenhum e-mail foi aceito para envio (${reason}).`
             : "Nenhum e-mail foi aceito para envio. Verifique o domínio remetente.",
         );
-
       }
       onDone();
     } catch (error) {
@@ -427,7 +446,7 @@ function CampaignWizard({ onDone }: { onDone: () => void }) {
 
       <WizardProgress currentStep={step} />
 
-      <div className="min-h-[400px] rounded-2xl border bg-card p-8 shadow-sm">
+      <div className="min-h-[400px] min-w-0 rounded-2xl border bg-card p-4 sm:p-8 shadow-sm">
         {step === 1 && (
           <div className="space-y-6 animate-in fade-in duration-300">
             <h3 className="text-lg font-bold text-primary">Informações da campanha</h3>
@@ -850,7 +869,7 @@ function CampaignWizard({ onDone }: { onDone: () => void }) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleSendNow} className="bg-emerald-600 hover:bg-emerald-700">
+            <AlertDialogAction disabled={isBusy} onClick={handleSendNow} className="bg-emerald-600 hover:bg-emerald-700">
               Confirmar envio
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -861,12 +880,90 @@ function CampaignWizard({ onDone }: { onDone: () => void }) {
 }
 
 function CampaignsPage() {
-  const { campaigns, deleteCampaign, fetchCampaigns } = useDataStore();
+  const { campaigns, fetchCampaigns } = useDataStore();
+  const [isDeveloper, setIsDeveloper] = React.useState(false);
+  const [showArchived, setShowArchived] = React.useState(false);
+  const [archivedCampaigns, setArchivedCampaigns] = React.useState<Awaited<ReturnType<typeof listArchivedDisparoCampaigns>>>([]);
+  React.useEffect(() => {
+    void getDisparoSession().then(u => setIsDeveloper(u?.role === "Desenvolvedor")).catch(() => setIsDeveloper(false));
+  }, []);
+  const openArchive = async () => {
+    try {
+      setArchivedCampaigns(await listArchivedDisparoCampaigns());
+      setShowArchived(true);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Nao foi possivel abrir o arquivo.");
+    }
+  };
+  const changeArchive = async (id: string, restore: boolean) => {
+    try {
+      await setDisparoCampaignArchived({data:{id,restore}});
+      await fetchCampaigns();
+      if (restore) setArchivedCampaigns(await listArchivedDisparoCampaigns());
+      toast.success(restore ? "Campanha restaurada." : "Campanha arquivada.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Nao foi possivel alterar a campanha.");
+    }
+  };
   const [isCreating, setIsCreating] = React.useState(false);
   const [statusFilter, setStatusFilter] = React.useState("Todas");
+  const [selectedCampaignIds, setSelectedCampaignIds] =
+    React.useState<string[]>([]);
+  const [bulkArchiving, setBulkArchiving] = React.useState(false);
 
+  // DIGITALE_CAMPAIGN_SYNC_V1
   React.useEffect(() => {
-    void fetchCampaigns();
+    let active = true;
+    let busy = false;
+
+    const refresh = async (silent: boolean) => {
+      if (!active || busy) return;
+
+      if (silent && document.visibilityState !== "visible") {
+        return;
+      }
+
+      busy = true;
+
+      try {
+        await fetchCampaigns(silent);
+      } catch (error) {
+        if (!silent) {
+          console.error("Falha ao carregar campanhas", error);
+        }
+      } finally {
+        busy = false;
+      }
+    };
+
+    void refresh(false);
+
+    const timer = window.setInterval(
+      () => void refresh(true),
+      5000
+    );
+
+    const onFocus = () => {
+      void refresh(true);
+    };
+
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") {
+        void refresh(true);
+      }
+    };
+
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisibility);
+
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener(
+        "visibilitychange", onVisibility
+      );
+    };
   }, [fetchCampaigns]);
 
   const filterMap: Record<string, string> = {
@@ -879,6 +976,95 @@ function CampaignsPage() {
   const filteredCampaigns = campaigns.filter(
     (c) => statusFilter === "Todas" || c.status === filterMap[statusFilter],
   );
+
+  const visibleIds = filteredCampaigns.map(c => c.id);
+  const selectedVisible = selectedCampaignIds.filter(
+    id => visibleIds.includes(id)
+  );
+  const allVisibleSelected =
+    visibleIds.length > 0 &&
+    visibleIds.every(id => selectedCampaignIds.includes(id));
+
+  const toggleSelectedCampaign = (id: string, checked: boolean) => {
+    setSelectedCampaignIds(previous =>
+      checked
+        ? Array.from(new Set([...previous, id]))
+        : previous.filter(item => item !== id)
+    );
+  };
+
+  const toggleAllVisible = (checked: boolean) => {
+    setSelectedCampaignIds(previous =>
+      checked
+        ? Array.from(new Set([...previous, ...visibleIds]))
+        : previous.filter(id => !visibleIds.includes(id))
+    );
+  };
+
+  const archiveBulkSelectedCampaigns = async () => {
+    if (!isDeveloper || bulkArchiving) return;
+
+    const ids = [...selectedVisible];
+    if (!ids.length) return;
+
+    if (!window.confirm(
+      `Arquivar ${ids.length} campanha(s) selecionada(s)? ` +
+      "Elas ficarao ocultas das listagens, relatorios, " +
+      "metricas e PDFs ate serem restauradas."
+    )) return;
+
+    setBulkArchiving(true);
+    let archived = 0;
+    const errors: string[] = [];
+
+    try {
+      for (const id of ids) {
+        try {
+          await setDisparoCampaignArchived({
+            data: { id, restore: false }
+          });
+          archived++;
+          setSelectedCampaignIds(previous =>
+            previous.filter(item => item !== id)
+          );
+        } catch (error) {
+          const name =
+            campaigns.find(c => c.id === id)?.name || id;
+          const detail =
+            error instanceof Error
+              ? error.message
+              : "Erro desconhecido";
+          errors.push(`${name}: ${detail}`);
+        }
+      }
+
+      try {
+        await fetchCampaigns();
+      } catch {
+        toast.error(
+          "Arquivamento processado, mas a lista nao foi atualizada. " +
+          "Recarregue a pagina."
+        );
+      }
+
+      if (archived > 0) {
+        toast.success(
+          `${archived} campanha(s) arquivada(s) com sucesso.`
+        );
+      }
+
+      if (errors.length > 0) {
+        toast.error(
+          `${errors.length} campanha(s) nao arquivada(s). ` +
+          errors.slice(0, 3).join(" | "),
+          { duration: 12000 }
+        );
+        console.warn("Falhas ao arquivar:", errors);
+      }
+    } finally {
+      setBulkArchiving(false);
+    }
+  };
 
   if (isCreating) {
     return (
@@ -900,6 +1086,9 @@ function CampaignsPage() {
             Gestão profissional de envios para a Digitale Têxtil.
           </p>
         </div>
+        {isDeveloper && <Button variant="outline" onClick={() => showArchived ? setShowArchived(false) : void openArchive()}>
+          {showArchived ? "Voltar às campanhas" : "Arquivadas"}
+        </Button>}
         <Button
           onClick={() => setIsCreating(true)}
           className="rounded-lg bg-accent px-6 font-bold text-accent-foreground shadow-lg shadow-accent/20 transition-all active:scale-95"
@@ -909,7 +1098,22 @@ function CampaignsPage() {
         </Button>
       </div>
 
-      <Tabs value={statusFilter} onValueChange={setStatusFilter} className="w-full">
+      {showArchived && isDeveloper && (
+        <div className="rounded-xl border bg-card p-5 shadow-sm">
+          <h2 className="mb-4 text-lg font-semibold">Campanhas arquivadas</h2>
+          {archivedCampaigns.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma campanha arquivada.</p> : (
+            <div className="space-y-2">
+              {archivedCampaigns.map(camp => (
+                <div key={camp.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3">
+                  <div><p className="font-semibold">{camp.name}</p><p className="text-xs text-muted-foreground">{camp.status} · {new Date(camp.createdAt).toLocaleDateString("pt-BR")}</p></div>
+                  <Button variant="outline" size="sm" onClick={() => void changeArchive(camp.id, true)}>Restaurar</Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+      <Tabs value={statusFilter} onValueChange={setStatusFilter} className={showArchived ? "hidden" : "w-full"}>
         <TabsList className="no-scrollbar w-full justify-start overflow-x-auto bg-muted/50">
           {["Todas", "Enviadas", "Agendadas", "Rascunhos", "Em andamento"].map((status) => (
             <TabsTrigger
@@ -922,10 +1126,54 @@ function CampaignsPage() {
           ))}
         </TabsList>
 
+        {isDeveloper && !showArchived &&
+          selectedVisible.length > 0 && (
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-muted/40 p-3">
+            <span className="text-sm font-medium">
+              {selectedVisible.length} campanha(s) selecionada(s)
+            </span>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                disabled={bulkArchiving}
+                onClick={() => setSelectedCampaignIds([])}
+              >
+                Limpar seleção
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                disabled={bulkArchiving}
+                onClick={() =>
+                  void archiveBulkSelectedCampaigns()
+                }
+              >
+                {bulkArchiving
+                  ? "Arquivando..."
+                  : "Arquivar selecionadas"}
+              </Button>
+            </div>
+          </div>
+        )}
+
         <div className="mt-6 overflow-hidden rounded-xl border bg-card shadow-sm">
           <Table>
             <TableHeader className="bg-muted/50">
               <TableRow className="border-b hover:bg-transparent">
+                {isDeveloper && (
+                  <TableHead className="w-[45px] pl-4">
+                    <Checkbox
+                      checked={allVisibleSelected}
+                      disabled={bulkArchiving || !visibleIds.length}
+                      onCheckedChange={value =>
+                        toggleAllVisible(value === true)
+                      }
+                      aria-label="Selecionar campanhas visíveis"
+                    />
+                  </TableHead>
+                )}
                 <TableHead className="py-4 pl-6 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">
                   Campanha
                 </TableHead>
@@ -941,9 +1189,7 @@ function CampaignsPage() {
                 <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">
                   Abertura
                 </TableHead>
-                <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">
-                  Cliques
-                </TableHead>
+                
                 <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">
                   Status
                 </TableHead>
@@ -953,16 +1199,31 @@ function CampaignsPage() {
             <TableBody>
               {filteredCampaigns.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={8} className="py-12 text-center text-sm text-muted-foreground">
+                  <TableCell colSpan={isDeveloper ? 8 : 7} className="py-12 text-center text-sm text-muted-foreground">
                     Nenhuma campanha nesta visão.
                   </TableCell>
                 </TableRow>
               )}
               {filteredCampaigns.map((camp) => (
                 <TableRow key={camp.id} className="group transition-all hover:bg-secondary/40">
+                  {isDeveloper && (
+                    <TableCell className="pl-4">
+                      <Checkbox
+                        checked={selectedCampaignIds.includes(camp.id)}
+                        disabled={bulkArchiving}
+                        onCheckedChange={value =>
+                          toggleSelectedCampaign(
+                            camp.id,
+                            value === true
+                          )
+                        }
+                        aria-label={`Selecionar ${camp.name}`}
+                      />
+                    </TableCell>
+                  )}
                   <TableCell className="pl-6">
                     <div className="flex flex-col">
-                      <span className="font-semibold text-primary">{camp.name}</span>
+                      <CampaignDetailsModal campaignId={camp.id} name={camp.name} />
                       <span className="text-[10px] text-muted-foreground">{camp.subject}</span>
                     </div>
                   </TableCell>
@@ -978,7 +1239,7 @@ function CampaignsPage() {
                     {camp.recipients.toLocaleString("pt-BR")}
                   </TableCell>
                   <TableCell className="text-xs font-bold text-primary">{camp.open}</TableCell>
-                  <TableCell className="text-xs font-bold text-primary">{camp.clicks}</TableCell>
+                  
                   <TableCell>
                     <Badge
                       variant="secondary"
@@ -1003,15 +1264,13 @@ function CampaignsPage() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Ações</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          className="text-red-600"
+                        {isDeveloper && <DropdownMenuItem
                           onClick={() => {
-                            void deleteCampaign(camp.id);
-                            toast.success("Campanha excluída.");
+                            if (window.confirm(`Arquivar a campanha "${camp.name}"? Ela desaparecera das listas, metricas, relatorios e PDFs ate ser restaurada.`)) {
+                              void changeArchive(camp.id, false);
+                            }
                           }}
-                        >
-                          Excluir
-                        </DropdownMenuItem>
+                        >Arquivar</DropdownMenuItem>}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

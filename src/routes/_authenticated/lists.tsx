@@ -12,6 +12,9 @@ import {
   Loader2
 } from "lucide-react";
 import { useDataStore } from "@/hooks/use-data";
+import { ListMembersDialog } from "@/components/contacts/ListMembersDialog";
+import { listPortalIaLeads } from "@/lib/portal-ia-leads.functions";
+import type { PortalIaLead } from "@/lib/portal-ia-leads.server";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,7 +36,46 @@ export const Route = createFileRoute("/_authenticated/lists")({
 });
 
 function ListsPage() {
-  const { lists, fetchLists, addList, deleteList, isLoading } = useDataStore();
+  const {
+    lists,
+    fetchLists,
+    addList,
+    deleteList,
+    isLoading
+  } = useDataStore();
+
+  const [viewedListId, setViewedListId] =
+    React.useState<string | null>(null);
+
+  const viewedList =
+    lists.find(item => item.id === viewedListId) ?? null;
+  const [iaLeads, setIaLeads] = React.useState<PortalIaLead[]>([]);
+  const [showIaLeads, setShowIaLeads] = React.useState(false);
+  const [iaLoading, setIaLoading] = React.useState(true);
+
+  const refreshIaLeads = React.useCallback(async () => {
+    setIaLoading(true);
+    try {
+      setIaLeads(await listPortalIaLeads());
+    } catch {
+      toast.error("Falha ao atualizar IA PROSPECÇÃO");
+    } finally {
+      setIaLoading(false);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    void refreshIaLeads();
+
+    const interval = window.setInterval(() => {
+      if (document.visibilityState === "visible") {
+        void refreshIaLeads();
+      }
+    }, 60000);
+
+    return () => window.clearInterval(interval);
+  }, [refreshIaLeads]);
+
   const [search, setSearch] = React.useState("");
   const [isAdding, setIsAdding] = React.useState(false);
   const [newListName, setNewListName] = React.useState("");
@@ -61,7 +103,11 @@ function ListsPage() {
       setNewListName("");
       setNewListDesc("");
     } catch (error) {
-      toast.error("Erro ao criar lista");
+      toast.error("Erro ao criar lista", {
+        description: error instanceof Error
+          ? error.message
+          : "Verifique a conexao com o servidor."
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -115,9 +161,73 @@ function ListsPage() {
           <Loader2 className="h-8 w-8 animate-spin text-accent" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+          {"IA PROSPECÇÃO".toLowerCase().includes(search.toLowerCase()) && (
+            <Card className="border-border/60">
+              <CardHeader>
+                <CardTitle>IA PROSPECÇÃO</CardTitle>
+                <CardDescription>
+                  Lista automática de leads atribuídos a Nicolle.
+                  Consulta somente leitura ao Portal Digitale.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold">
+                    {iaLoading ? "Atualizando..." : `${iaLeads.length} leads`}
+                    {!iaLoading && (
+                      <span className="block text-xs font-normal text-muted-foreground">
+                        {iaLeads.filter(lead => /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(lead.email || "")).length} com e-mail
+                        {" · "}
+                        {iaLeads.filter(lead => !/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(lead.email || "")).length} sem e-mail
+                      </span>
+                    )}
+                  </span>
+                  <div className="flex gap-2">
+                    <Button variant="outline" onClick={() => void refreshIaLeads()}>
+                      Atualizar
+                    </Button>
+                    <Button variant="outline"
+                      onClick={() => setShowIaLeads(value => !value)}>
+                      {showIaLeads ? "Ocultar" : "Visualizar"}
+                    </Button>
+                  </div>
+                </div>
+                {showIaLeads && (
+                  <div className="max-h-72 overflow-auto rounded-lg border">
+                    {iaLeads.map(lead => (
+                      <div key={lead.id} className="border-b p-3 text-sm last:border-0">
+                        <p className="font-medium">{lead.company}</p>
+                        <p className="text-muted-foreground">
+                          {lead.email || "Sem e-mail"}
+                        </p>
+                        <p className="text-muted-foreground">
+                          {lead.phone || "Sem telefone"}
+                        </p>
+                      </div>
+                    ))}
+                    
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
           {filteredLists.map((list) => (
-            <Card key={list.id} className="group hover:shadow-md transition-all border-border/60 overflow-hidden relative">
+            <Card
+              key={list.id}
+              role="button"
+              tabIndex={0}
+              aria-label={`Visualizar contatos da lista ${list.name}`}
+              onClick={() => setViewedListId(list.id)}
+              onKeyDown={event => {
+                if (
+                  event.target === event.currentTarget &&
+                  (event.key === "Enter" || event.key === " ")
+                ) {
+                  event.preventDefault();
+                  setViewedListId(list.id);
+                }
+              }} className="group hover:shadow-md transition-all border-border/60 overflow-hidden relative">
               <div className="absolute top-0 left-0 w-1 h-full bg-accent opacity-0 group-hover:opacity-100 transition-opacity" />
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between">
@@ -128,7 +238,10 @@ function ListsPage() {
                     variant="ghost" 
                     size="icon" 
                     className="h-8 w-8 text-muted-foreground hover:text-red-500"
-                    onClick={() => handleDelete(list.id)}
+                    onClick={event => {
+                      event.stopPropagation();
+                      void handleDelete(list.id);
+                    }}
                   >
                     <Trash2 size={16} />
                   </Button>
@@ -175,6 +288,11 @@ function ListsPage() {
           )}
         </div>
       )}
+
+      <ListMembersDialog
+        list={viewedList}
+        onClose={() => setViewedListId(null)}
+      />
 
       {/* Dialog Nova Lista */}
       <Dialog open={isAdding} onOpenChange={setIsAdding}>

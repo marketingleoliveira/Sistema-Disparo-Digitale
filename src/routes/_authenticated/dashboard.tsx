@@ -1,4 +1,82 @@
+import { exportEngagementPdf } from "@/lib/disparo-engagement-pdf.functions";
+
+// DIGITALE_ENGAGEMENT_PDF_V1
+async function downloadDigitaleEngagementPdf() {
+  try {
+    const result = await exportEngagementPdf();
+    const raw = atob(result.content);
+    const bytes = new Uint8Array(raw.length);
+
+    for (let i = 0; i < raw.length; i++) {
+      bytes[i] = raw.charCodeAt(i);
+    }
+
+    const url = URL.createObjectURL(
+      new Blob([bytes], { type: "application/pdf" })
+    );
+
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = result.filename;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+
+    window.setTimeout(
+      () => URL.revokeObjectURL(url),
+      60000
+    );
+  } catch (error) {
+    window.alert(
+      error instanceof Error
+        ? error.message
+        : "Nao foi possivel gerar o PDF."
+    );
+  }
+}
+
+import { CampaignClicksRanking } from "@/components/analytics/CampaignClicksRanking";
+// DIGITALE_CAMPAIGN_NOTIFICATIONS_V1
+import { CampaignNotificationsFeed } from "@/components/notifications/CampaignNotifications";
+import { useEffect as useGreetingEffect, useState as useGreetingState } from "react";
+
+// DIGITALE_GREETING_BRASILIA_V1
+function getBrasiliaGreeting(): string {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    hour: "2-digit",
+    hourCycle: "h23",
+    timeZone: "America/Sao_Paulo",
+  }).formatToParts(new Date());
+
+  const hour = Number(
+    parts.find((part) => part.type === "hour")?.value ?? 0
+  );
+
+  if (hour < 12) return "Bom dia";
+  if (hour < 18) return "Boa tarde";
+  return "Boa noite";
+}
+
+function BrasiliaGreeting() {
+  const [greeting, setGreeting] = useGreetingState("Olá");
+
+  useGreetingEffect(() => {
+    const update = () => setGreeting(getBrasiliaGreeting());
+
+    update();
+
+    const interval = setInterval(update, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return <>{greeting}</>;
+}
+
 import * as React from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { getClickEngagementRanking } from "@/lib/disparo-click-ranking.functions";
+import { getClickContactDetails } from "@/lib/disparo-click-details.functions";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { 
   Users, 
@@ -115,7 +193,292 @@ function EmptyState({ title, description, actionLabel }: { title: string, descri
   );
 }
 
+type ClickDetailEvent = {
+  id: string;
+  campaign: string;
+  url: string;
+  occurredAtUtc: string;
+};
+
+function formatClickDate(utc: string): string {
+  if (!utc) return "Nao informado";
+  const date = new Date(utc + "Z");
+
+  if (Number.isNaN(date.getTime())) {
+    return "Nao informado";
+  }
+
+  return new Intl.DateTimeFormat("pt-BR", {
+    timeZone: "America/Sao_Paulo",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit"
+  }).format(date);
+}
+
+function ClickDetailsModal({
+  name,
+  email,
+  onClose
+}: {
+  name: string;
+  email: string;
+  onClose: () => void;
+}) {
+  const fetchDetails = useServerFn(getClickContactDetails);
+
+  const [events, setEvents] = React.useState<
+    ClickDetailEvent[]
+  >([]);
+
+  const [summary, setSummary] = React.useState({
+    clicks: 0,
+    campaigns: 0,
+    links: 0,
+    lastClickUtc: ""
+  });
+
+  const [nextOffset, setNextOffset] =
+    React.useState<number | null>(null);
+
+  const [loading, setLoading] = React.useState(true);
+  const [loadingMore, setLoadingMore] = React.useState(false);
+  const [error, setError] = React.useState(false);
+
+  React.useEffect(() => {
+    let active = true;
+
+    setLoading(true);
+    setError(false);
+    setEvents([]);
+    setNextOffset(null);
+
+    fetchDetails({data: {email, offset: 0}})
+      .then(result => {
+        if (!active) return;
+
+        setSummary(result.summary);
+        setEvents(result.events);
+        setNextOffset(result.nextOffset);
+      })
+      .catch(() => {
+        if (active) setError(true);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => { active = false; };
+  }, [email, fetchDetails]);
+
+  React.useEffect(() => {
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [onClose]);
+
+  const more = async () => {
+    if (nextOffset === null || loadingMore) return;
+
+    setLoadingMore(true);
+    setError(false);
+
+    try {
+      const result = await fetchDetails({
+        data: {email, offset: nextOffset}
+      });
+
+      setSummary(result.summary);
+      setEvents(previous => [...previous, ...result.events]);
+      setNextOffset(result.nextOffset);
+    } catch {
+      setError(true);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-3 sm:p-6"
+      role="presentation"
+      onMouseDown={event => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Detalhes de engajamento"
+        className="flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border bg-card shadow-2xl"
+      >
+        <div className="flex items-start justify-between gap-4 border-b p-5">
+          <div className="min-w-0">
+            <h2 className="text-lg font-bold text-primary">
+              Detalhes de engajamento
+            </h2>
+            <p className="mt-1 font-medium text-sm">
+              {name || email}
+            </p>
+            <p className="break-all text-xs text-muted-foreground">
+              {email}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Fechar detalhes"
+            className="rounded-lg border px-3 py-1.5 text-sm hover:bg-muted"
+          >
+            Fechar
+          </button>
+        </div>
+
+        <div className="overflow-y-auto p-5">
+          {loading ? (
+            <div className="flex items-center justify-center gap-2 p-10">
+              <Loader2 size={18} className="animate-spin" />
+              <span className="text-sm">Carregando histórico...</span>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {[
+                  ["Cliques", summary.clicks.toLocaleString("pt-BR")],
+                  ["Campanhas", summary.campaigns.toLocaleString("pt-BR")],
+                  ["Links diferentes", summary.links.toLocaleString("pt-BR")],
+                  ["Ultimo clique", formatClickDate(summary.lastClickUtc)]
+                ].map(([title, value]) => (
+                  <div
+                    key={title}
+                    className="rounded-xl border bg-muted/10 p-3"
+                  >
+                    <p className="text-xs text-muted-foreground">{title}</p>
+                    <p className="mt-1 text-sm font-bold text-primary">
+                      {value}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <h3 className="mb-3 mt-6 text-sm font-bold text-primary">
+                Histórico de links acessados
+              </h3>
+
+              {events.length === 0 && !error ? (
+                <div className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">
+                  Nenhum clique encontrado.
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {events.map(event => (
+                    <div
+                      key={event.id}
+                      className="rounded-xl border p-3"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="text-xs font-bold text-primary">
+                          {event.campaign}
+                        </p>
+                        <span className="text-[11px] text-muted-foreground">
+                          {formatClickDate(event.occurredAtUtc)}
+                        </span>
+                      </div>
+                      {/^https?:\/\//i.test(event.url) && (
+                        <a
+                          href={event.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          referrerPolicy="no-referrer"
+                          className="mt-2 inline-block max-w-full break-all rounded-lg border border-accent/30 px-3 py-2 text-xs text-accent transition-colors hover:bg-accent/10"
+                        >
+                          {event.url}
+                        </a>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {error && (
+                <p className="mt-3 text-sm text-destructive">
+                  Não foi possível carregar os detalhes.
+                  Tente novamente.
+                </p>
+              )}
+
+              {nextOffset !== null && (
+                <button
+                  type="button"
+                  disabled={loadingMore}
+                  onClick={() => void more()}
+                  className="mt-4 w-full rounded-lg border px-4 py-2 text-sm font-semibold text-primary hover:bg-muted disabled:opacity-50"
+                >
+                  {loadingMore ? "Carregando..." : "Carregar mais registros"}
+                </button>
+              )}
+
+              <p className="mt-4 text-[11px] text-muted-foreground">
+                Os horários são exibidos no fuso de Brasília.
+                Os registros podem incluir acessos automáticos de sistemas
+                de segurança dos provedores de e-mail.
+              </p>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function DashboardPage() {
+  const [selectedClickContact, setSelectedClickContact] =
+    React.useState<{name: string; email: string} | null>(null);
+
+  const rankingFn = useServerFn(getClickEngagementRanking);
+
+  const [engagementRanking, setEngagementRanking] =
+    React.useState<Array<{
+      name: string;
+      email: string;
+      clicks: number;
+      campaigns: number;
+    }>>([]);
+
+  const [engagementLoading, setEngagementLoading] =
+    React.useState(true);
+
+  const [engagementError, setEngagementError] =
+    React.useState(false);
+
+  React.useEffect(() => {
+    let mounted = true;
+
+    setEngagementLoading(true);
+    setEngagementError(false);
+
+    rankingFn()
+      .then((data) => {
+        if (mounted) setEngagementRanking(data);
+      })
+      .catch(() => {
+        if (mounted) setEngagementError(true);
+      })
+      .finally(() => {
+        if (mounted) setEngagementLoading(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [rankingFn]);
+
   const { user } = useAuthStore();
   const { contacts, campaigns, fetchContacts, fetchCampaigns, isLoading } = useDataStore();
   
@@ -162,7 +525,7 @@ function DashboardPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-primary">Boa tarde, {user?.name.split(' ')[0]}!</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-primary"><BrasiliaGreeting />, {user?.name.split(' ')[0]}!</h1>
           <p className="text-sm font-medium text-muted-foreground mt-1">
             Confira as informações do seu painel.
           </p>
@@ -188,20 +551,7 @@ function DashboardPage() {
           <Bell className="h-5 w-5 text-accent" />
           <h3 className="text-lg font-bold text-primary">Notificações Recentes</h3>
         </div>
-        <div className="grid gap-4 md:grid-cols-2">
-          {activities.map((notif, i) => (
-            <div key={i} className="flex gap-4 p-4 rounded-xl bg-secondary/20 border border-border/50 hover:bg-secondary/30 transition-colors">
-              <div className="h-10 w-10 shrink-0 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
-                <Bell size={18} />
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm font-bold text-primary">{notif.title}</p>
-                <p className="text-xs text-muted-foreground leading-relaxed">{notif.desc}</p>
-                <p className="text-[10px] text-muted-foreground/60">{notif.time}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+        <CampaignNotificationsFeed />
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -233,100 +583,169 @@ function DashboardPage() {
 
       {/* Main Charts & Side Info Row */}
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Main Chart */}
-        <div className="lg:col-span-2 rounded-xl border bg-card p-6 shadow-sm">
-          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <h3 className="text-base font-bold text-primary">Desempenho das campanhas</h3>
-            <div className="flex items-center gap-1 rounded-lg border bg-muted/30 p-1">
-              {['7d', '30d', '90d', '12m'].map((period) => (
-                <button 
-                  key={period} 
-                  className={cn(
-                    "rounded-md px-3 py-1 text-[11px] font-bold transition-all",
-                    period === '7d' ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-primary"
-                  )}
-                >
-                  {period}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={performanceData}>
-                <defs>
-                  <linearGradient id="colorEnviados" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.1}/>
-                    <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0}/>
+        {/* DIGITALE_CAMPAIGN_RANKING_V3 */}
+        <CampaignClicksRanking />
 
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="oklch(0.92 0.01 260)" />
-                <XAxis dataKey="name" fontSize={11} tickLine={false} axisLine={false} tick={{fill: 'oklch(0.45 0.02 260)'}} />
-                <YAxis fontSize={11} tickLine={false} axisLine={false} tick={{fill: 'oklch(0.45 0.02 260)'}} tickFormatter={(v) => v >= 1000 ? `${v/1000}k` : v} />
-                <Tooltip 
-                  contentStyle={{ borderRadius: '8px', border: '1px solid oklch(0.92 0.01 260)', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                />
-                <Area type="monotone" dataKey="enviados" stroke="var(--color-primary)" strokeWidth={3} fillOpacity={1} fill="url(#colorEnviados)" />
-                <Area type="monotone" dataKey="aberturas" stroke="var(--color-accent)" strokeWidth={3} fill="transparent" strokeDasharray="5 5" />
-                <Area type="monotone" dataKey="cliques" stroke="var(--color-muted-foreground)" strokeWidth={2} fill="transparent" />
-
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="mt-6 flex flex-wrap gap-6 border-t pt-4">
-            <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-primary" />
-              <span className="text-xs text-muted-foreground">Enviados</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-accent" />
-              <span className="text-xs text-muted-foreground">Aberturas</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-muted-foreground" />
-              <span className="text-xs text-muted-foreground">Cliques</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Engagement Level */}
+        {/* Ranking real de cliques externos - MariaDB */}
         <div className="rounded-xl border bg-card p-6 shadow-sm">
-          <h3 className="mb-6 text-base font-bold text-primary">Engajamento da base</h3>
-          <div className="flex flex-col items-center">
-            <div className="relative h-[180px] w-full max-w-[200px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={engagementLevels} layout="vertical">
-                  <XAxis type="number" hide />
-                  <YAxis type="category" dataKey="name" hide />
-                  <Tooltip cursor={{fill: 'transparent'}} />
-                  <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={20}>
-                    {engagementLevels.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+          <div className="mb-5 flex items-center justify-between gap-3">
+            <div>
+              <h3 className="text-base font-bold text-primary">
+                Engajamento da base
+              </h3>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Destinatarios com mais cliques em links externos
+              </p>
             </div>
-            <div className="mt-4 w-full space-y-3">
-              {engagementLevels.map((item) => (
-                <div key={item.name} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="h-2 w-2 rounded-full" style={{ backgroundColor: item.color }} />
-                    <span className="text-xs font-medium text-muted-foreground">{item.name}</span>
-                  </div>
-                  <span className="text-xs font-bold text-primary">{item.value}%</span>
+            
+            {/* DIGITALE_ENGAGEMENT_EXPORT_UI_V1 */}
+            <div className="flex shrink-0 items-center gap-3">
+              <details className="relative group">
+                <summary
+                  aria-label="Escolher formato de exportação"
+                  className="flex cursor-pointer list-none items-center gap-2 rounded-lg border bg-background px-3 py-2 text-xs font-semibold text-foreground hover:bg-muted [&::-webkit-details-marker]:hidden"
+                >
+                  <span aria-hidden="true">↓</span>
+                  Exportar
+                  <span aria-hidden="true">⌄</span>
+                </summary>
+
+                <div className="absolute right-0 top-full z-50 mt-2 w-44 rounded-xl border bg-card p-1.5 shadow-xl">
+                  <button
+                    type="button"
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-medium text-card-foreground hover:bg-muted"
+                    onClick={event => {
+                      event.currentTarget.closest("details")?.removeAttribute("open");
+                      void downloadDigitaleEngagementPdf();
+                    }}
+                  >
+                    <span aria-hidden="true">▤</span>
+                    PDF
+                  </button>
+
+                  <button
+                    type="button"
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-medium text-card-foreground hover:bg-muted"
+                    onClick={event => {
+                      event.currentTarget.closest("details")?.removeAttribute("open");
+                      window.alert(
+                        "Exportação em Excel: interface pronta. A geração do relatório será implementada na próxima etapa."
+                      );
+                    }}
+                  >
+                    <span aria-hidden="true">▦</span>
+                    Excel (.xlsx)
+                  </button>
                 </div>
-              ))}
+              </details>
+
+              <MousePointer2 size={20} className="text-accent" />
             </div>
           </div>
+
+          {engagementLoading ? (
+            <div className="flex min-h-[180px] items-center justify-center gap-2 text-sm text-muted-foreground">
+              <Loader2 size={18} className="animate-spin" />
+              Carregando engajamento...
+            </div>
+          ) : engagementError ? (
+            <div className="rounded-xl border border-dashed p-6 text-center">
+              <p className="text-sm font-semibold text-primary">
+                Nao foi possivel carregar os cliques.
+              </p>
+              <p className="mt-2 text-xs text-muted-foreground">
+                Verifique a consulta do MariaDB.
+              </p>
+            </div>
+          ) : engagementRanking.length === 0 ? (
+            <div className="rounded-xl border border-dashed bg-muted/10 p-7 text-center">
+              <MousePointer2
+                size={28}
+                className="mx-auto mb-3 text-muted-foreground"
+              />
+              <p className="font-semibold text-primary">
+                Nenhum clique registrado
+              </p>
+              <p className="mt-2 text-xs text-muted-foreground">
+                O ranking sera preenchido quando houver acessos
+                aos links rastreados das campanhas.
+              </p>
+            </div>
+          ) : (
+            <div className="max-h-[460px] space-y-4 overflow-y-auto pr-1">
+              {engagementRanking.map((contact, index) => {
+                const maximum = engagementRanking[0]?.clicks || 1;
+                const percentage =
+                  Math.max(3, (contact.clicks / maximum) * 100);
+
+                return (
+                  <div key={contact.email} className="flex items-center gap-3">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted text-xs font-bold text-primary">
+                      {index + 1}
+                    </span>
+
+                    <div className="min-w-0 flex-1 space-y-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="truncate text-xs font-bold text-primary">
+                            {contact.name || contact.email}
+                          </p>
+                          <p className="truncate text-[11px] text-muted-foreground">
+                            {contact.email}
+                          </p>
+                        </div>
+
+                        <div className="shrink-0 text-right">
+                          <p className="text-sm font-bold text-primary">
+                            {contact.clicks.toLocaleString("pt-BR")}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground">
+                            cliques
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => setSelectedClickContact({
+                              name: contact.name,
+                              email: contact.email
+                            })}
+                            className="mt-1 text-[11px] font-semibold text-accent underline-offset-2 hover:underline"
+                          >
+                            Detalhes
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                        <div
+                          className="h-full rounded-full bg-accent"
+                          style={{ width: `${percentage}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          <div className="mt-5 border-t pt-3 text-[11px] text-muted-foreground">
+            Ranking por cliques registrados.
+            Exibindo ate 30 destinatarios.
+          </div>
+          {selectedClickContact && (
+            <ClickDetailsModal
+              name={selectedClickContact.name}
+              email={selectedClickContact.email}
+              onClose={() => setSelectedClickContact(null)}
+            />
+          )}
         </div>
       </div>
 
       {/* Campaigns Table & Recent Activity Grid */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Campaigns Table */}
-        <div className="lg:col-span-2 rounded-xl border bg-card shadow-sm overflow-hidden">
+        <div className="lg:col-span-2 min-w-0 rounded-xl border bg-card shadow-sm overflow-hidden">
           <div className="flex items-center justify-between border-b px-6 py-4">
             <h3 className="text-base font-bold text-primary">Campanhas recentes</h3>
             <Link to="/campaigns" className="text-xs font-bold text-accent hover:underline flex items-center gap-1">

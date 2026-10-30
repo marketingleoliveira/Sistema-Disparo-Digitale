@@ -1,5 +1,20 @@
+import { listDisparoCampaigns, createDisparoCampaign, deleteDisparoCampaign } from "@/lib/disparo-campaigns.functions";
 import { create } from 'zustand';
 import { supabase } from "@/integrations/supabase/client";
+import {
+  getDisparoFolders,
+  createDisparoFolder,
+  deleteDisparoFolder
+} from "@/lib/disparo-lists.functions";
+
+import {
+  listDisparoContacts,
+  createDisparoContact,
+  updateDisparoContact,
+  deleteDisparoContact,
+  importDisparoContacts
+} from "@/lib/disparo-contacts.functions";
+
 
 export interface Contact {
   id: string;
@@ -41,7 +56,7 @@ export interface Campaign {
   recipients: number;
   open: string;
   clicks: string;
-  status: 'Enviada' | 'Agendada' | 'Rascunho' | 'Em andamento';
+  status: 'Enviada' | 'Agendada' | 'Rascunho' | 'Em andamento' | "Processando" | "Simulada" | "Parcial" | "Falha";
   subject?: string;
   createdAt: string;
   /** Conteúdo do disparo: html, listas, remetente, agendamento. */
@@ -55,13 +70,18 @@ interface DataState {
   segments: ContactSegment[];
   isLoading: boolean;
   fetchContacts: () => Promise<void>;
-  fetchCampaigns: () => Promise<void>;
+  fetchCampaigns: (silent?: boolean) => Promise<void>;
   fetchLists: () => Promise<void>;
   fetchSegments: () => Promise<void>;
   addContact: (contact: Omit<Contact, 'id' | 'createdAt' | 'initials' | 'engagement' | 'lastActivity'>) => Promise<void>;
   importContacts: (
     contacts: Array<Omit<Contact, 'id' | 'createdAt' | 'initials' | 'engagement' | 'lastActivity'>>
   ) => Promise<{ inserted: number; skipped: number; error?: string }>;
+
+  updateContact: (
+    id: string,
+    contact: Omit<Contact, 'id' | 'createdAt' | 'initials' | 'engagement' | 'lastActivity'>
+  ) => Promise<void>;
   deleteContact: (id: string) => Promise<void>;
   addCampaign: (campaign: Omit<Campaign, 'id' | 'createdAt'>) => Promise<string | null>;
   deleteCampaign: (id: string) => Promise<void>;
@@ -81,87 +101,52 @@ export const useDataStore = create<DataState>((set, get) => ({
   fetchContacts: async () => {
     set({ isLoading: true });
     try {
-      const { data, error } = await supabase
-        .from('contacts')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error("Error fetching contacts:", error);
-      } else if (data) {
-        const mapped = data.map(c => ({
-          id: c.id,
-          name: c.name,
-          email: c.email,
-          company: c.company || '',
-          status: (c.status as any) || 'Ativo',
-          lists: (c.lists as any) || [],
-          tags: (c.tags as any) || [],
-          engagement: c.engagement || 0,
-          lastActivity: c.last_activity || '',
-          phone: c.phone || '',
-          initials: c.name.slice(0, 2).toUpperCase(),
-          createdAt: c.created_at || '',
-        }));
-        set({ contacts: mapped });
-      }
+      const contacts = await listDisparoContacts();
+      set({ contacts });
     } finally {
       set({ isLoading: false });
     }
   },
 
-  fetchCampaigns: async () => {
-    set({ isLoading: true });
-    try {
-      const { data, error } = await supabase
-        .from('campaigns')
-        .select('*')
-        .order('created_at', { ascending: false });
+  fetchCampaigns: async (silent = false) => {
+    if (!silent) set({ isLoading: true });
 
-      if (error) {
-        console.error("Error fetching campaigns:", error);
-      } else if (data) {
-        const mapped = data.map(c => ({
-          id: c.id,
-          name: c.name,
-          type: c.type || 'E-mail',
-          date: c.created_at || '',
-          recipients: c.recipients || 0,
-          open: c.open_rate || '0%',
-          clicks: c.click_rate || '0%',
-          status: (c.status as any) || 'Rascunho',
-          subject: c.subject || '',
-          createdAt: c.created_at || '',
-          content: (c.content as any) || undefined,
-        }));
-        set({ campaigns: mapped });
-      }
+    try {
+      const raw = await listDisparoCampaigns();
+
+      const campaigns = raw.map(
+        ({ contentJson, ...campaign }) => {
+          let content: Record<string, unknown> = {};
+
+          try {
+            const parsed: unknown = JSON.parse(contentJson);
+
+            if (
+              parsed !== null &&
+              typeof parsed === "object" &&
+              !Array.isArray(parsed)
+            ) {
+              content = parsed as Record<string, unknown>;
+            }
+          } catch {
+            // Preserva a campanha mesmo com JSON antigo invalido.
+          }
+
+          return { ...campaign, content };
+        }
+      );
+
+      set({ campaigns });
     } finally {
-      set({ isLoading: false });
+      if (!silent) set({ isLoading: false });
     }
   },
 
   fetchLists: async () => {
     set({ isLoading: true });
     try {
-      const { data, error } = await supabase
-        .from('contact_lists')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error("Error fetching lists:", error);
-      } else if (data) {
-        const allContacts = get().contacts;
-        const mapped = data.map(l => ({
-          id: l.id,
-          name: l.name,
-          description: l.description || '',
-          createdAt: l.created_at,
-          contactCount: allContacts.filter(c => c.lists.includes(l.name)).length
-        }));
-        set({ lists: mapped });
-      }
+      const lists = await getDisparoFolders();
+      set({ lists });
     } finally {
       set({ isLoading: false });
     }
@@ -193,117 +178,145 @@ export const useDataStore = create<DataState>((set, get) => ({
   },
 
   addContact: async (data) => {
-    try {
-      console.log("Iniciando inserção de contato:", data.email);
-      const { data: insertedData, error } = await supabase.from('contacts').insert([{
+    await createDisparoContact({
+      data: {
         name: data.name,
         email: data.email,
-        company: data.company || null,
+        company: data.company ?? "",
+        phone: data.phone ?? "",
         status: data.status,
-        lists: Array.isArray(data.lists) ? data.lists : [],
-        tags: Array.isArray(data.tags) ? data.tags : [],
-        phone: data.phone || null,
-        last_activity: 'Recém adicionado',
-        engagement: 0
-      }]).select();
-
-      if (error) {
-        console.error("Supabase contact insert failed. Error details:", {
-          code: error.code,
-          message: error.message,
-          details: error.details,
-          hint: error.hint
-        });
-        throw new Error(`Erro ${error.code}: ${error.message}. ${error.hint || ''}`);
+        lists: data.lists ?? [],
+        tags: data.tags ?? []
       }
-      
-      console.log("Contato inserido com sucesso:", insertedData);
-      await get().fetchContacts();
-    } catch (err: any) {
-      console.error("addContact exception:", err);
-      throw err;
-    }
+    });
+    await get().fetchContacts();
+  },
+
+  updateContact: async (id, data) => {
+    await updateDisparoContact({
+      data: {
+        id,
+        contact: {
+          name: data.name,
+          email: data.email,
+          company: data.company ?? "",
+          phone: data.phone ?? "",
+          status: data.status,
+          lists: data.lists ?? [],
+          tags: data.tags ?? []
+        }
+      }
+    });
+    await get().fetchContacts();
   },
 
   deleteContact: async (id) => {
-    const { error } = await supabase.from('contacts').delete().eq('id', id);
-    if (!error) await get().fetchContacts();
+    await deleteDisparoContact({ data: { id } });
+    await get().fetchContacts();
   },
 
   importContacts: async (incoming) => {
-    if (incoming.length === 0) return { inserted: 0, skipped: 0 };
-    const { data: existingData } = await supabase.from('contacts').select('email');
-    const existingEmails = new Set((existingData || []).map(c => c.email.toLowerCase()));
-    
-    const seen = new Set<string>();
-    const rows = incoming.filter((c) => {
-      const email = c.email.toLowerCase();
-      if (!email || existingEmails.has(email) || seen.has(email)) return false;
-      seen.add(email);
-      return true;
-    });
-
-    const skipped = incoming.length - rows.length;
-    if (rows.length === 0) return { inserted: 0, skipped };
-
-    const CHUNK = 100;
-    let inserted = 0;
-    for (let i = 0; i < rows.length; i += CHUNK) {
-      const chunk = rows.slice(i, i + CHUNK).map((c) => ({
-        name: c.name,
-        email: c.email.toLowerCase(),
-        company: c.company || null,
-        status: c.status,
-        lists: c.lists as any,
-        tags: c.tags as any,
-        phone: c.phone || null,
-        last_activity: 'Importado',
-        engagement: 0
-      }));
-      
-      const { error } = await supabase.from('contacts').insert(chunk);
-      if (error) {
-        await get().fetchContacts();
-        return { inserted, skipped, error: error.message };
-      }
-      inserted += chunk.length;
+    if (incoming.length === 0) {
+      return { inserted: 0, skipped: 0 };
     }
 
-    await get().fetchContacts();
-    return { inserted, skipped };
+    // DIGITALE_IMPORT_COMPLETA_V2
+    let inserted = 0;
+    let skipped = 0;
+    let linked = 0;
+    let rejected = 0;
+    const details: Array<{
+      email: string;
+      result: string;
+      reason: string;
+    }> = [];
+
+    for (let i = 0; i < incoming.length; i += 100) {
+      const batch = incoming.slice(i, i + 100).map(c => ({
+        name: c.name,
+        email: c.email,
+        company: c.company ?? "",
+        phone: c.phone ?? "",
+        status: c.status,
+        lists: c.lists ?? [],
+        tags: c.tags ?? []
+      }));
+
+      try {
+        const result = await importDisparoContacts({ data: batch });
+        inserted += result.inserted;
+        skipped += result.skipped;
+        linked += result.linked;
+        rejected += result.rejected;
+        details.push(...result.details);
+      } catch (error) {
+        // Falha do lote: tenta cada linha separadamente.
+        // Não interrompe os lotes seguintes.
+        for (const contact of batch) {
+          try {
+            const single = await importDisparoContacts({
+              data: [contact]
+            });
+            inserted += single.inserted;
+            skipped += single.skipped;
+            linked += single.linked;
+            rejected += single.rejected;
+            details.push(...single.details);
+          } catch (singleError) {
+            rejected++;
+            details.push({
+              email: contact.email,
+              result: "erro",
+              reason: singleError instanceof Error
+                ? singleError.message
+                : "Falha de comunicação com o servidor"
+            });
+          }
+        }
+      }
+    }
+
+    await get().fetchContacts().catch(() => undefined);
+
+    return {
+      inserted,
+      skipped,
+      linked,
+      rejected,
+      details
+    };
   },
 
   addCampaign: async (data) => {
-    const { data: inserted, error } = await supabase.from('campaigns').insert([{
-      name: data.name,
-      subject: data.subject || null,
-      type: data.type,
-      status: data.status,
-      recipients: data.recipients,
-      open_rate: data.open,
-      click_rate: data.clicks,
-      content: (data.content ?? null) as any,
-    }]).select('id').maybeSingle();
+    const id = await createDisparoCampaign({
+      data: {
+        name: data.name,
+        subject: data.subject || "",
+        type: data.type,
+        status: data.status,
+        recipients: data.recipients,
+        contentJson: JSON.stringify(data.content ?? {})
+      }
+    });
 
-    if (error) return null;
     await get().fetchCampaigns();
-    return inserted?.id ?? null;
+    return id;
   },
 
   deleteCampaign: async (id) => {
-    const { error } = await supabase.from('campaigns').delete().eq('id', id);
-    if (!error) await get().fetchCampaigns();
+    await deleteDisparoCampaign({ data: { id } });
+    await get().fetchCampaigns();
   },
 
   addList: async (name, description) => {
-    const { error } = await supabase.from('contact_lists').insert([{ name, description }]);
-    if (error) throw error;
+    await createDisparoFolder({
+      data: { name, description }
+    });
     await get().fetchLists();
   },
 
   deleteList: async (id) => {
-    const { error } = await supabase.from('contact_lists').delete().eq('id', id);
-    if (error) throw error;
+    await deleteDisparoFolder({ data: { id } });
     await get().fetchLists();
   },
 

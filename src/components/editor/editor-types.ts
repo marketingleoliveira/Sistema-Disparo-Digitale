@@ -57,6 +57,51 @@ export const LIBRARY_BLOCKS = [
   { id: "html", type: "html" as BlockType, label: "HTML", icon: Info },
 ];
 
+// DIGITALE_BRAND_FRAME_V1
+// Cabeçalho e rodapé padrão dos novos templates.
+export function withDigitaleBrandFrame(blocks: EditorBlock[]): EditorBlock[] {
+  const header: EditorBlock = {
+    id: "digitale-header-default",
+    type: "logo",
+    content: {
+      url: "https://disparo.digitaletextil.com.br/editor-media/fcb8ef72bd94e156195eefb1926870a2a23465182b598ef9ba2b9e721cf4a8ae.png"
+    },
+    styles: {
+      width: "80px",
+      textAlign: "center",
+      paddingTop: "10px",
+      paddingBottom: "10px"
+    }
+  };
+
+  const footer: EditorBlock = {
+    id: "digitale-social-default",
+    type: "social",
+    content: {
+      socialLinks: {
+        instagram: "https://www.instagram.com/digitale.textil",
+        facebook: "https://www.facebook.com/digitaletextilbr",
+        site: "https://digitaletextil.com.br/"
+      }
+    },
+    styles: {
+      textAlign: "center",
+      paddingTop: "10px",
+      paddingBottom: "10px",
+      socialColor: "#082f49",
+      socialSize: 30,
+      socialGap: 12
+    }
+  };
+
+  // Evita duplicar logotipo ou ícones sociais.
+  const content = blocks.filter(
+    block => block.type !== "logo" && block.type !== "social"
+  );
+
+  return [header, ...content, footer];
+}
+
 export const INITIAL_BLOCKS: EditorBlock[] = [
   {
     id: "block-1",

@@ -1,11 +1,10 @@
-import { sendLovableEmail, EmailAPIError } from "@lovable.dev/email-js";
 
 /** Domínio delegado verificado usado para autenticação (SPF/DKIM). */
-export const SENDER_DOMAIN = "atendimento.digitaletextil.com.br";
+export const SENDER_DOMAIN = "envios.digitaletextil.com.br";
 /** Domínio visível na caixa de entrada. */
-export const FROM_DOMAIN = "digitaletextil.com.br";
+export const FROM_DOMAIN = "envios.digitaletextil.com.br";
 export const DEFAULT_FROM_NAME = "Digitale Têxtil";
-export const DEFAULT_FROM_EMAIL = `atendimento@${FROM_DOMAIN}`;
+export const DEFAULT_FROM_EMAIL = `mailapi@${FROM_DOMAIN}`;
 
 export interface SendHtmlEmailInput {
   to: string;
@@ -14,6 +13,11 @@ export interface SendHtmlEmailInput {
   fromName?: string | undefined;
   replyTo?: string | undefined;
   idempotencyKey?: string | undefined;
+  campaignId?: string | undefined;
+  tracking?: {
+    contactId: string;
+    listId: string;
+  } | undefined;
   /** Rótulo do envio usado nos logs de entrega (ex.: "campaign", "campaign-test"). */
   label?: string | undefined;
 }
@@ -21,6 +25,7 @@ export interface SendHtmlEmailInput {
 
 export type SendHtmlEmailResult =
   | { sent: true; messageId?: string | undefined }
+  | { sent: false; simulated: true; messageId?: string | undefined }
   | { sent: false; reason: string };
 
 /** Converte o HTML do template em texto simples (fallback exigido pelo provedor). */
@@ -43,36 +48,172 @@ export function htmlToText(html: string): string {
  * Nunca lança em falhas esperadas (supressão, rate limit, domínio pendente):
  * devolve `{ sent: false, reason }` para o chamador tratar na interface.
  */
-export async function sendHtmlEmail(input: SendHtmlEmailInput): Promise<SendHtmlEmailResult> {
-  const apiKey = process.env["LOVABLE_API_KEY"];
-  if (!apiKey) return { sent: false, reason: "api_key_missing" };
+async function sendHtmlEmailCore(input: SendHtmlEmailInput): Promise<SendHtmlEmailResult> {
+  if (process.env["MAIL_API_PROVIDER"] === "digitale") {
+    const { enqueueMailApi } = await import("./mail-api.server");
+    const result = await enqueueMailApi({
+      to: input.to,
+      subject: input.subject,
+      html: input.html,
+      idempotencyKey: input.idempotencyKey,
+    });
 
-  const fromName = input.fromName?.trim() || DEFAULT_FROM_NAME;
+    if (!result.accepted) {
+      return { sent: false, reason: result.reason };
+    }
+
+    // A simulacao continua sendo identificada corretamente.
+    if (result.status === "simulated") {
+      return {
+        sent: false,
+        simulated: true,
+        ...(result.messageId
+          ? { messageId: result.messageId }
+          : {}),
+      };
+    }
+
+    // Confirmacao real de aceite/fila/envio pela API.
+    return {
+      sent: true,
+      ...(result.messageId
+        ? { messageId: result.messageId }
+        : {}),
+    };
+  }
+
+  // Bloqueio de seguranca: nunca utilizar provedores alternativos.
+  return {
+    sent: false,
+    reason: "mail_api_provider_not_digitale",
+  };
+}
+
+
+/** Registra o resultado real retornado pelo remetente. */
+export async function sendHtmlEmail(
+  input: SendHtmlEmailInput
+): Promise<SendHtmlEmailResult> {
+  const {
+    createEmailAttempt,
+    finishEmailAttempt
+  } = await import("../disparo-email-history.server");
+
+  const attemptId = createEmailAttempt({
+    kind: input.campaignId ? "campaign" : "test",
+    provider:
+      process.env["MAIL_API_PROVIDER"] === "digitale"
+        ? "digitale"
+        : "lovable",
+    ...(input.campaignId
+      ? { campaignId: input.campaignId }
+      : {}),
+    ...(input.idempotencyKey
+      ? { idempotencyKey: input.idempotencyKey }
+      : {})
+  });
+
+  let trackingPrepared = false;
+  let result: SendHtmlEmailResult;
 
   try {
-    const response = await sendLovableEmail(
-      {
-        to: input.to,
-        from: `${fromName} <${DEFAULT_FROM_EMAIL}>`,
-        sender_domain: SENDER_DOMAIN,
-        subject: input.subject,
-        html: input.html,
-        text: htmlToText(input.html),
-        // A API exige `purpose`; sem ele o envio é recusado com "missing_parameter".
-        purpose: "transactional",
-        label: input.label ?? "campaign",
-        ...(input.replyTo ? { reply_to: input.replyTo } : {}),
-        ...(input.idempotencyKey ? { idempotency_key: input.idempotencyKey } : {}),
 
-      },
-      { apiKey, sendUrl: process.env["LOVABLE_SEND_URL"] },
-    );
-    if (!response.success) return { sent: false, reason: response.status ?? "send_failed" };
-    return { sent: true, messageId: response.message_id };
-  } catch (error) {
-    if (error instanceof EmailAPIError) {
-      return { sent: false, reason: error.code ?? `http_${error.status}` };
+    let preparedInput = input;
+
+    // Desativado ate a auditoria do envio MariaDB.
+    const TRACKING_RELEASED = true;
+
+    const { rewriteTrackedLinks } =
+      await import("../disparo-click-tracking.server");
+
+    const campaignId = input.campaignId;
+    const tracking = input.tracking;
+
+    if (
+      TRACKING_RELEASED &&
+      process.env["DISPARO_OPEN_TRACKING_ENABLED"] !== "0" &&
+      campaignId &&
+      tracking
+    ) {
+      const { prepareTrackedRecipient } =
+        await import("../disparo-open-tracking.server");
+
+      const { appendOpenTrackingPixel } =
+        await import("../disparo-open-pixel.server");
+
+      const token = prepareTrackedRecipient({
+        campaignId,
+        attemptId,
+        contactId: tracking.contactId,
+        listId: tracking.listId,
+        email: input.to
+      });
+
+      preparedInput = {
+        ...input,
+        html: appendOpenTrackingPixel(
+          process.env["DISPARO_CLICK_TRACKING_ENABLED"] === "1"
+            ? rewriteTrackedLinks(input.html, {
+                campaignId,
+                attemptId
+              })
+            : input.html,
+          token
+        )
+      };
+
+      trackingPrepared = true;
     }
-    return { sent: false, reason: error instanceof Error ? error.message : "unknown_error" };
+
+    result = await sendHtmlEmailCore(preparedInput);
+  } catch (error) {
+    try {
+      finishEmailAttempt({
+        id: attemptId,
+        status: "failed",
+        errorCode: "unexpected_error"
+      });
+    } catch (historyError) {
+      console.error(
+        "Falha ao registrar erro do envio",
+        historyError
+      );
+    }
+    throw error;
   }
+
+  const status = result.sent
+    ? "accepted"
+    : "simulated" in result && result.simulated
+      ? "simulated"
+      : "failed";
+
+  const messageId =
+    "messageId" in result ? result.messageId : undefined;
+
+  const errorCode =
+    "reason" in result ? result.reason : undefined;
+
+  try {
+    finishEmailAttempt({
+      id: attemptId,
+      status,
+      ...(messageId ? { messageId } : {}),
+      ...(errorCode ? { errorCode } : {})
+    });
+
+    if (trackingPrepared && result.sent) {
+      const { confirmTrackedRecipient } =
+        await import("../disparo-open-tracking.server");
+
+      confirmTrackedRecipient(attemptId);
+    }
+  } catch (historyError) {
+    console.error(
+      "Falha ao atualizar historico",
+      historyError
+    );
+  }
+
+  return result;
 }
