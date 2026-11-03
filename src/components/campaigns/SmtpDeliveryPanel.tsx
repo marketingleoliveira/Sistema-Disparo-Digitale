@@ -1,3 +1,4 @@
+import { DemoCnpjCompanies } from "@/components/campaigns/DemoCnpjCompanies";
 import { CompanyDetailsButton } from "@/components/analytics/CompanyDetailsButton";
 import { LiveCampaignPulse } from "./LiveCampaignPulse";
 import { getDisparoOpenedCnpjEmails } from "@/lib/disparo-opened-cnpj.functions";
@@ -179,7 +180,18 @@ React.useEffect(() => {
                 };
               }
 
-              const openDate = new Date(baseDate.getTime() + (index * 37 * 60000) + (((index * 47 + 13) % 60) * 1000) + (((index * 47 + 13) % 60) * 1000));
+              // DIGITALE_DEMO_OPEN_CUTOFF_10H_V1
+              // Limite fixo: 03/11/2026 as 10h em Brasilia.
+              // Aberturas simuladas nunca ultrapassam esse instante.
+              const demoCutoff = Date.parse("2026-11-03T13:00:00Z");
+              const demoStart = baseDate.getTime();
+              const windowMs = demoCutoff - demoStart + 1;
+              const offsetMs = (
+                index * 37 * 60000 +
+                ((index * 47 + 13) % 60) * 1000
+              ) % windowMs;
+
+              const openDate = new Date(demoStart + offsetMs);
               const yyyy = openDate.getUTCFullYear();
               const mm = String(openDate.getUTCMonth() + 1).padStart(2, "0");
               const dd = String(openDate.getUTCDate()).padStart(2, "0");
@@ -604,7 +616,7 @@ const totals = isDemoCampaign && data?.totals
                 style={{animationDelay:"300ms"}}
               >
                 <p className="text-center text-sm font-semibold">
-                  Aberturas
+                  Pronto para Ler
                 </p>
 
                 <div className="relative mx-auto mt-3 h-36 w-36">
@@ -726,7 +738,21 @@ const totals = isDemoCampaign && data?.totals
             </p>
           )}
 
-          <div className="max-h-[440px] space-y-2 overflow-y-auto">
+          {/* DIGITALE_DEMO_CNPJ_REAL_V1 */}
+          {campaignId === "cdd61ff9-2273-4b87-9eac-af7d1ce731fc" &&
+            filter === "opened_cnpj" && (
+              <DemoCnpjCompanies search={search} />
+            )}
+
+          <div
+            className="max-h-[440px] space-y-2 overflow-y-auto"
+            style={{
+              display:
+                campaignId === "cdd61ff9-2273-4b87-9eac-af7d1ce731fc" &&
+                filter === "opened_cnpj"
+                  ? "none" : undefined
+            }}
+          >
             {visible.length === 0 && !cnpjLoading && !cnpjError && (
               <p className="text-sm text-muted-foreground">
                 Nenhum destinatário encontrado.

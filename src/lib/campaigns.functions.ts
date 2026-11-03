@@ -168,7 +168,24 @@ export const dispatchCampaign = createServerFn({ method: "POST" })
       reason: string;
     }> = [];
 
+    // DIGITALE_FORCE_END_V1
+    const { isDisparoCampaignInterruptedDB } =
+      await import("./disparo-campaigns.server");
+
+    let interrupted = false;
+    let checkCounter = 0;
+
     for (const contact of audience) {
+      // DIGITALE_FORCE_END_BATCH_V2
+      // Consulta antes do primeiro envio e depois a cada 10.
+      if (
+        checkCounter++ % 10 === 0 &&
+        isDisparoCampaignInterruptedDB(campaign.id)
+      ) {
+        interrupted = true;
+        break;
+      }
+
       try {
         const result = await sendHtmlEmail({
           to: contact.email,
@@ -209,7 +226,11 @@ export const dispatchCampaign = createServerFn({ method: "POST" })
       }
     }
 
-    await finishDisparoCampaignDB({
+    // Confere novamente o encerramento antes de finalizar.
+    if (
+      !interrupted &&
+      !isDisparoCampaignInterruptedDB(campaign.id)
+    ) await finishDisparoCampaignDB({
       campaignId: campaign.id,
       sent,
       simulated,
@@ -223,4 +244,24 @@ export const dispatchCampaign = createServerFn({ method: "POST" })
       failed: failures.length,
       failures: failures.slice(0, 20)
     };
+  });
+
+// DIGITALE_FORCE_END_V1
+export const forceEndDisparoCampaign = createServerFn({ method: "POST" })
+  .inputValidator((input: { campaignId: string }) => {
+    const campaignId = String(input?.campaignId ?? "").trim();
+
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(campaignId)) {
+      throw new Error("ID de campanha invalido.");
+    }
+
+    return { campaignId };
+  })
+  .handler(async ({ data }) => {
+    const { forceEndDisparoCampaignDB } =
+      await import("./disparo-campaigns.server");
+
+    await forceEndDisparoCampaignDB(data.campaignId);
+
+    return { success: true };
   });

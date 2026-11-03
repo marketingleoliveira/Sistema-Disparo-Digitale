@@ -32,7 +32,7 @@ import { blocksToEmailHtml } from "@/lib/templates/blocks-to-html";
 import type { EditorBlock } from "@/components/editor/editor-types";
 import { VisualEmailEditor } from "@/components/editor/VisualEmailEditor";
 
-import { sendCampaignTest, dispatchCampaign } from "@/lib/campaigns.functions";
+import { sendCampaignTest, dispatchCampaign, forceEndDisparoCampaign } from "@/lib/campaigns.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -1238,7 +1238,7 @@ function CampaignsPage() {
                   <TableCell className="text-xs font-medium">
                     {camp.recipients.toLocaleString("pt-BR")}
                   </TableCell>
-                  <TableCell className="text-xs font-bold text-primary">{(camp.recipients === 17434 && String(camp.open).trim() === "0%" && camp.status === "Processando") ? (<span>73% <span className="text-[9px] text-violet-600">DEMO</span></span>) : camp.open}</TableCell>
+                  <TableCell className="text-xs font-bold text-primary">{camp.open}</TableCell>
                   
                   <TableCell>
                     <Badge
@@ -1251,7 +1251,7 @@ function CampaignsPage() {
                         camp.status === "Em andamento" && "bg-orange-100 text-orange-700",
                       )}
                     >
-                      {(camp.recipients === 17434 && String(camp.open).trim() === "0%" && camp.status === "Processando") ? "Concluído (DEMO)" : camp.status}
+                      {camp.status}
                     </Badge>
                   </TableCell>
                   <TableCell className="pr-6">
@@ -1264,6 +1264,33 @@ function CampaignsPage() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Ações</DropdownMenuLabel>
                         <DropdownMenuSeparator />
+                        {/* DIGITALE_FORCE_END_V1 */}
+                        {isDeveloper && ["Processando", "Em andamento"].includes(camp.status) && (
+                          <DropdownMenuItem
+                            className="text-red-600 font-semibold"
+                            onClick={async () => {
+                              if (!window.confirm(
+                                `Forcar encerramento da campanha "${camp.name}"? Novos envios serao interrompidos.`
+                              )) return;
+
+                              try {
+                                await forceEndDisparoCampaign({
+                                  data: { campaignId: camp.id }
+                                });
+                                toast.success("Campanha interrompida.");
+                                await fetchCampaigns();
+                              } catch (error) {
+                                toast.error(
+                                  error instanceof Error
+                                    ? error.message
+                                    : "Erro ao encerrar campanha."
+                                );
+                              }
+                            }}
+                          >
+                            Forçar encerramento
+                          </DropdownMenuItem>
+                        )}
                         {isDeveloper && <DropdownMenuItem
                           onClick={() => {
                             if (window.confirm(`Arquivar a campanha "${camp.name}"? Ela desaparecera das listas, metricas, relatorios e PDFs ate ser restaurada.`)) {

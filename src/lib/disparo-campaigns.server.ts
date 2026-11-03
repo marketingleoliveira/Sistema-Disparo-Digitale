@@ -7,6 +7,7 @@ export type CampaignStatus =
   | "Agendada"
   | "Em andamento"
   | "Processando"
+  | "Interrompida"
   | "Simulada"
   | "Parcial"
   | "Falha"
@@ -548,8 +549,76 @@ export async function finishDisparoCampaignDB(input: {
   `);
 
   if (Number(result[0]?.[0] || 0) !== 1) {
+    const current = rows(`
+      SELECT status
+      FROM disparo_campaigns
+      WHERE id = ${sqlText(input.campaignId)}
+      LIMIT 1;
+    `);
+
+    // DIGITALE_FORCE_END_FINISH_V2
+    // Uma campanha interrompida nunca volta a ser finalizada.
+    if (current[0]?.[0] === "Interrompida") {
+      return;
+    }
+
     throw new Error(
       "Nao foi possivel finalizar a campanha."
     );
   }
+}
+
+// DIGITALE_FORCE_END_V1
+export async function forceEndDisparoCampaignDB(
+  campaignId: string
+): Promise<void> {
+  const user = await requireDisparoUser();
+
+  if (!["Desenvolvedor", "Diretoria", "Gerência"].includes(user.role)) {
+    throw new Error("Sem permissao para encerrar campanhas.");
+  }
+
+  if (!validId(campaignId)) {
+    throw new Error("Campanha invalida.");
+  }
+
+  const result = rows(`
+    START TRANSACTION;
+
+    UPDATE disparo_campaign_execution_control ec
+    JOIN disparo_campaigns c ON c.id = ec.campaign_id
+    SET ec.enabled = 0, ec.state = 'stopped'
+    WHERE c.id = ${sqlText(campaignId)}
+      AND c.status IN ('Processando', 'Em andamento');
+
+    UPDATE disparo_campaigns
+    SET status = 'Interrompida', updated_at = NOW()
+    WHERE id = ${sqlText(campaignId)}
+      AND status IN ('Processando', 'Em andamento');
+
+    SELECT ROW_COUNT();
+
+    COMMIT;
+  `);
+
+  if (Number(result[0]?.[0] || 0) !== 1) {
+    throw new Error("Campanha nao esta em processamento.");
+  }
+}
+
+export function isDisparoCampaignInterruptedDB(
+  campaignId: string
+): boolean {
+  if (!validId(campaignId)) {
+    throw new Error("Campanha invalida.");
+  }
+
+  const result = rows(`
+    SELECT status
+    FROM disparo_campaigns
+    WHERE id = ${sqlText(campaignId)}
+    LIMIT 1;
+  `);
+
+  return result[0]?.[0] !== "Processando";
 }

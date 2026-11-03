@@ -1,23 +1,37 @@
+import { readFile } from "node:fs/promises";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { currentUser } from "./disparo-auth.server";
 
 const exec = promisify(execFile);
-const PROJECT = "/var/www/TESTE_DISPARO/sistema-disparo";
-const REPOSITORY =
-  "https://github.com/marketingleoliveira/Sistema-Disparo-Digitale.git";
 
-async function command(program: string, args: string[]) {
-  const { stdout } = await exec(program, args, {
-    timeout: 8000,
-    maxBuffer: 30000,
-    encoding: "utf8",
-    env: {
-      ...process.env,
-      GIT_TERMINAL_PROMPT: "0",
-    },
-  });
-  return stdout.trim();
+const STATUS_FILE =
+  "/var/lib/disparo-github-backup/status.json";
+
+const REPOSITORY =
+  "marketingleoliveira/Sistema-Disparo-Digitale";
+
+type BackupRecord = {
+  repository?: string;
+  lastAttemptAt?: string | null;
+  lastRunSuccessful?: boolean;
+  lastSuccessAt?: string | null;
+  commit?: string | null;
+  error?: string | null;
+};
+
+async function timerActive(): Promise<boolean> {
+  try {
+    const { stdout } = await exec(
+      "systemctl",
+      ["is-active", "backup-disparo-github.timer"],
+      { timeout: 5000 }
+    );
+
+    return stdout.trim() === "active";
+  } catch {
+    return false;
+  }
 }
 
 export async function readDisparoBackupStatus() {
@@ -33,79 +47,61 @@ export async function readDisparoBackupStatus() {
     throw new Error("Acesso administrativo necessario");
   }
 
-  const git = (...args: string[]) =>
-    command("git", [
-      "-c",
-      `safe.directory=${PROJECT}`,
-      "-C",
-      PROJECT,
-      ...args,
-    ]);
+  const scheduleActive = await timerActive();
 
   try {
-    const [local, remoteText, date, message] = await Promise.all([
-      git("rev-parse", "HEAD"),
-      git("ls-remote", REPOSITORY, "refs/heads/main"),
-      git("log", "-1", "--format=%cI"),
-      git("log", "-1", "--format=%s"),
-    ]);
+    const raw = await readFile(STATUS_FILE, "utf8");
+    const data = JSON.parse(raw) as BackupRecord;
 
-    const remote = remoteText.split(/\s+/)[0] || "";
-    const confirmed = Boolean(remote) && local === remote;
-
-    let scheduleActive = false;
-    let lastRunFailed = false;
-
-    try {
-      const state = await command(
-        "systemctl",
-        ["is-active", "backup-disparo-github.timer"],
-      );
-      scheduleActive = state === "active";
-    } catch {
-      scheduleActive = false;
+    if (data.repository !== REPOSITORY) {
+      throw new Error("Repositorio inesperado");
     }
 
-    try {
-      const details = await command("systemctl", [
-        "show",
-        "backup-disparo-github.service",
-        "--property=Result",
-        "--property=ExecMainStartTimestamp",
-      ]);
+    const validCommit =
+      typeof data.commit === "string" &&
+      /^[a-f0-9]{40}$/i.test(data.commit);
 
-      const result = details.match(/^Result=(.+)$/m)?.[1];
+    const validDate =
+      typeof data.lastSuccessAt === "string" &&
+      !Number.isNaN(Date.parse(data.lastSuccessAt));
 
-      // 'success' ou sem execucao anterior nao indicam falha.
-      lastRunFailed = Boolean(
-        result && result !== "success",
-      );
-    } catch {
-      // O status da rotina pode estar indisponivel.
+    const confirmed = validCommit && validDate;
+
+    let status:
+      | "atualizado"
+      | "falha"
+      | "atrasado"
+      | "agendamento_inativo";
+
+    if (data.lastRunSuccessful === false) {
+      status = "falha";
+    } else if (!scheduleActive) {
+      status = "agendamento_inativo";
+    } else if (!confirmed) {
+      status = "atrasado";
+    } else {
+      status = "atualizado";
     }
-
-    const status = !confirmed
-      ? "atrasado"
-      : lastRunFailed
-        ? "falha"
-        : !scheduleActive
-          ? "agendamento_inativo"
-          : "atualizado";
 
     return {
       status,
-      lastConfirmedCommit: confirmed ? local.slice(0, 12) : null,
-      lastConfirmedAt: confirmed ? date : null,
-      lastCommitIsBackup: message.startsWith("Backup automatico VPS"),
+      lastConfirmedAt: confirmed
+        ? data.lastSuccessAt!
+        : null,
+      lastConfirmedCommit: confirmed
+        ? data.commit!.slice(0, 12)
+        : null,
+      lastCommitIsBackup: confirmed,
       scheduleActive,
     };
+
   } catch {
     return {
-      status: "indisponivel",
-      lastConfirmedCommit: null,
+      status: "indisponivel" as const,
       lastConfirmedAt: null,
+      lastConfirmedCommit: null,
       lastCommitIsBackup: false,
-      scheduleActive: false,
+      scheduleActive,
     };
   }
 }

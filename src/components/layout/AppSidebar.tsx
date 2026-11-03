@@ -142,6 +142,7 @@ export function AppSidebar() {
             .items.filter((item) => item.href === "/templates"),
         }]
       : sidebarStructure.filter((group) => {
+          if (group.group === "Analytics") return false;
           if (group.group === "Administração" ||
               group.group === "Configurações") {
             return isMaster;

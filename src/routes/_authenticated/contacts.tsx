@@ -213,7 +213,7 @@ function ContactDetailSheet({ contact, open, onOpenChange }: { contact: any, ope
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-lg border bg-muted/20 p-3 text-center">
               <p className="text-[10px] font-bold uppercase text-muted-foreground">
-                Aberturas
+                Pronto para Ler
               </p>
               <p className="mt-1 text-xl font-bold text-primary">
                 {metricsLoading ? "..." : metricsError ? "—" : metrics?.openEvents ?? "—"}

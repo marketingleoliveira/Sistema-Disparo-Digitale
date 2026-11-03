@@ -1,8 +1,14 @@
-import { PixelTrackingSummary } from "@/components/analytics/PixelTrackingSummary";
 import { createFileRoute } from "@tanstack/react-router";
-import { EmailAnalyticsView } from "@/components/analytics/EmailAnalyticsView";
-import { SmtpDeliveryPanel } from "@/components/campaigns/SmtpDeliveryPanel";
 
 export const Route = createFileRoute("/_authenticated/reports")({
-  component: () => (<div className="space-y-6"><PixelTrackingSummary /><SmtpDeliveryPanel /><EmailAnalyticsView /></div>)
+  component: () => (
+    <div className="rounded-xl border p-6">
+      <h1 className="text-xl font-semibold">
+        Analytics temporariamente indisponível
+      </h1>
+      <p className="mt-2 text-sm text-muted-foreground">
+        Este módulo está temporariamente desativado.
+      </p>
+    </div>
+  ),
 });

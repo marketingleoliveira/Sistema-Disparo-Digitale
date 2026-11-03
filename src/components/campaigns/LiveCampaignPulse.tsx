@@ -209,18 +209,18 @@ export function LiveCampaignPulse({
     const demoMetrics = [
       ["Destinatários previstos", "17.434", "#315e91"],
       ["Tentativas registradas", "17.434", "#315e91"],
-      ["Aceitos pela API", "17.251", "#315e91"],
+      ["Aceitos pela API", "17.415", "#315e91"],
       ["Na fila SMTP", "0", "#64748b"],
-      ["Aceitos pelo SMTP", "17.251", "#2563eb"],
+      ["Aceitos pelo SMTP", "17.415", "#2563eb"],
       ["Adiados", "0", "#c38a35"],
       ["Devolvidos", "164", "#cc5757"],
       ["Entregues confirmados", "17.251", "#21856b"],
       ["Falhas iniciais", "19", "#cc5757"],
       ["Ritmo do motor SMTP", "0/min", "#21856b"],
-      ["Aberturas", "14.652", "#21856b"],
+      ["Pronto para Ler", "14.652", "#21856b"],
       ["Leituras", "9.456", "#315e91"],
       ["Cliques", "167", "#7c3aed"],
-      ["Não lidos", "2.599", "#64748b"]
+      ["Leitura não confirmada", "5.196", "#64748b"]
     ];
 
     return (
