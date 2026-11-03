@@ -50,7 +50,7 @@ function WebsiteInfo({value}:{value:string|null|undefined}){
   );
 }
 
-export function CompanyDetailsButton({email,showWebsite=false}:{email:string;showWebsite?:boolean}){
+export function CompanyDetailsButton({email,showWebsite=false,campaignId}:{email:string;showWebsite?:boolean;campaignId?:string}){
   const [open,setOpen]=React.useState(false);
   const [loading,setLoading]=React.useState(false);
   const [detail,setDetail]=React.useState<CompanyData|null>(null);
@@ -69,7 +69,7 @@ export function CompanyDetailsButton({email,showWebsite=false}:{email:string;sho
   const show=()=>{
     const request=++lastRequest.current;
     setOpen(true);setLoading(true);setError(null);setDetail(null);
-    void getDisparoCompanyDetails({data:{email}})
+    void getDisparoCompanyDetails({data:{email,campaignId}})
       .then(value=>{if(lastRequest.current===request)setDetail(value);})
       .catch(()=>{if(lastRequest.current===request)setError("Não foi possível carregar os dados da empresa.");})
       .finally(()=>{if(lastRequest.current===request)setLoading(false);});
@@ -99,7 +99,7 @@ export function CompanyDetailsButton({email,showWebsite=false}:{email:string;sho
             <div className="sm:col-span-2"><Info label="E-mail" value={detail.email}/></div>
             {showWebsite&&<div className="sm:col-span-2"><WebsiteInfo value={detail.website}/></div>}
           </div>
-          <p className="mt-4 text-xs text-slate-500">Origem Portal/Agendor</p>
+          <p className="mt-4 text-xs text-slate-500">Origem: {detail.sources.join(" / ") || "Não localizada"}</p>
         </>:null}
         <div className="mt-5 flex justify-end"><button type="button" onClick={()=>setOpen(false)} className="rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-800 hover:bg-slate-200">Fechar</button></div>
       </section>

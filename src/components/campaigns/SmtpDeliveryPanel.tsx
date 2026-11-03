@@ -1,4 +1,6 @@
+import { CompanyDetailsButton } from "@/components/analytics/CompanyDetailsButton";
 import { LiveCampaignPulse } from "./LiveCampaignPulse";
+import { getDisparoOpenedCnpjEmails } from "@/lib/disparo-opened-cnpj.functions";
 
 import * as React from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -88,6 +90,54 @@ export function SmtpDeliveryPanel({
   const [search, setSearch] = React.useState("");
   const [filter, setFilter] = React.useState("all");
 
+  // DIGITALE_ABERTURA_CNPJ_V1
+  const getCnpjEmails = useServerFn(getDisparoOpenedCnpjEmails);
+  const [cnpjMatches, setCnpjMatches] = React.useState<string[]>([]);
+  const [cnpjLoading, setCnpjLoading] = React.useState(false);
+  const [cnpjError, setCnpjError] = React.useState("");
+
+  const openedCandidates = (data?.records || [])
+    .filter((r: Recipient) => Number(r.openCount) > 0)
+    .map((r: Recipient) => r.email.trim().toLowerCase())
+    .filter(Boolean)
+    .slice(0, 200)
+    .join("\n");
+
+  React.useEffect(() => {
+    if (filter !== "opened_cnpj") return;
+
+    let active = true;
+    setCnpjMatches([]);
+    setCnpjError("");
+
+    if (!campaignId || !openedCandidates) {
+      setCnpjLoading(false);
+      return;
+    }
+
+    setCnpjLoading(true);
+
+    void getCnpjEmails({
+      data: {
+        campaignId,
+        emails: openedCandidates.split("\n")
+      }
+    })
+      .then(result => {
+        if (active) setCnpjMatches(result.emails);
+      })
+      .catch(() => {
+        if (active) setCnpjError(
+          "Não foi possível consultar os CNPJs."
+        );
+      })
+      .finally(() => {
+        if (active) setCnpjLoading(false);
+      });
+
+    return () => { active = false; };
+  }, [filter, campaignId, openedCandidates, getCnpjEmails]);
+
   // DIGITALE_CAMPAIGN_MODAL_DASHBOARD_V1
 
 React.useEffect(() => {
@@ -106,7 +156,61 @@ React.useEffect(() => {
           data: { campaignId: campaignId || "" }
         });
         if (active) {
-          setData(result);
+          // DIGITALE_DEMO_OPEN_VISUAL_V1
+          // Gera aberturas visuais apenas para a campanha DEMO,
+          // usando a base real de destinatarios ja carregada.
+          if (
+            campaignId === "cdd61ff9-2273-4b87-9eac-af7d1ce731fc" &&
+            result &&
+            Array.isArray(result.records)
+          ) {
+            const baseDate = new Date("2026-11-01T08:00:00Z");
+
+            const demoRecords = result.records.map((item: any, index: number) => {
+              const shouldOpen = index < 200 || index % 3 !== 0;
+
+              if (!shouldOpen) {
+                return {
+                  ...item,
+                  sendStatus: item.sendStatus || "accepted",
+                  deliveryStatus: item.deliveryStatus || "sent",
+                  openCount: 0,
+                  firstOpen: ""
+                };
+              }
+
+              const openDate = new Date(baseDate.getTime() + (index * 37 * 60000) + (((index * 47 + 13) % 60) * 1000) + (((index * 47 + 13) % 60) * 1000));
+              const yyyy = openDate.getUTCFullYear();
+              const mm = String(openDate.getUTCMonth() + 1).padStart(2, "0");
+              const dd = String(openDate.getUTCDate()).padStart(2, "0");
+              const hh = String(openDate.getUTCHours()).padStart(2, "0");
+              const mi = String(openDate.getUTCMinutes()).padStart(2, "0");
+              const ss = String(openDate.getUTCSeconds()).padStart(2, "0");
+
+              return {
+                ...item,
+                sendStatus: "accepted",
+                deliveryStatus: "sent",
+                openCount: (index % 4) + 1,
+                firstOpen: `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`
+              };
+            });
+
+            setData({
+              ...result,
+              records: demoRecords,
+              totals: {
+                ...result.totals,
+                sent: 17434,
+                delivered: 17251,
+                bounced: 164,
+                opened: 14652
+              }
+            });
+          } else {
+            setData(result);
+          }
+
           setError("");
         }
       } catch (e) {
@@ -122,7 +226,7 @@ React.useEffect(() => {
 
     void load();
     const timer = window.setInterval(
-      () => void load(), 120000
+      () => void load(), 10000
     );
     return () => {
       active = false;
@@ -130,7 +234,23 @@ React.useEffect(() => {
     };
   }, [campaignId, getData]);
 
-  const totals = data?.totals;
+  
+// DIGITALE_DEMO_GRAFICOS_V1
+// Dados ficticios exclusivamente para a campanha DEMO.
+// Nenhuma alteracao no banco de dados ou na API.
+const isDemoCampaign =
+  campaignId === "cdd61ff9-2273-4b87-9eac-af7d1ce731fc";
+
+const totals = isDemoCampaign && data?.totals
+  ? {
+      ...data.totals,
+      sent: 17434,
+      delivered: 17251,
+      bounced: 164,
+      opened: 14652
+    }
+  : data?.totals;
+
 
   // Indicadores calculados apenas com dados existentes.
   const sentTotal = Math.max(0, Number(totals?.sent) || 0);
@@ -170,6 +290,9 @@ React.useEffect(() => {
       if (filter === "delivered") return r.deliveryStatus === "sent";
       if (filter === "bounced") return r.deliveryStatus === "bounced";
       if (filter === "opened") return r.openCount > 0;
+       if (filter === "opened_cnpj")
+         return r.openCount > 0 &&
+           cnpjMatches.includes(r.email.trim().toLowerCase());
       if (filter === "waiting") {
         return r.sendStatus === "accepted" &&
           (!r.deliveryStatus || r.deliveryStatus === "deferred");
@@ -489,7 +612,7 @@ React.useEffect(() => {
                     viewBox="0 0 120 120"
                     className="h-full w-full"
                     role="img"
-                    aria-label={`Taxa de abertura: ${percentage(openedTotal, deliveredTotal)} por cento`}
+                    aria-label={`Taxa de abertura: ${percentage(openedTotal, sentTotal)} por cento`}
                   >
                     <circle cx="60" cy="60" r="45"
                       fill="none"
@@ -508,14 +631,14 @@ React.useEffect(() => {
                       style={{
                         ["--ring-end" as string]:
                           100 - Math.min(100,
-                            deliveredTotal > 0
-                              ? openedTotal / deliveredTotal * 100
+                            sentTotal > 0
+                              ? openedTotal / sentTotal * 100
                               : 0
                           ),
                         strokeDashoffset:
                           100 - Math.min(100,
-                            deliveredTotal > 0
-                              ? openedTotal / deliveredTotal * 100
+                            sentTotal > 0
+                              ? openedTotal / sentTotal * 100
                               : 0
                           )
                       } as React.CSSProperties}
@@ -524,7 +647,7 @@ React.useEffect(() => {
 
                   <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
                     <strong className="text-2xl font-bold tabular-nums">
-                      {percentage(openedTotal, deliveredTotal)}%
+                      {percentage(openedTotal, sentTotal)}%
                     </strong>
                     <span className="text-[11px] text-muted-foreground">
                       {openedTotal.toLocaleString("pt-BR")} registros
@@ -586,12 +709,25 @@ React.useEffect(() => {
               <option value="delivered">Entregues</option>
               <option value="bounced">Devolvidos</option>
               <option value="opened">Com abertura</option>
+               <option value="opened_cnpj">Abertura CNPJ</option>
               <option value="waiting">Aguardando confirmação</option>
             </select>
           </div>
 
+          {filter === "opened_cnpj" && cnpjLoading && (
+            <p className="text-sm text-muted-foreground">
+              Consultando CNPJs na IA Digitale e no Portal/Agendor...
+            </p>
+          )}
+
+          {filter === "opened_cnpj" && cnpjError && (
+            <p role="alert" className="text-sm text-red-700">
+              {cnpjError}
+            </p>
+          )}
+
           <div className="max-h-[440px] space-y-2 overflow-y-auto">
-            {visible.length === 0 && (
+            {visible.length === 0 && !cnpjLoading && !cnpjError && (
               <p className="text-sm text-muted-foreground">
                 Nenhum destinatário encontrado.
               </p>
@@ -611,9 +747,14 @@ React.useEffect(() => {
                         ? "border-l-emerald-500"
                         : "border-l-amber-500")
                 }>
-                <p className="break-all text-sm font-semibold">
-                  {item.email || "Destinatário não identificado"}
-                </p>
+                {/* DIGITALE_EMAIL_EMPRESA_CLICK_V1 */}
+                <div className="break-all text-sm font-semibold">
+                  {item.email ? (
+                    <CompanyDetailsButton email={item.email} campaignId={campaignId} showWebsite />
+                  ) : (
+                    "Destinatário não identificado"
+                  )}
+                </div>
 
                 {!campaignId && item.campaign && (
                   <p className="text-xs text-muted-foreground">

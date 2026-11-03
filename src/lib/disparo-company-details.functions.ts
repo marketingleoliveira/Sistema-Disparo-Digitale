@@ -2,8 +2,8 @@
 import { createServerFn } from "@tanstack/react-start";
 
 export const getDisparoCompanyDetails = createServerFn({method:"POST"})
-  .inputValidator((data:{email:string})=>data)
+  .inputValidator((data:{email:string;campaignId?:string})=>data)
   .handler(async({data})=>{
     const { getDisparoCompanyDetailsDB } = await import("./disparo-company-details.server");
-    return getDisparoCompanyDetailsDB(data.email);
+    return getDisparoCompanyDetailsDB(data.email,data.campaignId);
   });

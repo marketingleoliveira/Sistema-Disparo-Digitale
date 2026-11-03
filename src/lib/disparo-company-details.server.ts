@@ -81,14 +81,28 @@ function identity(email:string):string {
   return Buffer.from(email,"utf8").toString("hex").toUpperCase();
 }
 
-export async function getDisparoCompanyDetailsDB(rawEmail:string):Promise<CompanyDetails> {
+export async function getDisparoCompanyDetailsDB(rawEmail:string,campaignId?:string):Promise<CompanyDetails> {
   const user = requireDisparoUser();
   if(!["Desenvolvedor","Diretoria","Gerência"].includes(user.role))
     throw new Error("Acesso nao autorizado.");
   const email=safeEmail(rawEmail);
   const key=identity(email);
   // Impede transformar o endpoint numa ferramenta para consultar qualquer empresa.
-  const allowed=await query(`
+  // DIGITALE_DEMO_COMPANY_AUTH_V1
+  // Mantem o login e as permissoes existentes.
+  // No DEMO, comprova a participacao real na campanha,
+  // sem exigir abertura real para eventos simulados.
+  const isDemo =
+    campaignId === "cdd61ff9-2273-4b87-9eac-af7d1ce731fc";
+
+  const allowed=await query(isDemo ? `
+    SELECT 1
+    FROM TESTE_DISPARO.disparo_campaign_recipients r
+    WHERE BINARY r.campaign_id =
+      BINARY 'cdd61ff9-2273-4b87-9eac-af7d1ce731fc'
+      AND HEX(LOWER(TRIM(r.recipient_email)))='${key}'
+    LIMIT 1;
+  ` : `
     SELECT 1 FROM TESTE_DISPARO.disparo_email_events e
     INNER JOIN TESTE_DISPARO.disparo_email_attempts a ON BINARY a.id=BINARY e.attempt_id
     INNER JOIN TESTE_DISPARO.disparo_campaign_recipients r

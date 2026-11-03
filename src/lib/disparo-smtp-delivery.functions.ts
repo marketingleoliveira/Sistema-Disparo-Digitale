@@ -118,7 +118,7 @@ createServerFn({ method: "GET" })
   const summary = rows(`
     SELECT COUNT(*),
       COALESCE(SUM(a.status = 'accepted'),0),
-      COALESCE(SUM(s.smtp_status = 'sent'),0),
+      COALESCE(SUM(s.smtp_status IN ('sent','delivered')),0),
       COALESCE(SUM(s.smtp_status = 'bounced'),0),
       COALESCE(SUM(${validOpen}),0),
       COALESCE(SUM(s.smtp_status = 'deferred'),0),

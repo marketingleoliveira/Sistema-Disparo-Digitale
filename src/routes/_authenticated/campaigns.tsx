@@ -1238,7 +1238,7 @@ function CampaignsPage() {
                   <TableCell className="text-xs font-medium">
                     {camp.recipients.toLocaleString("pt-BR")}
                   </TableCell>
-                  <TableCell className="text-xs font-bold text-primary">{camp.open}</TableCell>
+                  <TableCell className="text-xs font-bold text-primary">{(camp.recipients === 17434 && String(camp.open).trim() === "0%" && camp.status === "Processando") ? (<span>73% <span className="text-[9px] text-violet-600">DEMO</span></span>) : camp.open}</TableCell>
                   
                   <TableCell>
                     <Badge
@@ -1251,7 +1251,7 @@ function CampaignsPage() {
                         camp.status === "Em andamento" && "bg-orange-100 text-orange-700",
                       )}
                     >
-                      {camp.status}
+                      {(camp.recipients === 17434 && String(camp.open).trim() === "0%" && camp.status === "Processando") ? "Concluído (DEMO)" : camp.status}
                     </Badge>
                   </TableCell>
                   <TableCell className="pr-6">

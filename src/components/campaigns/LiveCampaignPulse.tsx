@@ -1,4 +1,3 @@
-import "./LiveCampaignPulse.demo-mask";
 import * as React from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -198,6 +197,93 @@ export function LiveCampaignPulse({
       suffix: "/min"
     }
   ] : [];
+
+
+  // DIGITALE_REACT_DEMO_V5
+  // Somente uma visualizacao demonstrativa.
+  // Nunca altera a resposta da API ou os dados armazenados.
+  if (
+    campaignId ===
+    "cdd61ff9-2273-4b87-9eac-af7d1ce731fc"
+  ) {
+    const demoMetrics = [
+      ["Destinatários previstos", "17.434", "#315e91"],
+      ["Tentativas registradas", "17.434", "#315e91"],
+      ["Aceitos pela API", "17.251", "#315e91"],
+      ["Na fila SMTP", "0", "#64748b"],
+      ["Aceitos pelo SMTP", "17.251", "#2563eb"],
+      ["Adiados", "0", "#c38a35"],
+      ["Devolvidos", "164", "#cc5757"],
+      ["Entregues confirmados", "17.251", "#21856b"],
+      ["Falhas iniciais", "19", "#cc5757"],
+      ["Ritmo do motor SMTP", "0/min", "#21856b"],
+      ["Aberturas", "14.652", "#21856b"],
+      ["Leituras", "9.456", "#315e91"],
+      ["Cliques", "167", "#7c3aed"],
+      ["Não lidos", "2.599", "#64748b"]
+    ];
+
+    return (
+      <div
+        data-digitale-react-demo="v5"
+        className="space-y-4 rounded-2xl border bg-card p-4"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 className="text-base font-semibold">
+              Monitoramento em tempo real
+            </h3>
+            
+          </div>
+
+          <span className="rounded-full bg-violet-100 px-3 py-2 text-xs font-bold text-violet-800">
+            DADOS DEMO
+          </span>
+        </div>
+
+        
+
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {demoMetrics.map(([title, value, color]) => (
+            <div
+              key={title}
+              className="rounded-xl border p-3"
+            >
+              <p className="text-xs text-muted-foreground">
+                {title}
+              </p>
+
+              <p
+                className="mt-2 text-2xl font-bold tabular-nums"
+                style={{ color }}
+              >
+                {value}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span className="font-medium">
+              Progresso da preparação (DEMO)
+            </span>
+            <span className="font-bold tabular-nums">
+              100%
+            </span>
+          </div>
+
+          <div className="h-3 overflow-hidden rounded-full bg-muted">
+            <div
+              className="h-full w-full rounded-full bg-blue-600"
+            />
+          </div>
+
+          
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4 rounded-2xl border bg-card p-4">
