@@ -1,6 +1,7 @@
 import { DemoCnpjCompanies } from "@/components/campaigns/DemoCnpjCompanies";
 import { CompanyDetailsButton } from "@/components/analytics/CompanyDetailsButton";
 import { LiveCampaignPulse } from "./LiveCampaignPulse";
+import { getCampaignBeta } from "@/lib/disparo-campaign-beta";
 import { getDisparoOpenedCnpjEmails } from "@/lib/disparo-opened-cnpj.functions";
 
 import * as React from "react";
@@ -85,6 +86,10 @@ function sent(item: Recipient): string {
 export function SmtpDeliveryPanel({
   campaignId
 }: { campaignId?: string }) {
+  const [showReal, setShowReal] = React.useState(false);
+  const beta = showReal ? null : getCampaignBeta(campaignId);
+
+  React.useEffect(() => { setShowReal(false); }, [campaignId]);
   const getData = useServerFn(getSmtpDeliverySummary);
   const [data, setData] = React.useState<any>(null);
   const [error, setError] = React.useState("");
@@ -253,7 +258,18 @@ React.useEffect(() => {
 const isDemoCampaign =
   campaignId === "cdd61ff9-2273-4b87-9eac-af7d1ce731fc";
 
-const totals = isDemoCampaign && data?.totals
+const totals = beta
+  ? {
+      attempts: beta.target,
+      sent: beta.accepted,
+      delivered: beta.delivered,
+      bounced: beta.bounced,
+      opened: beta.readings,
+      unconfirmed: 0,
+      deferred: 0,
+      failed: beta.failed
+    }
+  : isDemoCampaign && data?.totals
   ? {
       ...data.totals,
       sent: 17434,
@@ -275,6 +291,7 @@ const totals = isDemoCampaign && data?.totals
   const openedTotal = Math.max(
     0, Number(totals?.opened) || 0
   );
+  const readyToReadTotal = beta?.readyToRead ?? openedTotal;
 
   const percentage = (value: number, base: number) =>
     base > 0
@@ -314,11 +331,14 @@ const totals = isDemoCampaign && data?.totals
 
   return (
     <section className="space-y-4">
-      <LiveCampaignPulse campaignId={campaignId} />
+      <LiveCampaignPulse campaignId={campaignId}
+        showReal={showReal} onShowRealChange={setShowReal} />
       <div>
         <h3 className="font-semibold">Acompanhamento dos envios</h3>
         <p className="text-xs text-muted-foreground">
-          Consulte os envios, as entregas e as aberturas.
+          {beta
+            ? "Resumo beta com métricas simuladas."
+            : "Consulte os envios, as entregas e as aberturas."}
         </p>
       </div>
 
@@ -624,7 +644,7 @@ const totals = isDemoCampaign && data?.totals
                     viewBox="0 0 120 120"
                     className="h-full w-full"
                     role="img"
-                    aria-label={`Taxa de abertura: ${percentage(openedTotal, sentTotal)} por cento`}
+                    aria-label={`Pronto para Ler: ${percentage(readyToReadTotal, sentTotal)} por cento`}
                   >
                     <circle cx="60" cy="60" r="45"
                       fill="none"
@@ -644,13 +664,13 @@ const totals = isDemoCampaign && data?.totals
                         ["--ring-end" as string]:
                           100 - Math.min(100,
                             sentTotal > 0
-                              ? openedTotal / sentTotal * 100
+                              ? readyToReadTotal / sentTotal * 100
                               : 0
                           ),
                         strokeDashoffset:
                           100 - Math.min(100,
                             sentTotal > 0
-                              ? openedTotal / sentTotal * 100
+                              ? readyToReadTotal / sentTotal * 100
                               : 0
                           )
                       } as React.CSSProperties}
@@ -659,10 +679,10 @@ const totals = isDemoCampaign && data?.totals
 
                   <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
                     <strong className="text-2xl font-bold tabular-nums">
-                      {percentage(openedTotal, sentTotal)}%
+                      {percentage(readyToReadTotal, sentTotal)}%
                     </strong>
                     <span className="text-[11px] text-muted-foreground">
-                      {openedTotal.toLocaleString("pt-BR")} registros
+                      {readyToReadTotal.toLocaleString("pt-BR")} registros
                     </span>
                   </div>
                 </div>
@@ -691,7 +711,7 @@ const totals = isDemoCampaign && data?.totals
           <div className="flex items-center justify-between gap-3 border-t pt-4">
             <div>
               <h4 className="text-sm font-bold text-foreground">
-                Status por destinatário
+                {beta ? "Dados reais por destinatário" : "Status por destinatário"}
               </h4>
               <p className="mt-1 text-xs text-muted-foreground">
                 Acompanhe individualmente envios, entregas e aberturas.
@@ -895,7 +915,7 @@ const totals = isDemoCampaign && data?.totals
             </div>
           )}
 
-          {data.limited && (
+          {data?.limited && (
             <p className="text-xs text-muted-foreground">
               Exibindo os 200 registros mais recentes.
               Os indicadores consideram todos os registros.

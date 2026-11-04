@@ -71,6 +71,16 @@ const sidebarStructure: { group: string; items: NavItem[] }[] = [
     ],
   },
   {
+    group: "Prospecção",
+    items: [
+      {
+        label: "LEADS APROVADOS",
+        icon: Target,
+        href: "/leads-aprovados",
+      },
+    ],
+  },
+  {
     group: "Contatos",
     items: [
       {

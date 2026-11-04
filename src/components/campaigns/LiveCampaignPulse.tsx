@@ -1,4 +1,5 @@
 import * as React from "react";
+import { getCampaignBeta } from "@/lib/disparo-campaign-beta";
 import { useServerFn } from "@tanstack/react-start";
 import {
   AreaChart,
@@ -37,12 +38,77 @@ type Point = Snapshot & {
 
 const number = (n: number) => n.toLocaleString("pt-BR");
 
+type FlipContent = (flip: () => void, turning: boolean) => React.ReactNode;
+
+function CampaignFlipCard({ showReal, onFlip, children }: {
+  showReal: boolean;
+  onFlip: () => void;
+  children: FlipContent;
+}) {
+  const [turning, setTurning] = React.useState(false);
+  const timers = React.useRef<number[]>([]);
+  const card = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => () => {
+    timers.current.forEach(timer => window.clearTimeout(timer));
+  }, []);
+
+  const focusToggle = () => window.requestAnimationFrame(() => {
+    card.current?.querySelector<HTMLButtonElement>("[data-flip-trigger]")
+      ?.focus({ preventScroll: true });
+  });
+
+  const flip = () => {
+    if (turning) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      onFlip();
+      focusToggle();
+      return;
+    }
+    setTurning(true);
+    timers.current = [
+      window.setTimeout(onFlip, 180),
+      window.setTimeout(() => {
+        setTurning(false);
+        focusToggle();
+      }, 360)
+    ];
+  };
+
+  return (
+    <div data-campaign-flip-face={showReal ? "real" : "demo"}
+      style={{ perspective: "1400px" }}>
+      <style>{`
+        @keyframes digitale-campaign-flip {
+          0% { transform: rotateY(0); opacity: 1; }
+          49% { transform: rotateY(90deg); opacity: 0; }
+          50% { transform: rotateY(-90deg); opacity: 0; }
+          100% { transform: rotateY(0); opacity: 1; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .digitale-campaign-turning { animation: none !important; }
+        }
+      `}</style>
+      <div ref={card} aria-busy={turning}
+        className={turning ? "digitale-campaign-turning" : undefined}
+        style={turning ? { animation: "digitale-campaign-flip 360ms ease-in-out" } : undefined}>
+        {children(flip, turning)}
+      </div>
+    </div>
+  );
+}
+
 export function LiveCampaignPulse({
-  campaignId
+  campaignId,
+  showReal = false,
+  onShowRealChange
 }: {
   campaignId?: string;
+  showReal?: boolean;
+  onShowRealChange?: (showReal: boolean) => void;
 }) {
   const fetchPulse = useServerFn(getLiveCampaignPulse);
+  const beta = getCampaignBeta(campaignId);
 
   const [current, setCurrent] =
     React.useState<Snapshot | null>(null);
@@ -55,6 +121,7 @@ export function LiveCampaignPulse({
   const [clock, setClock] = React.useState(Date.now());
 
   React.useEffect(() => {
+    if (beta && !showReal) return;
     let active = true;
     let loading = false;
     let previous: Snapshot | null = null;
@@ -129,7 +196,14 @@ export function LiveCampaignPulse({
       window.clearInterval(poll);
       window.clearInterval(ticker);
     };
-  }, [campaignId, fetchPulse]);
+  }, [campaignId, fetchPulse, beta, showReal]);
+
+  const renderCard = (content: FlipContent) => beta ? (
+    <CampaignFlipCard showReal={showReal}
+      onFlip={() => onShowRealChange?.(!showReal)}>
+      {content}
+    </CampaignFlipCard>
+  ) : content(() => {}, false);
 
   const latest = history[history.length - 1];
 
@@ -203,10 +277,11 @@ export function LiveCampaignPulse({
   // Somente uma visualizacao demonstrativa.
   // Nunca altera a resposta da API ou os dados armazenados.
   if (
+    (beta && !showReal) ||
     campaignId ===
     "cdd61ff9-2273-4b87-9eac-af7d1ce731fc"
   ) {
-    const demoMetrics = [
+    const demoMetrics = beta?.metrics ?? [
       ["Destinatários previstos", "17.434", "#315e91"],
       ["Tentativas registradas", "17.434", "#315e91"],
       ["Aceitos pela API", "17.415", "#315e91"],
@@ -223,9 +298,10 @@ export function LiveCampaignPulse({
       ["Leitura não confirmada", "5.196", "#64748b"]
     ];
 
-    return (
+    return renderCard((flip, turning) => (
       <div
         data-digitale-react-demo="v5"
+        data-digitale-campaign-beta={beta ? campaignId : undefined}
         className="space-y-4 rounded-2xl border bg-card p-4"
       >
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -236,12 +312,27 @@ export function LiveCampaignPulse({
             
           </div>
 
-          <span className="rounded-full bg-violet-100 px-3 py-2 text-xs font-bold text-violet-800">
-            DADOS DEMO
-          </span>
+          {beta ? (
+            <button type="button" data-flip-trigger
+              onClick={flip} disabled={turning}
+              aria-label="Virar card para os dados reais"
+              title="Ver dados reais"
+              className="rounded-full bg-violet-100 px-3 py-2 text-xs font-bold text-violet-800 transition-colors hover:bg-violet-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 disabled:cursor-wait">
+              DADOS
+            </button>
+          ) : (
+            <span className="rounded-full bg-violet-100 px-3 py-2 text-xs font-bold text-violet-800">
+              DADOS DEMO
+            </span>
+          )}
         </div>
 
-        
+        {beta && (
+          <p className="text-xs text-muted-foreground">
+            Métricas simuladas da campanha Milano. Leitura não confirmada =
+            Pronto para Ler − Leituras − Cliques.
+          </p>
+        )}
 
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {demoMetrics.map(([title, value, color]) => (
@@ -282,11 +373,12 @@ export function LiveCampaignPulse({
           
         </div>
       </div>
-    );
+    ));
   }
 
-  return (
-    <div className="space-y-4 rounded-2xl border bg-card p-4">
+  return renderCard((flip, turning) => (
+    <div data-digitale-real-campaign={campaignId}
+      className="space-y-4 rounded-2xl border bg-card p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h3 className="text-base font-semibold">
@@ -297,6 +389,16 @@ export function LiveCampaignPulse({
           </p>
         </div>
 
+        <div className="flex flex-wrap items-center gap-2">
+        {beta && (
+          <button type="button" data-flip-trigger
+            onClick={flip} disabled={turning}
+            aria-label="Voltar aos dados de demonstração"
+            title="Voltar à demonstração"
+            className="rounded-full bg-violet-100 px-3 py-2 text-xs font-bold text-violet-800 transition-colors hover:bg-violet-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 disabled:cursor-wait">
+            VOLTAR
+          </button>
+        )}
         <span className={
           "rounded-full px-3 py-1 text-xs font-semibold " +
           (stale
@@ -305,6 +407,7 @@ export function LiveCampaignPulse({
         }>
           {stale ? "Sem dados recentes" : "● Dados atualizados"}
         </span>
+        </div>
       </div>
 
       {error && (
@@ -315,7 +418,7 @@ export function LiveCampaignPulse({
 
       {!current ? (
         <p className="text-sm text-muted-foreground">
-          Consultando dados do MariaDB...
+          {error ? "Não foi possível carregar os indicadores. Aguardando nova tentativa." : "Carregando indicadores reais..."}
         </p>
       ) : (
         <>
@@ -471,5 +574,5 @@ export function LiveCampaignPulse({
         </>
       )}
     </div>
-  );
+  ));
 }

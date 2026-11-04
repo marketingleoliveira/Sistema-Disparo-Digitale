@@ -19,6 +19,7 @@ import { Route as AuthenticatedContactsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedEmailTemplatesRouteImport } from './routes/_authenticated/email-templates'
 import { Route as AuthenticatedFormsRouteImport } from './routes/_authenticated/forms'
+import { Route as AuthenticatedLeadsAprovadosRouteImport } from './routes/_authenticated/leads-aprovados'
 import { Route as AuthenticatedListsRouteImport } from './routes/_authenticated/lists'
 import { Route as AuthenticatedMetricsRouteImport } from './routes/_authenticated/metrics'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
@@ -97,6 +98,12 @@ const AuthenticatedFormsRoute = AuthenticatedFormsRouteImport.update({
   path: '/forms',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedLeadsAprovadosRoute =
+  AuthenticatedLeadsAprovadosRouteImport.update({
+    id: '/leads-aprovados',
+    path: '/leads-aprovados',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedListsRoute = AuthenticatedListsRouteImport.update({
   id: '/lists',
   path: '/lists',
@@ -244,6 +251,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/email-templates': typeof AuthenticatedEmailTemplatesRoute
   '/forms': typeof AuthenticatedFormsRoute
+  '/leads-aprovados': typeof AuthenticatedLeadsAprovadosRoute
   '/lists': typeof AuthenticatedListsRoute
   '/metrics': typeof AuthenticatedMetricsRoute
   '/perfil': typeof AuthenticatedPerfilRoute
@@ -281,6 +289,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/email-templates': typeof AuthenticatedEmailTemplatesRoute
   '/forms': typeof AuthenticatedFormsRoute
+  '/leads-aprovados': typeof AuthenticatedLeadsAprovadosRoute
   '/lists': typeof AuthenticatedListsRoute
   '/metrics': typeof AuthenticatedMetricsRoute
   '/perfil': typeof AuthenticatedPerfilRoute
@@ -320,6 +329,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/email-templates': typeof AuthenticatedEmailTemplatesRoute
   '/_authenticated/forms': typeof AuthenticatedFormsRoute
+  '/_authenticated/leads-aprovados': typeof AuthenticatedLeadsAprovadosRoute
   '/_authenticated/lists': typeof AuthenticatedListsRoute
   '/_authenticated/metrics': typeof AuthenticatedMetricsRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
@@ -359,6 +369,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/email-templates'
     | '/forms'
+    | '/leads-aprovados'
     | '/lists'
     | '/metrics'
     | '/perfil'
@@ -396,6 +407,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/email-templates'
     | '/forms'
+    | '/leads-aprovados'
     | '/lists'
     | '/metrics'
     | '/perfil'
@@ -434,6 +446,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/email-templates'
     | '/_authenticated/forms'
+    | '/_authenticated/leads-aprovados'
     | '/_authenticated/lists'
     | '/_authenticated/metrics'
     | '/_authenticated/perfil'
@@ -548,6 +561,13 @@ declare module '@tanstack/react-router' {
       path: '/forms'
       fullPath: '/forms'
       preLoaderRoute: typeof AuthenticatedFormsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/leads-aprovados': {
+      id: '/_authenticated/leads-aprovados'
+      path: '/leads-aprovados'
+      fullPath: '/leads-aprovados'
+      preLoaderRoute: typeof AuthenticatedLeadsAprovadosRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/lists': {
@@ -760,6 +780,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedEmailTemplatesRoute: typeof AuthenticatedEmailTemplatesRoute
   AuthenticatedFormsRoute: typeof AuthenticatedFormsRoute
+  AuthenticatedLeadsAprovadosRoute: typeof AuthenticatedLeadsAprovadosRoute
   AuthenticatedListsRoute: typeof AuthenticatedListsRoute
   AuthenticatedMetricsRoute: typeof AuthenticatedMetricsRoute
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
@@ -784,6 +805,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedEmailTemplatesRoute: AuthenticatedEmailTemplatesRoute,
   AuthenticatedFormsRoute: AuthenticatedFormsRoute,
+  AuthenticatedLeadsAprovadosRoute: AuthenticatedLeadsAprovadosRoute,
   AuthenticatedListsRoute: AuthenticatedListsRoute,
   AuthenticatedMetricsRoute: AuthenticatedMetricsRoute,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
