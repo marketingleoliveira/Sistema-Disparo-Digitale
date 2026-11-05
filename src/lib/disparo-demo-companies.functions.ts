@@ -2,6 +2,7 @@
 // Apenas leitura. Nunca registra disparos ou aberturas.
 import { createServerFn } from "@tanstack/react-start";
 import { spawnSync } from "node:child_process";
+import { lookupAuditedCampaignCnpjs } from "./disparo-audited-cnpj.server";
 
 type Company = {
   email: string;
@@ -245,12 +246,29 @@ export const getDemoCnpjCompanies =
         );
       }
 
+      // Preserva a seleção existente; acrescenta apenas destinatários auditados
+      // da própria campanha, agrupados por CNPJ. Os totais DEMO não mudam.
+      const companies = all.slice(0, 219);
+      const audited = lookupAuditedCampaignCnpjs("cdd61ff9-2273-4b87-9eac-af7d1ce731fc");
+      for (const [email, link] of audited) {
+        const existing = companies.find(company => company.cnpj === link.cnpj);
+        if (existing) continue;
+        const details = byCnpj.get(link.cnpj);
+        companies.push({
+          email, cnpj: link.cnpj, name: details?.name || link.company,
+          legalName: details?.legalName || "", phone: details?.phone || "",
+          website: details?.website || "",
+          ...(details?.clientStatus ? { clientStatus: details.clientStatus } : {})
+        });
+      }
+
       return {
         // DIGITALE_DEMO_2823_LEITURAS_V1
         // 195 x 13 + 24 x 12 = 2823 eventos simulados.
-        companies: all.slice(0, 219).map((company, index) => ({
+        companies: companies.map((company, index) => ({
           ...company,
-          demoOpenCount: index < 195 ? 13 : 12
+          auditedEmails: [...audited].filter(([, link]) => link.cnpj === company.cnpj).map(([email]) => email),
+          demoOpenCount: index < 219 ? (index < 195 ? 13 : 12) : 0
         })),
         demoTotals: {
           opens: 9456,

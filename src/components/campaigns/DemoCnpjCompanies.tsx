@@ -12,6 +12,7 @@ type Company = {
   website: string;
   demoOpenCount: number;
   clientStatus?: string;
+  auditedEmails?: string[];
 };
 
 export function DemoCnpjCompanies({ search }: { search: string }) {
@@ -44,6 +45,7 @@ export function DemoCnpjCompanies({ search }: { search: string }) {
   const visible = records.filter(r =>
     !term ||
     r.email.includes(term) ||
+    r.auditedEmails?.some(email => email.includes(term)) ||
     r.cnpj.includes(term) ||
     r.name.toLowerCase().includes(term) ||
     r.legalName.toLowerCase().includes(term)
@@ -98,6 +100,9 @@ export function DemoCnpjCompanies({ search }: { search: string }) {
                 <p><strong>Razão social:</strong> {r.legalName || "Não informada"}</p>
                 <p><strong>Nome fantasia:</strong> {r.name || "Não informado"}</p>
                 <p><strong>CNPJ:</strong> {r.cnpj}</p>
+                {Boolean(r.auditedEmails?.length) && (
+                  <p><strong>Destinatários vinculados:</strong> {r.auditedEmails?.join(", ")}</p>
+                )}
                 <p>
                   <strong>Cadastro na IA:</strong>{" "}
                   {r.clientStatus === "active"

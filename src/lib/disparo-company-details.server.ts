@@ -2,6 +2,7 @@
 // Dados sob demanda e so para destinatarios com abertura registrada.
 import { spawn } from "node:child_process";
 import { requireDisparoUser } from "./disparo-auth.server";
+import { lookupAuditedOpenCnpjs } from "./disparo-audited-cnpj.server";
 
 export type CompanyDetails = {
   email: string;
@@ -104,9 +105,11 @@ export async function getDisparoCompanyDetailsDB(rawEmail:string,campaignId?:str
     LIMIT 1;
   ` : `
     SELECT 1 FROM TESTE_DISPARO.disparo_email_events e
-    INNER JOIN TESTE_DISPARO.disparo_email_attempts a ON BINARY a.id=BINARY e.attempt_id
+    INNER JOIN TESTE_DISPARO.disparo_email_attempts a
+       ON a.id=e.attempt_id AND BINARY a.id=BINARY e.attempt_id
     INNER JOIN TESTE_DISPARO.disparo_campaign_recipients r
-       ON BINARY r.attempt_id=BINARY a.id AND BINARY r.campaign_id=BINARY a.campaign_id
+       ON r.attempt_id=a.id COLLATE utf8mb4_unicode_ci
+       AND BINARY r.attempt_id=BINARY a.id AND BINARY r.campaign_id=BINARY a.campaign_id
     WHERE e.event_type='open'
       AND a.status='accepted' AND a.send_kind='campaign'
       AND r.delivery_status='accepted' AND r.sent_at IS NOT NULL
@@ -115,6 +118,11 @@ export async function getDisparoCompanyDetailsDB(rawEmail:string,campaignId?:str
   `);
   if(!allowed.length)throw new Error("Destinatario sem abertura registrada.");
   const records:RecordEntry[]=[];
+  const audited = lookupAuditedOpenCnpjs([email]).get(email);
+  if (audited) {
+    records.push({cnpj:cnpj(audited.cnpj),tradeName:clean(audited.company),
+      legalName:null,phone:null,website:null,source:"IA Digitale / Portal — vínculo auditado"});
+  }
   const ia=await query(`
     SELECT HEX(COALESCE(c.cnpj,'')),HEX(COALESCE(c.company,'')),
            HEX(COALESCE(p.phone,'')),HEX(COALESCE(p.company, ''))

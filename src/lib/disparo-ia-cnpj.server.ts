@@ -2,6 +2,7 @@
 // Fonte preferencial: IA. Fallback: Portal/Agendor por email exato.
 // Consulta apenas dados estruturados de e-mail e CNPJ da prospeccao IA.
 import { spawn } from "node:child_process";
+import { lookupAuditedOpenCnpjs } from "./disparo-audited-cnpj.server";
 
 type OpenRow = { email: string; cnpj?: string | null };
 
@@ -179,6 +180,13 @@ export async function enrichOpenReportWithIaCnpj<T extends OpenReport>(report: T
 
   // Primeiro IA; somente e-mails nao resolvidos seguem ao Portal/Agendor.
   await fallbackAgendorCnpj(emails, found, ambiguous);
+  // Vínculos locais comprovados por auditoria, somente onde IA/Portal não resolveram.
+  // Preserva os CNPJs existentes e não substitui ambiguidades da IA.
+  const missing = emails.filter(email => !found.has(email) && !ambiguous.has(email));
+  if (missing.length) {
+    const audited = lookupAuditedOpenCnpjs(missing);
+    for (const [email, link] of audited) found.set(email, link.cnpj);
+  }
   return {
     ...report,
     rows: records.map(row => ({

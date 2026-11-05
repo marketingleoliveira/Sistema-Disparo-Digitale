@@ -1,3 +1,5 @@
+import { createPortal } from "react-dom";
+import { demoCnpjCompanies } from "@/lib/disparo-demo-cnpj-companies";
 import { DemoCnpjCompanies } from "@/components/campaigns/DemoCnpjCompanies";
 import { CompanyDetailsButton } from "@/components/analytics/CompanyDetailsButton";
 import { LiveCampaignPulse } from "./LiveCampaignPulse";
@@ -86,7 +88,16 @@ function sent(item: Recipient): string {
 export function SmtpDeliveryPanel({
   campaignId
 }: { campaignId?: string }) {
+  // DIGITALE_DEMO_POPUP_POSITION_V1
+  const [demoPopupPosition, setDemoPopupPosition] =
+    React.useState({ x: 16, y: 16 });
+
+  const [copiedDemoCnpj, setCopiedDemoCnpj] = React.useState(false);
   const [showReal, setShowReal] = React.useState(false);
+  // DIGITALE_DEMO_COMPANY_MODAL_V1
+  const [demoCompanyInfo, setDemoCompanyInfo] =
+    React.useState<{ cnpj: string; company: string } | null>(null);
+
   const beta = showReal ? null : getCampaignBeta(campaignId);
 
   React.useEffect(() => { setShowReal(false); }, [campaignId]);
@@ -310,7 +321,43 @@ const totals = beta
   );
 
 
-  const visible: Recipient[] = (data?.records || [])
+  // DIGITALE_DEMO_CNPJ_82_V1
+  // Exclusivo da interface DEMO. Nao altera eventos nem CNPJs reais.
+  const demoCnpjRows: Recipient[] = demoCnpjCompanies.map(
+    ({ cnpj, company }) => ({
+      email: `CNPJ ${cnpj.slice(0,2)}.${cnpj.slice(2,5)}.${cnpj.slice(5,8)}/${cnpj.slice(8,12)}-${cnpj.slice(12)} — ${company}`,
+      campaign: "Milano - DEMO",
+      sendStatus: "simulated",
+      deliveryStatus: null,
+      openCount: 1,
+      firstOpen: null,
+      lastOpen: null,
+    } as unknown as Recipient)
+  );
+
+
+  // DIGITALE_MILANO_200_OPENED_ROWS_V1
+  // Dados ilustrativos: nunca persistir, exportar como reais
+  // ou registrar eventos de abertura no banco.
+  const milanoDemoOpenedRows: Recipient[] = beta
+    ? Array.from({ length: 200 }, (_, index) => {
+        const template = (data?.records || [])[0] || demoCnpjRows[0];
+        const number = String(index + 1).padStart(3, "0");
+
+        return {
+          ...template,
+          id: `milano-demo-opened-${number}`,
+          email: `contato${number}@milano-demo.invalid`,
+          campaign: "Milano - DEMO",
+          openCount: 1,
+        } as Recipient;
+      })
+    : [];
+
+  const visible: Recipient[] = (beta && filter === "opened" ? milanoDemoOpenedRows : (beta && filter === "opened_cnpj"
+    ? demoCnpjRows
+    : (data?.records || [])))
+
     .filter((r: Recipient) => {
       const term = search.toLowerCase().trim();
       if (term && !r.email.toLowerCase().includes(term) &&
@@ -320,8 +367,10 @@ const totals = beta
       if (filter === "bounced") return r.deliveryStatus === "bounced";
       if (filter === "opened") return r.openCount > 0;
        if (filter === "opened_cnpj")
-         return r.openCount > 0 &&
-           cnpjMatches.includes(r.email.trim().toLowerCase());
+         return beta
+           ? true
+           : r.openCount > 0 &&
+             cnpjMatches.includes(r.email.trim().toLowerCase());
       if (filter === "waiting") {
         return r.sendStatus === "accepted" &&
           (!r.deliveryStatus || r.deliveryStatus === "deferred");
@@ -330,7 +379,200 @@ const totals = beta
     });
 
   return (
-    <section className="space-y-4">
+    <section
+      className="space-y-4"
+      onClickCapture={(event) => {
+        // DIGITALE_DEMO_CLOSE_CAPTURE_FIX_V2
+        // Eventos do portal React não devem reabrir o card.
+        const clickTarget = event.target;
+        if (
+          clickTarget instanceof Element &&
+          clickTarget.closest(
+            '[role="dialog"][aria-label="Informações da empresa"]'
+          )
+        ) {
+          return;
+        }
+
+        if (!beta || filter !== "opened_cnpj") return;
+
+        const target = event.target as HTMLElement;
+        let element: HTMLElement | null = target;
+        let company = null;
+
+        for (let i = 0; element && i < 5; i++) {
+          const content = element.textContent || "";
+
+          if (content.length > 500) break;
+
+          const match = content.match(
+            /\b\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}\b/
+          );
+
+          if (match) {
+            const digits = match[0].replace(/\D/g, "");
+            company = demoCnpjCompanies.find(
+              item => item.cnpj === digits
+            );
+            if (company) break;
+          }
+
+          element = element.parentElement;
+        }
+
+        if (!company) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        setDemoPopupPosition({
+          x: Math.max(
+            12,
+            Math.min(
+              event.clientX + 12,
+              window.innerWidth - Math.min(512, window.innerWidth - 24) - 12
+            )
+          ),
+          y: Math.max(
+            12,
+            Math.min(event.clientY + 12, window.innerHeight - 330)
+          )
+        });
+
+        setDemoCompanyInfo({
+          cnpj: company.cnpj,
+          company: company.company
+        });
+      }}
+    >
+      {/* DIGITALE_DEMO_PORTAL_POSITION_V2 */}
+{demoCompanyInfo && beta && typeof document !== "undefined" && createPortal(
+        <div
+          className="fixed z-[9999]"
+          style={{
+            top: demoPopupPosition.y,
+            left: demoPopupPosition.x,
+            width: "min(32rem, calc(100vw - 24px))"
+          }}
+          role="presentation"
+          onMouseDown={e => {
+            if (e.target === e.currentTarget) {
+              setDemoCompanyInfo(null);
+            }
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Informações da empresa"
+            className="w-full max-w-lg rounded-xl bg-white p-6 text-slate-900 shadow-2xl"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <h3 className="text-lg font-semibold">
+                Informações da empresa
+              </h3>
+              <button
+                type="button"
+                onClick={() => setDemoCompanyInfo(null)}
+                className="rounded-md border px-3 py-2"
+                aria-label="Fechar"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="mt-5 space-y-4">
+              <div>
+                <p className="text-xs text-slate-500">
+                  Razão social / Nome cadastrado
+                </p>
+                <p className="mt-1 font-semibold">
+                  {demoCompanyInfo.company}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs text-slate-500">
+                  CNPJ
+                </p>
+                
+                {/* DIGITALE_DEMO_CONTATOS_COPIAR_V4 */}
+                <button
+                  type="button"
+                  title="Clique para copiar o CNPJ"
+                  className="mt-1 flex items-center gap-2 rounded-md px-2 py-1 font-medium text-blue-700 hover:bg-blue-50"
+                  onClick={async (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const value = demoCompanyInfo.cnpj;
+                    try {
+                      await navigator.clipboard.writeText(value);
+                      setCopiedDemoCnpj(true);
+                    } catch {
+                      setCopiedDemoCnpj(false);
+                    }
+                  }}
+                >
+                  {demoCompanyInfo.cnpj.slice(0, 2)}.
+                  {demoCompanyInfo.cnpj.slice(2, 5)}.
+                  {demoCompanyInfo.cnpj.slice(5, 8)}/
+                  {demoCompanyInfo.cnpj.slice(8, 12)}-
+                  {demoCompanyInfo.cnpj.slice(12)}
+                  <span className="text-xs">
+                    {copiedDemoCnpj ? "Copiado!" : "Copiar"}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            
+            <div className="mt-4 space-y-3">
+              <div>
+                <p className="text-xs text-slate-500">
+                  Telefone de contato
+                </p>
+                <p className="mt-1 font-medium">
+                  {demoCnpjCompanies.find(
+                    c => c.cnpj === demoCompanyInfo.cnpj
+                  )?.phone || "Não informado"}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs text-slate-500">
+                  Site da empresa
+                </p>
+                {(() => {
+                  const site = demoCnpjCompanies.find(
+                    c => c.cnpj === demoCompanyInfo.cnpj
+                  )?.site;
+                  return site ? (
+                    <a href={site}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-1 block break-all text-blue-600 underline">
+                      {site}
+                    </a>
+                  ) : (
+                    <p className="mt-1">Não informado</p>
+                  );
+                })()}
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setDemoCompanyInfo(null)}
+                className="rounded-lg bg-slate-100 px-4 py-2 text-sm"
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      , document.body)}
+
       <LiveCampaignPulse campaignId={campaignId}
         showReal={showReal} onShowRealChange={setShowReal} />
       <div>
@@ -711,7 +953,7 @@ const totals = beta
           <div className="flex items-center justify-between gap-3 border-t pt-4">
             <div>
               <h4 className="text-sm font-bold text-foreground">
-                {beta ? "Dados reais por destinatário" : "Status por destinatário"}
+                {beta ? "Destinatários — DEMO" : "Status por destinatário"}
               </h4>
               <p className="mt-1 text-xs text-muted-foreground">
                 Acompanhe individualmente envios, entregas e aberturas.
@@ -740,19 +982,117 @@ const totals = beta
               <option value="sent">Enviados</option>
               <option value="delivered">Entregues</option>
               <option value="bounced">Devolvidos</option>
-              <option value="opened">Com abertura</option>
+              <option value="opened">
+                {beta ? "Com abertura — 8.962" : "Com abertura"}
+              </option>
                <option value="opened_cnpj">Abertura CNPJ</option>
               <option value="waiting">Aguardando confirmação</option>
             </select>
+
+            {/* DIGITALE_EXPORTAR_ABERTURA_CNPJ_V1 */}
+            {filter === "opened_cnpj" && (
+              <button
+                type="button"
+                disabled={cnpjLoading && !beta}
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+
+                  const formatCnpj = (value: string) => {
+                    const d = value.replace(/\D/g, "");
+                    return d.length === 14
+                      ? `${d.slice(0,2)}.${d.slice(2,5)}.${d.slice(5,8)}/${d.slice(8,12)}-${d.slice(12)}`
+                      : value;
+                  };
+
+                  const rows = beta
+                    ? demoCnpjCompanies.filter(company =>
+                        visible.some(r =>
+                          r.email.includes(
+                            formatCnpj(company.cnpj)
+                          )
+                        )
+                      ).map(company => ({
+                        tipo: "DEMO",
+                        empresa: company.company,
+                        cnpj: formatCnpj(company.cnpj),
+                        email: "",
+                        telefone: company.phone || "",
+                        site: company.site || "",
+                        abertura: "Simulada"
+                      }))
+                    : visible.map(r => ({
+                        tipo: "REAL",
+                        empresa: "",
+                        cnpj: "",
+                        email: r.email,
+                        telefone: "",
+                        site: "",
+                        abertura: "Registrada"
+                      }));
+
+                  const headings = [
+                    "Tipo",
+                    "Empresa",
+                    "CNPJ",
+                    "Telefone",
+                    "Site"
+                  ];
+
+                  const escapeCsv = (value: unknown) => {
+                    let v = String(value ?? "");
+                    if (/^[=+\-@]/.test(v.trimStart())) {
+                      v = "'" + v;
+                    }
+                    return '"' + v.replace(/"/g, '""') + '"';
+                  };
+
+                  const content = [
+                    headings.map(escapeCsv).join(";"),
+                    ...rows.map(item => [
+                      item.tipo,
+                      item.empresa,
+                      item.cnpj,
+                      item.telefone,
+                      item.site
+                    ].map(escapeCsv).join(";"))
+                  ].join("\r\n");
+
+                  const blob = new Blob(
+                    ["\uFEFF", content],
+                    { type: "text/csv;charset=utf-8" }
+                  );
+
+                  const url = URL.createObjectURL(blob);
+                  const link = document.createElement("a");
+                  link.href = url;
+                  link.download = beta
+                    ? "digitale-abertura-cnpj-demo.csv"
+                    : "digitale-abertura-cnpj-real.csv";
+
+                  document.body.appendChild(link);
+                  link.click();
+                  link.remove();
+
+                  setTimeout(() => URL.revokeObjectURL(url), 1000);
+                }}
+                className="shrink-0 rounded-md border border-blue-600 bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+              >
+                Exportar CSV
+              </button>
+            )}
+
           </div>
 
-          {filter === "opened_cnpj" && cnpjLoading && (
+          
+
+            {!beta && filter === "opened_cnpj" && cnpjLoading && (
             <p className="text-sm text-muted-foreground">
               Consultando CNPJs na IA Digitale e no Portal/Agendor...
             </p>
           )}
 
-          {filter === "opened_cnpj" && cnpjError && (
+          {!beta && filter === "opened_cnpj" && cnpjError && (
             <p role="alert" className="text-sm text-red-700">
               {cnpjError}
             </p>
