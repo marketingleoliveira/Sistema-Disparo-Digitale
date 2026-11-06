@@ -92,6 +92,31 @@ function TemplatesPage() {
   const [activeCategory, setActiveCategory] = React.useState<string>("Todos");
   const [searchQuery, setSearchQuery] = React.useState("");
   const [previewTemplate, setPreviewTemplate] = React.useState<StoredTemplate | null>(null);
+  // DIGITALE_HTML_TEMPLATE_EDITOR_V1
+  const [htmlEditing, setHtmlEditing] = React.useState<StoredTemplate | null>(null);
+  const [htmlDraft, setHtmlDraft] = React.useState("");
+
+  const openHtmlEditor = (template: StoredTemplate) => {
+    setHtmlEditing(template);
+    setHtmlDraft(template.html || "");
+  };
+
+  const saveHtmlEditor = () => {
+    if (!htmlEditing) return;
+
+    if (!htmlDraft.trim()) {
+      toast.error("O HTML não pode ficar vazio.");
+      return;
+    }
+
+    updateTemplate(htmlEditing.id, {
+      html: htmlDraft,
+    });
+
+    toast.success("HTML atualizado com sucesso.");
+    setHtmlEditing(null);
+  };
+
   const [renaming, setRenaming] = React.useState<StoredTemplate | null>(null);
   const [renameValue, setRenameValue] = React.useState("");
   const [renameCategory, setRenameCategory] = React.useState<string>(CATEGORY_OPTIONS[0]!);
@@ -401,6 +426,15 @@ function TemplatesPage() {
                       >
                         <Edit3 size={14} className="mr-2" /> Editar design
                       </Button>
+                    ) : template.kind === "html" ? (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="w-36 font-bold"
+                        onClick={() => openHtmlEditor(template)}
+                      >
+                        <Edit3 size={14} className="mr-2" /> Editar HTML
+                      </Button>
                     ) : (
                       <Button
                         size="sm"
@@ -488,6 +522,74 @@ function TemplatesPage() {
               className="h-[65vh] w-full rounded-lg border bg-white"
             />
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* DIGITALE HTML TEMPLATE EDITOR */}
+      <Dialog
+        open={!!htmlEditing}
+        onOpenChange={(open) => {
+          if (!open) setHtmlEditing(null);
+        }}
+      >
+        <DialogContent className="max-w-[96vw] w-[1200px] max-h-[95vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-primary">
+              Editar HTML — {htmlEditing?.name}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+            <div className="space-y-2">
+              <Label className="text-sm font-bold">
+                Código HTML / CSS
+              </Label>
+
+              <textarea
+                value={htmlDraft}
+                onChange={(event) => setHtmlDraft(event.target.value)}
+                spellCheck={false}
+                aria-label="Código HTML do template"
+                className="w-full h-[62vh] rounded-lg border
+                  border-input bg-background p-4 font-mono
+                  text-xs leading-relaxed resize-y
+                  focus:outline-none focus:ring-2
+                  focus:ring-primary"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-bold">
+                Pré-visualização
+              </Label>
+
+              <iframe
+                title="Pré-visualização do HTML"
+                srcDoc={htmlDraft}
+                sandbox=""
+                className="w-full h-[62vh] rounded-lg border bg-white"
+              />
+            </div>
+
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setHtmlEditing(null)}
+            >
+              Cancelar
+            </Button>
+
+            <Button
+              onClick={saveHtmlEditor}
+              disabled={!htmlDraft.trim()}
+              className="bg-accent font-bold text-accent-foreground"
+            >
+              Salvar alterações
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

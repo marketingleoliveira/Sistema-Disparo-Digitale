@@ -504,7 +504,8 @@ export function VisualEmailEditor({
                               style={{
                                 width: block.styles['width'] || '180px',
                                 maxWidth: '100%',
-                                height: 'auto',
+                                height: block.styles['height'] || 'auto',
+                                objectFit: block.styles['height'] ? (block.styles['objectFit'] || 'cover') : 'contain',
                                 display: 'inline-block'
                               }}
                             />
@@ -517,7 +518,8 @@ export function VisualEmailEditor({
                               style={{
                                 width: block.styles['width'] || '180px',
                                 maxWidth: '100%',
-                                height: 'auto',
+                                height: block.styles['height'] || 'auto',
+                                objectFit: block.styles['height'] ? (block.styles['objectFit'] || 'cover') : 'contain',
                                 display: 'inline-block'
                               }}
                             />
@@ -632,7 +634,8 @@ export function VisualEmailEditor({
                               style={{
                                 width: block.styles['width'] || '100%',
                                 maxWidth: '100%',
-                                height: 'auto',
+                                height: block.styles['height'] || 'auto',
+                                objectFit: block.styles['height'] ? (block.styles['objectFit'] || 'cover') : 'contain',
                                 display: 'inline-block',
                                 borderRadius: block.styles['borderRadius']
                               }}
@@ -646,7 +649,8 @@ export function VisualEmailEditor({
                               style={{
                                 width: block.styles['width'] || '100%',
                                 maxWidth: '100%',
-                                height: 'auto',
+                                height: block.styles['height'] || 'auto',
+                                objectFit: block.styles['height'] ? (block.styles['objectFit'] || 'cover') : 'contain',
                                 display: 'inline-block',
                                 borderRadius: block.styles['borderRadius']
                               }}
@@ -707,9 +711,12 @@ export function VisualEmailEditor({
                               <div key={i} style={{
                                 padding: 12,
                                 border: '1px solid #e2e8f0',
-                                overflowWrap: 'anywhere'
+                                overflowWrap: 'anywhere', whiteSpace: 'pre-wrap'
                               }}>
-                                {String(block.content.text || '').split('|')[i]?.trim() || `Coluna ${i + 1}`}
+                                {(Array.isArray(block.content.columns)
+                                  ? block.content.columns[i]
+                                  : String(block.content.text || '').split('|')[i]
+                                ) || `Coluna ${i + 1}`}
                               </div>
                             ))}
                           </div>
@@ -785,7 +792,54 @@ export function VisualEmailEditor({
               <div className="space-y-4">
                 <Label className="text-[11px] font-bold text-muted-foreground uppercase">Conteúdo</Label>
                 
-                {['text', 'title', 'button'].includes(selectedBlock.type) && (
+                
+                {/* DIGITALE_COLUMNS_EDITOR_V2 */}
+                {['column', 'columns-2', 'columns-3'].includes(selectedBlock.type) && (
+                  <div className="space-y-3 rounded-lg border p-3">
+                    <p className="text-xs font-semibold">
+                      Conteúdo das colunas
+                    </p>
+                    {Array.from({
+                      length: selectedBlock.type === 'columns-3' ? 3 :
+                        selectedBlock.type === 'columns-2' ? 2 : 1
+                    }, (_, index) => {
+                      const values = Array.isArray(selectedBlock.content.columns)
+                        ? [...selectedBlock.content.columns]
+                        : String(selectedBlock.content.text || '').split('|');
+
+                      return (
+                        <div key={index} className="space-y-1">
+                          <Label className="text-xs">
+                            Coluna {index + 1}
+                          </Label>
+                          <textarea
+                            aria-label={`Editar coluna ${index + 1}`}
+                            rows={5}
+                            value={String(values[index] ?? '')}
+                            onChange={(event) => {
+                              values[index] = event.target.value;
+                              commitBlocks(blocks.map((item) =>
+                                item.id === selectedBlock.id
+                                  ? {
+                                      ...item,
+                                      content: {
+                                        ...item.content,
+                                        columns: values
+                                      }
+                                    }
+                                  : item
+                              ));
+                            }}
+                            className="w-full resize-y rounded-md border bg-white p-2 text-sm"
+                            placeholder={`Digite o conteúdo da coluna ${index + 1}`}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+{['text', 'title', 'button'].includes(selectedBlock.type) && (
                   <div className="space-y-2">
                     <Label className="text-xs">Texto</Label>
                     <Input 
@@ -975,8 +1029,80 @@ export function VisualEmailEditor({
                         onCommit={(n) => updateBlockStyle('width', `${n}px`)}
                       />
                       <p className="text-[10px] text-muted-foreground">
-                        A altura acompanha a largura automaticamente.
+                        Defina a largura desejada.
                       </p>
+
+                      {/* DIGITALE_IMAGE_HEIGHT_CONTROL_V1 */}
+                      <div className="space-y-2 pt-2">
+                        <Label className="text-xs">
+                          Altura da imagem (pixels)
+                        </Label>
+                        <Input
+                          type="number"
+                          min={1}
+                          max={3000}
+                          step={1}
+                          placeholder="Automática"
+                          className="h-9 text-xs"
+                          value={
+                            String(selectedBlock.styles['height'] || '')
+                              .replace(/px$/, '')
+                          }
+                          onChange={(event) => {
+                            const raw = event.target.value;
+
+                            if (raw === "") {
+                              updateBlockStyle('height', '');
+                              return;
+                            }
+
+                            const height = Number(raw);
+
+                            if (
+                              Number.isInteger(height) &&
+                              height >= 1 &&
+                              height <= 3000
+                            ) {
+                              updateBlockStyle(
+                                'height',
+                                `${height}px`
+                              );
+                            }
+                          }}
+                        />
+                        <p className="text-[10px] text-muted-foreground">
+                          Deixe vazio para manter a altura original.
+                        </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-xs">
+                          Enquadramento da imagem
+                        </Label>
+                        <select
+                          className="h-9 w-full rounded-md border border-input bg-background px-3 text-xs"
+                          value={
+                            selectedBlock.styles['objectFit'] || 'cover'
+                          }
+                          onChange={(event) =>
+                            updateBlockStyle(
+                              'objectFit',
+                              event.target.value
+                            )
+                          }
+                        >
+                          <option value="cover">
+                            Preencher e recortar
+                          </option>
+                          <option value="contain">
+                            Ajustar sem recortar
+                          </option>
+                          <option value="fill">
+                            Esticar para preencher
+                          </option>
+                        </select>
+                      </div>
+
                     </div>
 
                     <div className="space-y-2">

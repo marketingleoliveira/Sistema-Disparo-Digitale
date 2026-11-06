@@ -348,7 +348,35 @@ function renderBlock(block: EditorBlock): string {
         </td></tr>`;
       }
 
-      const image = `<img src="${esc(safeUrl(content.url))}" alt="${esc(content.alt ?? (block.type === "logo" ? "Logo Digitale Têxtil" : ""))}" width="${width}" style="display:inline-block;width:${width}px;max-width:100%;height:auto;border:0;border-radius:${esc(s["borderRadius"] ?? "0")};vertical-align:middle;" />`;
+
+      // DIGITALE_IMAGE_HEIGHT_CONTROL_V1
+      const rawHeight = String(s["height"] ?? "").trim();
+      const heightMatch = /^([0-9]{1,4})px$/.exec(rawHeight);
+
+      const parsedHeight = heightMatch
+        ? Number(heightMatch[1])
+        : 0;
+
+      const pixelHeight =
+        parsedHeight >= 1 && parsedHeight <= 3000
+          ? parsedHeight
+          : null;
+
+      const fit = ["cover", "contain", "fill"].includes(
+        String(s["objectFit"] ?? "")
+      )
+        ? String(s["objectFit"])
+        : "cover";
+
+      const heightAttribute = pixelHeight
+        ? ` height="${pixelHeight}"`
+        : "";
+
+      const heightCss = pixelHeight
+        ? `height:${pixelHeight}px;object-fit:${fit};`
+        : "height:auto;";
+
+      const image = `<img src="${esc(safeUrl(content.url))}" alt="${esc(content.alt ?? (block.type === "logo" ? "Logo Digitale Têxtil" : ""))}" width="${width}"${heightAttribute} style="display:inline-block;width:${width}px;max-width:100%;${heightCss}border:0;border-radius:${esc(s["borderRadius"] ?? "0")};vertical-align:middle;" />`;
 
       const imageContent = href
         ? `<a href="${esc(href)}" target="_blank" style="display:inline-block;max-width:100%;text-decoration:none;">${image}</a>`
@@ -454,10 +482,12 @@ const mobileUrl = esc(safeUrl(
     case "columns-3": {
       const count = block.type === "columns-3" ? 3 :
         block.type === "columns-2" ? 2 : 1;
-      const parts = String(content.text ?? "").split("|");
+      const parts = Array.isArray(content.columns)
+        ? content.columns.map((value: unknown) => String(value ?? ""))
+        : String(content.text ?? "").split("|");
       const width = Math.floor(100 / count);
       const cells = Array.from({ length: count }, (_, i) =>
-        `<td width="${width}%" valign="top" style="padding:12px;border:1px solid #e2e8f0;font-size:${esc(s["fontSize"] ?? "16px")};font-family:${emailFontFamily(s)};color:${esc(s["color"] ?? "#1e293b")};word-break:break-word;">${esc(parts[i]?.trim() || `Coluna ${i + 1}`)}</td>`
+        `<td width="${width}%" valign="top" style="padding:12px;border:1px solid #e2e8f0;font-size:${esc(s["fontSize"] ?? "16px")};font-family:${emailFontFamily(s)};color:${esc(s["color"] ?? "#1e293b")};word-break:break-word;">${esc(parts[i] || `Coluna ${i + 1}`).replace(/\r?\n/g, "<br>")}</td>`
       ).join("");
       return `<tr><td style="${pad(s)}"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>${cells}</tr></table></td></tr>`;
     }
