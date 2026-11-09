@@ -329,7 +329,9 @@ export function LiveCampaignPulse({
 
         {beta && (
           <p className="text-xs text-muted-foreground">
-            Métricas simuladas da campanha Milano. Leitura não confirmada =
+            Métricas simuladas da campanha {campaignId ===
+            "ba60b51a-815b-4f20-8df4-29d6dc4c464d"
+              ? "Malha 09/11" : "Milano"}. Leitura não confirmada =
             Pronto para Ler − Leituras − Cliques.
           </p>
         )}

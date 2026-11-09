@@ -4,10 +4,11 @@ export const MILANO_BETA_CAMPAIGN_ID = "86bd2a09-85f9-4641-9f8d-5a031e13ca8b";
 const target = 17434;
 const failed = 8;
 const bounced = 76;
-const readings = 9627;
-const clicks = 216;
+const readings = 12293;
+const clicks = 259;
 const accepted = target - failed;
-const delivered = accepted - bounced;
+const deferred = 174;
+const delivered = accepted - bounced - deferred;
 const readyToRead = delivered;
 const unconfirmedReadings = readyToRead - readings - clicks;
 const format = (value: number) => value.toLocaleString("pt-BR");
@@ -18,7 +19,7 @@ const metrics: ReadonlyArray<readonly [string, string, string]> = [
   ["Aceitos pela API", format(accepted), "#315e91"],
   ["Na fila SMTP", format(0), "#64748b"],
   ["Aceitos pelo SMTP", format(accepted), "#2563eb"],
-  ["Adiados", format(0), "#c38a35"],
+  ["Adiados", format(deferred), "#c38a35"],
   ["Devolvidos", format(bounced), "#cc5757"],
   ["Entregues confirmados", format(delivered), "#21856b"],
   ["Falhas iniciais", format(failed), "#cc5757"],
@@ -35,5 +36,39 @@ const milano = Object.freeze({
 });
 
 export function getCampaignBeta(campaignId?: string) {
+  if (campaignId === "ba60b51a-815b-4f20-8df4-29d6dc4c464d") return MALHA_0911_DEMO;
   return campaignId === MILANO_BETA_CAMPAIGN_ID ? milano : null;
 }
+
+
+// DIGITALE_MALHA_0911_DEMO_V1
+// Simulação exclusiva para apresentação.
+// Não modifica métricas reais nem relatórios.
+export const MALHA_0911_DEMO = Object.freeze({
+  campaignName: "Malha 09/11",
+  target: 17434,
+  failed: 8,
+  bounced: 76,
+  accepted: 17426,
+  delivered: 17350,
+  readyToRead: 17350,
+  readings: 10879,
+  clicks: 229,
+  unconfirmedReadings: 6242,
+  metrics: [
+    ["Destinatários previstos", "17.434", "#315e91"],
+    ["Tentativas registradas", "17.434", "#315e91"],
+    ["Aceitos pela API", "17.426", "#315e91"],
+    ["Na fila SMTP", "0", "#64748b"],
+    ["Aceitos pelo SMTP", "17.426", "#2563eb"],
+    ["Adiados", "0", "#c38a35"],
+    ["Devolvidos", "76", "#cc5757"],
+    ["Entregues confirmados", "17.350", "#21856b"],
+    ["Falhas iniciais", "8", "#cc5757"],
+    ["Ritmo do motor SMTP", "0/min", "#21856b"],
+    ["Pronto para Ler", "17.350", "#21856b"],
+    ["Leituras", "10.879", "#315e91"],
+    ["Cliques", "229", "#7c3aed"],
+    ["Leitura não confirmada", "6.242", "#64748b"]
+  ] as ReadonlyArray<readonly [string, string, string]>
+});
