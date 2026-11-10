@@ -38,6 +38,7 @@ import { Route as HotspotSliceFilenameRouteImport } from './routes/hotspot-slice
 import { Route as TrackClickRouteImport } from './routes/track.click'
 import { Route as TrackOpenRouteImport } from './routes/track.open'
 import { Route as AuthenticatedReportsOpensRouteImport } from './routes/_authenticated/reports_.opens'
+import { Route as AuthenticatedReportsPixelDemoRouteImport } from './routes/_authenticated/reports_.pixel-demo'
 import { Route as AuthenticatedSettingsDomainRouteImport } from './routes/_authenticated/settings_.domain'
 import { Route as AuthenticatedSettingsHelpRouteImport } from './routes/_authenticated/settings_.help'
 import { Route as AuthenticatedSettingsTeamRouteImport } from './routes/_authenticated/settings_.team'
@@ -195,6 +196,12 @@ const AuthenticatedReportsOpensRoute =
     path: '/reports/opens',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedReportsPixelDemoRoute =
+  AuthenticatedReportsPixelDemoRouteImport.update({
+    id: '/reports_/pixel-demo',
+    path: '/reports/pixel-demo',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedSettingsDomainRoute =
   AuthenticatedSettingsDomainRouteImport.update({
     id: '/settings_/domain',
@@ -270,6 +277,7 @@ export interface FileRoutesByFullPath {
   '/track/click': typeof TrackClickRoute
   '/track/open': typeof TrackOpenRoute
   '/reports/opens': typeof AuthenticatedReportsOpensRoute
+  '/reports/pixel-demo': typeof AuthenticatedReportsPixelDemoRoute
   '/settings/domain': typeof AuthenticatedSettingsDomainRoute
   '/settings/help': typeof AuthenticatedSettingsHelpRoute
   '/settings/team': typeof AuthenticatedSettingsTeamRoute
@@ -308,6 +316,7 @@ export interface FileRoutesByTo {
   '/track/click': typeof TrackClickRoute
   '/track/open': typeof TrackOpenRoute
   '/reports/opens': typeof AuthenticatedReportsOpensRoute
+  '/reports/pixel-demo': typeof AuthenticatedReportsPixelDemoRoute
   '/settings/domain': typeof AuthenticatedSettingsDomainRoute
   '/settings/help': typeof AuthenticatedSettingsHelpRoute
   '/settings/team': typeof AuthenticatedSettingsTeamRoute
@@ -348,6 +357,7 @@ export interface FileRoutesById {
   '/track/click': typeof TrackClickRoute
   '/track/open': typeof TrackOpenRoute
   '/_authenticated/reports_/opens': typeof AuthenticatedReportsOpensRoute
+  '/_authenticated/reports_/pixel-demo': typeof AuthenticatedReportsPixelDemoRoute
   '/_authenticated/settings_/domain': typeof AuthenticatedSettingsDomainRoute
   '/_authenticated/settings_/help': typeof AuthenticatedSettingsHelpRoute
   '/_authenticated/settings_/team': typeof AuthenticatedSettingsTeamRoute
@@ -388,6 +398,7 @@ export interface FileRouteTypes {
     | '/track/click'
     | '/track/open'
     | '/reports/opens'
+    | '/reports/pixel-demo'
     | '/settings/domain'
     | '/settings/help'
     | '/settings/team'
@@ -426,6 +437,7 @@ export interface FileRouteTypes {
     | '/track/click'
     | '/track/open'
     | '/reports/opens'
+    | '/reports/pixel-demo'
     | '/settings/domain'
     | '/settings/help'
     | '/settings/team'
@@ -465,6 +477,7 @@ export interface FileRouteTypes {
     | '/track/click'
     | '/track/open'
     | '/_authenticated/reports_/opens'
+    | '/_authenticated/reports_/pixel-demo'
     | '/_authenticated/settings_/domain'
     | '/_authenticated/settings_/help'
     | '/_authenticated/settings_/team'
@@ -696,6 +709,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedReportsOpensRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/reports_/pixel-demo': {
+      id: '/_authenticated/reports_/pixel-demo'
+      path: '/reports/pixel-demo'
+      fullPath: '/reports/pixel-demo'
+      preLoaderRoute: typeof AuthenticatedReportsPixelDemoRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/settings_/domain': {
       id: '/_authenticated/settings_/domain'
       path: '/settings/domain'
@@ -791,6 +811,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedTemplatesRoute: typeof AuthenticatedTemplatesRouteWithChildren
   AuthenticatedUsuariosRoute: typeof AuthenticatedUsuariosRoute
   AuthenticatedReportsOpensRoute: typeof AuthenticatedReportsOpensRoute
+  AuthenticatedReportsPixelDemoRoute: typeof AuthenticatedReportsPixelDemoRoute
   AuthenticatedSettingsDomainRoute: typeof AuthenticatedSettingsDomainRoute
   AuthenticatedSettingsHelpRoute: typeof AuthenticatedSettingsHelpRoute
   AuthenticatedSettingsTeamRoute: typeof AuthenticatedSettingsTeamRoute
@@ -816,6 +837,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedTemplatesRoute: AuthenticatedTemplatesRouteWithChildren,
   AuthenticatedUsuariosRoute: AuthenticatedUsuariosRoute,
   AuthenticatedReportsOpensRoute: AuthenticatedReportsOpensRoute,
+  AuthenticatedReportsPixelDemoRoute: AuthenticatedReportsPixelDemoRoute,
   AuthenticatedSettingsDomainRoute: AuthenticatedSettingsDomainRoute,
   AuthenticatedSettingsHelpRoute: AuthenticatedSettingsHelpRoute,
   AuthenticatedSettingsTeamRoute: AuthenticatedSettingsTeamRoute,

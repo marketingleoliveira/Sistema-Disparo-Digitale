@@ -190,7 +190,7 @@ function EmailPreview({ html, mode }: { html: string; mode: "desktop" | "mobile"
 }
 
 function CampaignWizard({ onDone }: { onDone: () => void }) {
-  const { addCampaign, contacts, fetchContacts } = useDataStore();
+  const { addCampaign, contacts, lists, fetchContacts, fetchLists } = useDataStore();
   const { templates } = useTemplateLibrary();
   const runTest = useServerFn(sendCampaignTest);
   const runDispatch = useServerFn(dispatchCampaign);
@@ -203,23 +203,61 @@ function CampaignWizard({ onDone }: { onDone: () => void }) {
   const [pending, setPending] = React.useState<null | "test" | "draft" | "schedule" | "send">(null);
   const [confirmSend, setConfirmSend] = React.useState(false);
 
+  const [recipientsLoading, setRecipientsLoading] = React.useState(true);
+  const [recipientsError, setRecipientsError] = React.useState("");
+
   React.useEffect(() => {
-    if (contacts.length === 0) void fetchContacts();
-  }, [contacts.length, fetchContacts]);
+    let mounted = true;
+
+    async function loadRecipients() {
+      setRecipientsLoading(true);
+      setRecipientsError("");
+
+      const results = await Promise.allSettled([
+        fetchLists(),
+        fetchContacts(),
+      ]);
+
+      if (!mounted) return;
+
+      if (results.some((result) => result.status === "rejected")) {
+        setRecipientsError(
+          "Não foi possível carregar todas as listas e contatos. Atualize a página antes de continuar."
+        );
+      }
+
+      setRecipientsLoading(false);
+    }
+
+    void loadRecipients();
+
+    return () => {
+      mounted = false;
+    };
+  }, [fetchLists, fetchContacts]);
 
   const patch = (values: Partial<CampaignDraft>) => setDraft((prev) => ({ ...prev, ...values }));
 
-  // Listas reais derivadas dos contatos cadastrados.
+  // Listas cadastradas no banco, independentemente de haver contatos.
   const availableLists = React.useMemo(() => {
-    const map = new Map<string, number>();
+    const counts = new Map<string, number>();
+
     for (const contact of contacts) {
       if (contact.status !== "Ativo") continue;
-      for (const list of contact.lists ?? []) {
-        map.set(list, (map.get(list) ?? 0) + 1);
+
+      for (const listName of contact.lists ?? []) {
+        counts.set(listName, (counts.get(listName) ?? 0) + 1);
       }
     }
-    return [...map.entries()].sort((a, b) => b[1] - a[1]);
-  }, [contacts]);
+
+    return lists
+      .filter((list) => Boolean(list.name?.trim()))
+      .map((list) => [
+        list.name,
+        counts.get(list.name) ?? 0,
+      ] as [string, number])
+      .sort((a, b) => a[0].localeCompare(b[0], "pt-BR"));
+  }, [lists, contacts]);
 
   const activeContacts = React.useMemo(
     () => contacts.filter((c) => c.status === "Ativo"),
@@ -244,8 +282,16 @@ function CampaignWizard({ onDone }: { onDone: () => void }) {
       if (!draft.name.trim()) return "Informe o nome interno da campanha.";
       if (!draft.subject.trim()) return "Informe o assunto do e-mail.";
     }
-    if (current === 2 && audience.length === 0) {
-      return "Nenhum contato ativo nesta seleção. Cadastre ou importe contatos.";
+    if (current === 2) {
+      if (recipientsLoading || recipientsError) {
+        return "Aguarde o carregamento correto das listas e contatos.";
+      }
+      if (draft.lists.length === 0) {
+        return "Selecione pelo menos uma lista de destinatários.";
+      }
+      if (audience.length === 0) {
+        return "A seleção não possui contatos ativos. Verifique as listas.";
+      }
     }
     if (current === 3 && !draft.html.trim()) {
       return "Escolha um template ou crie o conteúdo no editor.";
@@ -491,15 +537,25 @@ function CampaignWizard({ onDone }: { onDone: () => void }) {
         {step === 2 && (
           <div className="space-y-6 animate-in fade-in duration-300">
             <h3 className="text-lg font-bold text-primary">Quem receberá esta campanha?</h3>
-            {availableLists.length === 0 ? (
+            {recipientsLoading && (
+              <p className="text-sm text-muted-foreground">
+                Carregando listas e contatos...
+              </p>
+            )}
+            {recipientsError && (
+              <p role="alert" className="text-sm font-medium text-red-600">
+                {recipientsError}
+              </p>
+            )}
+            {!recipientsLoading && !recipientsError && availableLists.length === 0 ? (
               <div className="rounded-xl border border-dashed p-8 text-center">
                 <Users className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
                 <p className="text-sm font-semibold text-primary">Nenhuma lista encontrada</p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Sem listas, a campanha vai para todos os contatos ativos ({activeContacts.length}).
+                  Nenhuma lista disponível. Confira o cadastro de listas antes de continuar.
                 </p>
               </div>
-            ) : (
+            ) : !recipientsLoading && !recipientsError ? (
               <div className="grid gap-3">
                 {availableLists.map(([list, total]) => (
                   <label
@@ -522,12 +578,12 @@ function CampaignWizard({ onDone }: { onDone: () => void }) {
                   </label>
                 ))}
               </div>
-            )}
+            ) : null}
             <div className="flex items-center gap-3 rounded-lg border border-emerald-100 bg-emerald-50 p-4 text-emerald-700">
               <CheckCircle2 size={18} />
               <span className="text-sm font-medium">
                 <strong>{audience.length.toLocaleString("pt-BR")} contatos</strong> serão alcançados
-                {draft.lists.length === 0 ? " (todos os contatos ativos)." : "."}
+                {draft.lists.length === 0 ? " (selecione uma lista)." : "."}
               </span>
             </div>
           </div>

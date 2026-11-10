@@ -51,10 +51,10 @@ export const MALHA_0911_DEMO = Object.freeze({
   bounced: 76,
   accepted: 17426,
   delivered: 17350,
-  readyToRead: 17350,
-  readings: 10879,
-  clicks: 229,
-  unconfirmedReadings: 6242,
+  readyToRead: 17312,
+  readings: 10369,
+  clicks: 307,
+  unconfirmedReadings: 6943,
   metrics: [
     ["Destinatários previstos", "17.434", "#315e91"],
     ["Tentativas registradas", "17.434", "#315e91"],
@@ -66,9 +66,9 @@ export const MALHA_0911_DEMO = Object.freeze({
     ["Entregues confirmados", "17.350", "#21856b"],
     ["Falhas iniciais", "8", "#cc5757"],
     ["Ritmo do motor SMTP", "0/min", "#21856b"],
-    ["Pronto para Ler", "17.350", "#21856b"],
-    ["Leituras", "10.879", "#315e91"],
-    ["Cliques", "229", "#7c3aed"],
-    ["Leitura não confirmada", "6.242", "#64748b"]
+    ["Pronto para Ler", "17.312", "#21856b"],
+    ["Leituras", "10.369", "#315e91"],
+    ["Cliques", "307", "#7c3aed"],
+    ["Leitura não confirmada", "6.943", "#64748b"]
   ] as ReadonlyArray<readonly [string, string, string]>
 });

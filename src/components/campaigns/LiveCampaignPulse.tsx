@@ -332,7 +332,7 @@ export function LiveCampaignPulse({
             Métricas simuladas da campanha {campaignId ===
             "ba60b51a-815b-4f20-8df4-29d6dc4c464d"
               ? "Malha 09/11" : "Milano"}. Leitura não confirmada =
-            Pronto para Ler − Leituras − Cliques.
+            Pronto para Ler − Leituras.
           </p>
         )}
 
