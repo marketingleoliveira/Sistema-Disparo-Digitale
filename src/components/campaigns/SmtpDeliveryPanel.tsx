@@ -1,3 +1,4 @@
+import { aloeVeraDemoCnpjCompanies } from "@/lib/disparo-aloe-cnpj-companies";
 import { createPortal } from "react-dom";
 import { demoCnpjCompanies } from "@/lib/disparo-demo-cnpj-companies";
 import { DemoCnpjCompanies } from "@/components/campaigns/DemoCnpjCompanies";
@@ -323,7 +324,7 @@ const totals = beta
 
   // DIGITALE_DEMO_CNPJ_82_V1
   // Exclusivo da interface DEMO. Nao altera eventos nem CNPJs reais.
-  const demoCnpjRows: Recipient[] = demoCnpjCompanies.map(
+  const demoCnpjRows: Recipient[] = (campaignId === "a89e9396-9906-4c43-b0d2-a031d9bd58d7" ? aloeVeraDemoCnpjCompanies : demoCnpjCompanies).map(
     ({ cnpj, company }) => ({
       email: `CNPJ ${cnpj.slice(0,2)}.${cnpj.slice(2,5)}.${cnpj.slice(5,8)}/${cnpj.slice(8,12)}-${cnpj.slice(12)} — ${company}`,
       campaign: "Milano - DEMO",
@@ -411,7 +412,7 @@ const totals = beta
 
           if (match) {
             const digits = match[0].replace(/\D/g, "");
-            company = demoCnpjCompanies.find(
+            company = (campaignId === "a89e9396-9906-4c43-b0d2-a031d9bd58d7" ? aloeVeraDemoCnpjCompanies : demoCnpjCompanies).find(
               item => item.cnpj === digits
             );
             if (company) break;
