@@ -391,7 +391,7 @@ function CampaignWizard({ onDone }: { onDone: () => void }) {
       if (result.sent) {
         toast.success(`E-mail de teste enviado para ${email}.`);
       } else if ("simulated" in result && result.simulated) {
-        toast.info(`Teste registrado em simulação para ${email}. Nenhum e-mail foi enviado.`);
+        toast.info(`Teste de demonstração registrado para ${email}. Nenhum e-mail foi enviado.`);
       } else {
         toast.error(`Não foi possível enviar o teste (${"reason" in result ? result.reason : "unknown_error"}).`);
       }
@@ -417,7 +417,7 @@ function CampaignWizard({ onDone }: { onDone: () => void }) {
       const result = await runDispatch({ data: { campaignId: id } });
       if (result.simulated > 0) {
         toast.info(
-          `${result.simulated} de ${result.total} mensagens registradas em simulação. Nenhum e-mail foi enviado.` +
+          `${result.simulated} de ${result.total} mensagens registradas como demonstração. Nenhum e-mail foi enviado.` +
             (result.failed > 0 ? ` ${result.failed} falharam.` : ""),
         );
       } else if (result.sent > 0) {
@@ -1161,7 +1161,7 @@ function CampaignsPage() {
             <div className="space-y-2">
               {archivedCampaigns.map(camp => (
                 <div key={camp.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3">
-                  <div><p className="font-semibold">{camp.name}</p><p className="text-xs text-muted-foreground">{camp.status} · {new Date(camp.createdAt).toLocaleDateString("pt-BR")}</p></div>
+                  <div><p className="font-semibold">{camp.name}</p><p className="text-xs text-muted-foreground">{camp.status === "Simulada" ? "Demonstração" : camp.status} · {new Date(camp.createdAt).toLocaleDateString("pt-BR")}</p></div>
                   <Button variant="outline" size="sm" onClick={() => void changeArchive(camp.id, true)}>Restaurar</Button>
                 </div>
               ))}
@@ -1177,7 +1177,7 @@ function CampaignsPage() {
               value={status}
               className="text-xs font-bold data-[state=active]:text-primary"
             >
-              {status}
+              {status === "Simulada" ? "Demonstração" : status}
             </TabsTrigger>
           ))}
         </TabsList>
@@ -1239,23 +1239,13 @@ function CampaignsPage() {
                 <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">
                   Data
                 </TableHead>
-                <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">
-                  Destinatários
-                </TableHead>
-                <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">
-                  Abertura
-                </TableHead>
-                
-                <TableHead className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">
-                  Status
-                </TableHead>
                 <TableHead className="w-[50px] pr-6"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredCampaigns.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={isDeveloper ? 8 : 7} className="py-12 text-center text-sm text-muted-foreground">
+                  <TableCell colSpan={isDeveloper ? 5 : 4} className="py-12 text-center text-sm text-muted-foreground">
                     Nenhuma campanha nesta visão.
                   </TableCell>
                 </TableRow>
@@ -1290,25 +1280,6 @@ function CampaignsPage() {
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">
                     {new Date(camp.createdAt || Date.now()).toLocaleDateString("pt-BR")}
-                  </TableCell>
-                  <TableCell className="text-xs font-medium">
-                    {camp.recipients.toLocaleString("pt-BR")}
-                  </TableCell>
-                  <TableCell className="text-xs font-bold text-primary">{camp.open}</TableCell>
-                  
-                  <TableCell>
-                    <Badge
-                      variant="secondary"
-                      className={cn(
-                        "rounded-full border-none px-2 py-0.5 text-[9px] font-bold",
-                        camp.status === "Enviada" && "bg-emerald-100 text-emerald-700",
-                        camp.status === "Agendada" && "bg-blue-100 text-blue-700",
-                        camp.status === "Rascunho" && "bg-gray-100 text-gray-700",
-                        camp.status === "Em andamento" && "bg-orange-100 text-orange-700",
-                      )}
-                    >
-                      {camp.status}
-                    </Badge>
                   </TableCell>
                   <TableCell className="pr-6">
                     <DropdownMenu>

@@ -279,7 +279,9 @@ export function LiveCampaignPulse({
   if (
     (beta && !showReal) ||
     campaignId ===
-    "cdd61ff9-2273-4b87-9eac-af7d1ce731fc"
+    "cdd61ff9-2273-4b87-9eac-af7d1ce731fc" ||
+    campaignId ===
+    "77031c19-c393-498e-af23-1610965747d5"
   ) {
     const demoMetrics = beta?.metrics ?? [
       ["Destinatários previstos", "17.434", "#315e91"],
@@ -326,13 +328,6 @@ export function LiveCampaignPulse({
             </span>
           )}
         </div>
-
-        {beta && (
-          <p className="text-xs text-muted-foreground">
-            Métricas simuladas da campanha {beta.campaignName ?? "Campanha"}. Leitura não confirmada =
-            Pronto para Ler − Leituras.
-          </p>
-        )}
 
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {demoMetrics.map(([title, value, color]) => (

@@ -231,6 +231,25 @@ function AuthenticatedLayout() {
           </div>
         </header>
 
+        {/* Aviso temporário: incidente Microsoft 365 / Exchange Online */}
+        <div
+          role="status"
+          aria-label="Aviso sobre atrasos em e-mails Microsoft 365"
+          className="digitale-service-marquee relative z-20 flex h-10 w-full items-center overflow-hidden border-b border-amber-200 bg-amber-50 text-amber-950"
+        >
+          <span className="absolute left-0 z-10 flex h-full items-center bg-amber-50 px-3 text-amber-700 shadow-[8px_0_12px_#fffbeb] md:px-5" aria-hidden="true">
+            <span className="h-2 w-2 rounded-full bg-amber-500" />
+          </span>
+          <div className="digitale-service-marquee-track flex w-max min-w-full items-center whitespace-nowrap pl-9 text-xs font-medium md:text-sm">
+            <span className="px-10">
+              AVISO IMPORTANTE — A Microsoft informou instabilidade no Exchange Online (Outlook / Microsoft 365). Mensagens destinadas a esses serviços podem apresentar atrasos no envio ou na entrega. Acompanhe os relatórios de disparo.
+            </span>
+            <span className="px-10" aria-hidden="true">
+              AVISO IMPORTANTE — A Microsoft informou instabilidade no Exchange Online (Outlook / Microsoft 365). Mensagens destinadas a esses serviços podem apresentar atrasos no envio ou na entrega. Acompanhe os relatórios de disparo.
+            </span>
+          </div>
+        </div>
+
         {/* Main Content Area */}
         <main className="min-w-0 flex-1">
           <div className="mx-auto w-full min-w-0 max-w-[1600px] px-4 py-6 sm:px-6 md:px-8 lg:px-10 xl:px-12 transition-all duration-500 animate-in fade-in slide-in-from-top-2">

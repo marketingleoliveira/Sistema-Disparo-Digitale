@@ -120,3 +120,26 @@ html.digitale-dark .digitale-app-surface {
 
 /* Nao modificar cores dentro das pre-visualizacoes HTML.
    Iframes de email permanecem isolados do tema. */
+
+/* Aviso temporário de instabilidade Microsoft 365 — marquee de baixo impacto */
+@keyframes digitale-service-marquee-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.digitale-service-marquee-track {
+  animation: digitale-service-marquee-scroll 31s linear infinite;
+}
+.digitale-service-marquee:hover .digitale-service-marquee-track,
+.digitale-service-marquee:focus-within .digitale-service-marquee-track {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .digitale-service-marquee-track {
+    animation: none;
+    white-space: normal;
+    width: auto;
+    padding-left: 2.75rem;
+  }
+  .digitale-service-marquee { height: auto; min-height: 2.5rem; }
+  .digitale-service-marquee-track > span:last-child { display: none; }
+}

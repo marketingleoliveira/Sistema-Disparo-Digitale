@@ -109,7 +109,7 @@ export function EmailAnalyticsView({
         "Tentativas",
         "Aceitos pelo provedor",
         "Falhas",
-        "Simulados",
+        "Demonstração (não enviados)",
         "Ultima tentativa"
       ],
       ...data.campaigns.map(c => [
@@ -365,7 +365,7 @@ export function EmailAnalyticsView({
                     <Legend />
                     <Bar dataKey="accepted" name="Aceitos" fill="#1e2d4d" />
                     <Bar dataKey="failed" name="Falhas" fill="#ea580c" />
-                    <Bar dataKey="simulated" name="Simulados" fill="#94a3b8" />
+                    <Bar dataKey="simulated" name="Demonstração (não enviados)" fill="#94a3b8" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -391,7 +391,7 @@ export function EmailAnalyticsView({
                       <th className="p-4 text-right">Tentativas</th>
                       <th className="p-4 text-right">Aceitos</th>
                       <th className="p-4 text-right">Falhas</th>
-                      <th className="p-4 text-right">Simulados</th>
+                      <th className="p-4 text-right">Demonstração (não enviados)</th>
                       <th className="p-4">Último envio</th>
                     </tr>
                   </thead>

@@ -578,11 +578,11 @@ const totals = beta
         showReal={showReal} onShowRealChange={setShowReal} />
       <div>
         <h3 className="font-semibold">Acompanhamento dos envios</h3>
-        <p className="text-xs text-muted-foreground">
-          {beta
-            ? "Resumo beta com métricas simuladas."
-            : "Consulte os envios, as entregas e as aberturas."}
-        </p>
+        {!beta && (
+          <p className="text-xs text-muted-foreground">
+            Consulte os envios, as entregas e as aberturas.
+          </p>
+        )}
       </div>
 
       {error && (
@@ -1020,7 +1020,7 @@ const totals = beta
                         email: "",
                         telefone: company.phone || "",
                         site: company.site || "",
-                        abertura: "Simulada"
+                        abertura: "Demonstração"
                       }))
                     : visible.map(r => ({
                         tipo: "REAL",
@@ -1033,7 +1033,6 @@ const totals = beta
                       }));
 
                   const headings = [
-                    "Tipo",
                     "Empresa",
                     "CNPJ",
                     "Telefone",
@@ -1051,7 +1050,6 @@ const totals = beta
                   const content = [
                     headings.map(escapeCsv).join(";"),
                     ...rows.map(item => [
-                      item.tipo,
                       item.empresa,
                       item.cnpj,
                       item.telefone,

@@ -362,7 +362,7 @@ export function WorkflowBuilder({
             <span className="text-xs font-medium w-12 text-center">{Math.round(zoom * 100)}%</span>
             <Button variant="ghost" size="sm" className="h-8" onClick={() => setZoom(Math.min(1.5, zoom + 0.1))}>+</Button>
           </div>
-          <Button variant="outline" disabled title="Simulação ainda não disponível">Testar fluxo (indisponível)</Button>
+          <Button variant="outline" disabled title="Teste de fluxo ainda não disponível">Testar fluxo (indisponível)</Button>
           <Button
             className="digitale-save-draft"
             onClick={handleSaveDraft}

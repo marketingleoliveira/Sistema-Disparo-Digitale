@@ -3,7 +3,10 @@
 // Visualizacao ficticia identificada.
 // Nao modifica banco de dados ou fila SMTP.
 
-const campaignName = "Dia Fisiculturista";
+const campaignNames = [
+  "Dia Fisiculturista",
+  "Treino de Força"
+];
 const maskId = "digitale-demo-mask-v4";
 
 const metrics: Array<[string, string, string]> = [
@@ -58,7 +61,13 @@ function findPanel(): HTMLElement | null {
 
           if (
             text.includes("Detalhes do envio") &&
-            text.includes(campaignName)
+            campaignNames.some(name => {
+              if (name === "Treino de Força") {
+                return text.includes(name) &&
+                  !text.includes("Treino de Força - Corporativos Digitale");
+              }
+              return text.includes(name);
+            })
           ) {
             return panel;
           }
@@ -98,7 +107,7 @@ function buildMask(): HTMLElement {
 
   const badge = create(
     "span",
-    "SIMULAÇÃO · DADOS FICTÍCIOS"
+    "DEMONSTRAÇÃO · DADOS FICTÍCIOS"
   );
   badge.style.cssText =
     "font-size:12px;font-weight:700;" +
@@ -150,7 +159,7 @@ function buildMask(): HTMLElement {
     "font-size:13px;margin:20px 0 10px;";
 
   progress.append(
-    create("span", "Progresso da preparação (simulado)"),
+    create("span", "Progresso demonstrativo da preparação"),
     create("strong", "100%")
   );
 
@@ -171,7 +180,7 @@ function buildMask(): HTMLElement {
 
   const footer = create(
     "p",
-    "Modo demonstração — progresso e métricas simulados."
+    "Modo demonstração — números ilustrativos, não são resultados reais."
   );
   footer.style.cssText =
     "font-size:12px;color:#64748b;margin-top:12px;";
