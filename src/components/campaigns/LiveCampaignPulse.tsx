@@ -273,6 +273,37 @@ export function LiveCampaignPulse({
   ] : [];
 
 
+  // Cenário estático e fictício, independente do estado operacional.
+  // Não altera status, destinatários, fila, APIs ou relatórios reais.
+  if (campaignId === "274613ce-eaa7-4214-8e98-9266dcb664dd" && !showReal) {
+    return (
+      <section className="space-y-4 rounded-2xl border bg-card p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h3 className="text-base font-semibold">Painel de envio (DEMO)</h3>
+          <span className="rounded-full bg-violet-100 px-3 py-2 text-xs font-bold text-violet-800">DADOS DEMO</span>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-xl border p-3">
+            <p className="text-xs text-muted-foreground">Status DEMO</p>
+            <p className="mt-2 text-2xl font-bold text-blue-600">Enviando</p>
+          </div>
+          <div className="rounded-xl border p-3">
+            <p className="text-xs text-muted-foreground">Destinatários previstos (DEMO)</p>
+            <p className="mt-2 text-2xl font-bold tabular-nums" style={{color:"#315e91"}}>18.136</p>
+          </div>
+        </div>
+        <div className="space-y-2">
+          <p className="text-sm font-medium">Progresso (DEMO)</p>
+          <div className="h-3 overflow-hidden rounded-full bg-muted" role="progressbar" aria-label="Progresso DEMO">
+            <div className="h-full w-1/3 rounded-full bg-blue-600/70 animate-pulse" />
+          </div>
+        </div>
+        {onShowRealChange && <button type="button" className="text-sm underline" onClick={()=>onShowRealChange(true)}>Ver dados reais</button>}
+      </section>
+    );
+  }
+
   // DIGITALE_REACT_DEMO_V5
   // Somente uma visualizacao demonstrativa.
   // Nunca altera a resposta da API ou os dados armazenados.
@@ -283,7 +314,17 @@ export function LiveCampaignPulse({
     campaignId ===
     "77031c19-c393-498e-af23-1610965747d5"
   ) {
-    const demoMetrics = beta?.metrics ?? [
+    // Cenário fictício de apresentação, sem dados reais ou efeito em relatórios.
+    const treinoDemo = campaignId === "77031c19-c393-498e-af23-1610965747d5";
+    const aloeDemo = getCampaignBeta("a89e9396-9906-4c43-b0d2-a031d9bd58d7");
+    const treinoMetrics = treinoDemo && aloeDemo ? aloeDemo.metrics.map(([label, value, color]) => {
+      const readings = Math.round(aloeDemo.readings * 0.84);
+      const clicks = 246; // Valor fictício exclusivo do cenário DEMO Treino de Força.
+      const simulated = label === "Leituras" ? readings : label === "Cliques" ? clicks :
+        label === "Leitura não confirmada" ? aloeDemo.readyToRead - readings : null;
+      return [label, simulated === null ? value : number(simulated), color] as const;
+    }) : null;
+    const demoMetrics = treinoMetrics ?? beta?.metrics ?? [
       ["Destinatários previstos", "17.434", "#315e91"],
       ["Tentativas registradas", "17.434", "#315e91"],
       ["Aceitos pela API", "17.415", "#315e91"],
@@ -309,8 +350,9 @@ export function LiveCampaignPulse({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h3 className="text-base font-semibold">
-              Monitoramento em tempo real
+              {treinoDemo ? "Engajamento demonstrativo" : "Monitoramento em tempo real"}
             </h3>
+            {treinoDemo && <p className="text-xs text-muted-foreground">Cenário fictício baseado na máscara Aloe Vera; não corresponde aos resultados reais.</p>}
             
           </div>
 
