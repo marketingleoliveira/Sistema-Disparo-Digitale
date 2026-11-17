@@ -275,7 +275,7 @@ export function LiveCampaignPulse({
 
   // Cenário estático e fictício, independente do estado operacional.
   // Não altera status, destinatários, fila, APIs ou relatórios reais.
-  if (campaignId === "274613ce-eaa7-4214-8e98-9266dcb664dd" && !showReal) {
+  if (campaignId === "274613ce-eaa7-4214-8e98-9266dcb664dd" && !showReal && !beta) {
     return (
       <section className="space-y-4 rounded-2xl border bg-card p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">

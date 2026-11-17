@@ -35,7 +35,45 @@ const milano = Object.freeze({
   readyToRead, unconfirmedReadings, metrics
 });
 
+
+// NEWSLETTER_1611_DEMO
+// Dados exclusivamente demonstrativos.
+// Não interfere em disparos, rastreamento ou relatórios.
+
+export const NEWSLETTER_1611_DEMO = Object.freeze({
+  campaignName: "Newsletter 16/11",
+  isDemo: true,
+
+  target: 18519,
+  failed: 13,
+  bounced: 20,
+  accepted: 18506,
+  delivered: 18486,
+  readyToRead: 18431,
+  readings: 11198,
+  clicks: 313,
+  unconfirmedReadings: 7233,
+
+  metrics: [
+    ["Destinatários previstos", "18.519", "#315e91"],
+    ["Tentativas registradas", "18.519", "#315e91"],
+    ["Aceitos pela API", "18.506", "#315e91"],
+    ["Na fila SMTP", "0", "#64748b"],
+    ["Aceitos pelo SMTP", "18.506", "#2563eb"],
+    ["Adiados", "0", "#c38a35"],
+    ["Devolvidos", "20", "#cc5757"],
+    ["Entregues confirmados", "18.486", "#21856b"],
+    ["Falhas iniciais", "13", "#cc5757"],
+    ["Ritmo do motor SMTP", "0/min", "#21856b"],
+    ["Pronto para Ler", "18.431", "#21856b"],
+    ["Leituras", "11.198", "#315e91"],
+    ["Cliques", "313", "#7c3aed"],
+    ["Leitura não confirmada", "7.233", "#64748b"]
+  ] as ReadonlyArray<readonly [string, string, string]>
+});
+
 export function getCampaignBeta(campaignId?: string) {
+  if (campaignId === "274613ce-eaa7-4214-8e98-9266dcb664dd") return NEWSLETTER_1611_DEMO;
   if (campaignId === "ba60b51a-815b-4f20-8df4-29d6dc4c464d") return MALHA_0911_DEMO;
   if (campaignId === "a89e9396-9906-4c43-b0d2-a031d9bd58d7") return ALOE_VERA_DEMO;
   return campaignId === MILANO_BETA_CAMPAIGN_ID ? milano : null;
