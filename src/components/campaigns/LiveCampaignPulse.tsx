@@ -14,6 +14,16 @@ import {
   getLiveCampaignPulse
 } from "@/lib/disparo-smtp-delivery.functions";
 
+export const LYON_SENDING_MASK_CAMPAIGN_ID = "4d5f1795-6418-4fda-b72e-ead2f743ae67";
+
+export function hasSendingMask(campaignId?: string) {
+  return campaignId === LYON_SENDING_MASK_CAMPAIGN_ID ||
+    campaignId === "274613ce-eaa7-4214-8e98-9266dcb664dd";
+}
+
+const LYON_DEMO_START = Date.parse("2026-11-18T14:03:25Z");
+const DEMO_HOUR_MS = 60 * 60 * 1000;
+
 type Snapshot = {
   target: number;
   attempts: number;
@@ -109,6 +119,7 @@ export function LiveCampaignPulse({
 }) {
   const fetchPulse = useServerFn(getLiveCampaignPulse);
   const beta = getCampaignBeta(campaignId);
+  const lyonSendingDemo = campaignId === LYON_SENDING_MASK_CAMPAIGN_ID;
 
   const [current, setCurrent] =
     React.useState<Snapshot | null>(null);
@@ -121,7 +132,30 @@ export function LiveCampaignPulse({
   const [clock, setClock] = React.useState(Date.now());
 
   React.useEffect(() => {
-    if (beta && !showReal) return;
+    if (!lyonSendingDemo || showReal) return;
+    let timer: number;
+    function refreshDemoProgress() {
+      const now = Date.now();
+      setClock(now);
+      const elapsed = Math.max(0, now - LYON_DEMO_START);
+      if (elapsed < 5 * DEMO_HOUR_MS) {
+        timer = window.setTimeout(refreshDemoProgress, DEMO_HOUR_MS - elapsed % DEMO_HOUR_MS);
+      }
+    }
+    refreshDemoProgress();
+    window.addEventListener("focus", refreshOnFocus);
+    function refreshOnFocus() {
+      window.clearTimeout(timer);
+      refreshDemoProgress();
+    }
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("focus", refreshOnFocus);
+    };
+  }, [lyonSendingDemo, showReal]);
+
+  React.useEffect(() => {
+    if ((beta || lyonSendingDemo) && !showReal) return;
     let active = true;
     let loading = false;
     let previous: Snapshot | null = null;
@@ -196,9 +230,9 @@ export function LiveCampaignPulse({
       window.clearInterval(poll);
       window.clearInterval(ticker);
     };
-  }, [campaignId, fetchPulse, beta, showReal]);
+  }, [campaignId, fetchPulse, beta, lyonSendingDemo, showReal]);
 
-  const renderCard = (content: FlipContent) => beta ? (
+  const renderCard = (content: FlipContent) => beta || lyonSendingDemo ? (
     <CampaignFlipCard showReal={showReal}
       onFlip={() => onShowRealChange?.(!showReal)}>
       {content}
@@ -273,10 +307,12 @@ export function LiveCampaignPulse({
   ] : [];
 
 
-  // Cenário estático e fictício, independente do estado operacional.
+  const demoProgress = Math.min(100, Math.max(0, Math.floor((clock - LYON_DEMO_START) / DEMO_HOUR_MS) * 20));
+
+  // Cenário fictício, independente do estado operacional.
   // Não altera status, destinatários, fila, APIs ou relatórios reais.
-  if (campaignId === "274613ce-eaa7-4214-8e98-9266dcb664dd" && !showReal && !beta) {
-    return (
+  if (hasSendingMask(campaignId) && !showReal && !beta) {
+    return renderCard(() => (
       <section className="space-y-4 rounded-2xl border bg-card p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h3 className="text-base font-semibold">Painel de envio (DEMO)</h3>
@@ -286,22 +322,29 @@ export function LiveCampaignPulse({
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-xl border p-3">
             <p className="text-xs text-muted-foreground">Status DEMO</p>
-            <p className="mt-2 text-2xl font-bold text-blue-600">Enviando</p>
+            <p className="mt-2 text-2xl font-bold text-blue-600" aria-live="polite">{lyonSendingDemo && demoProgress === 100 ? "Analisando relatório de entrega" : "Enviando"}</p>
           </div>
           <div className="rounded-xl border p-3">
             <p className="text-xs text-muted-foreground">Destinatários previstos (DEMO)</p>
-            <p className="mt-2 text-2xl font-bold tabular-nums" style={{color:"#315e91"}}>18.136</p>
+            <p className="mt-2 text-2xl font-bold tabular-nums" style={{color:"#315e91"}}>{lyonSendingDemo ? number(18682) : "18.136"}</p>
           </div>
         </div>
         <div className="space-y-2">
-          <p className="text-sm font-medium">Progresso (DEMO)</p>
-          <div className="h-3 overflow-hidden rounded-full bg-muted" role="progressbar" aria-label="Progresso DEMO">
-            <div className="h-full w-1/3 rounded-full bg-blue-600/70 animate-pulse" />
+          <div className="flex items-center justify-between gap-2 text-sm font-medium">
+            <span>Progresso (DEMO)</span>
+            {lyonSendingDemo && <span>{demoProgress}%{demoProgress === 100 ? " enviado" : ""}</span>}
+          </div>
+          <div className="h-3 overflow-hidden rounded-full bg-muted" role="progressbar" aria-label="Progresso DEMO" aria-valuenow={lyonSendingDemo ? demoProgress : undefined}>
+            {lyonSendingDemo ? (
+              <div className="h-full rounded-full bg-blue-600/70 transition-[width] duration-500" style={{ width: `${demoProgress}%` }} />
+            ) : (
+              <div className="h-full w-1/3 rounded-full bg-blue-600/70 animate-pulse" />
+            )}
           </div>
         </div>
-        {onShowRealChange && <button type="button" className="text-sm underline" onClick={()=>onShowRealChange(true)}>Ver dados reais</button>}
+        {!lyonSendingDemo && onShowRealChange && <button type="button" className="text-sm underline" onClick={() => onShowRealChange(true)}>Ver dados reais</button>}
       </section>
-    );
+    ));
   }
 
   // DIGITALE_REACT_DEMO_V5
@@ -427,7 +470,7 @@ export function LiveCampaignPulse({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-        {beta && (
+        {(beta || lyonSendingDemo) && (
           <button type="button" data-flip-trigger
             onClick={flip} disabled={turning}
             aria-label="Voltar aos dados de demonstração"

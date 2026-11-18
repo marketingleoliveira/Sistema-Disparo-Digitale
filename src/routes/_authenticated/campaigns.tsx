@@ -1269,7 +1269,7 @@ function CampaignsPage() {
                   )}
                   <TableCell className="pl-6">
                     <div className="flex flex-col">
-                      <CampaignDetailsModal campaignId={camp.id} name={camp.name} />
+                      <CampaignDetailsModal campaignId={camp.id} name={camp.name} filtersUnderMaintenance={camp.status === "Enviada"} />
                       <span className="text-[10px] text-muted-foreground">{camp.subject}</span>
                     </div>
                   </TableCell>

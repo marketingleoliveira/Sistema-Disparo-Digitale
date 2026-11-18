@@ -43,11 +43,11 @@ export function listCampaignClickRankingDB():
       ), 0)
     FROM disparo_click_events e
     INNER JOIN disparo_tracking_links l
-      ON BINARY l.id = BINARY e.link_id
+      ON l.id = e.link_id
     INNER JOIN disparo_campaigns cp
-      ON BINARY cp.id = BINARY l.campaign_id
+      ON cp.id COLLATE utf8mb4_unicode_ci = l.campaign_id
     WHERE cp.archived_at IS NULL
-    GROUP BY BINARY l.campaign_id
+    GROUP BY l.campaign_id
     ORDER BY COUNT(*) DESC;
   `;
 

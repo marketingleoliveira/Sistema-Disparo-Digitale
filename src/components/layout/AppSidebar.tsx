@@ -153,6 +153,7 @@ export function AppSidebar() {
         }]
       : sidebarStructure.filter((group) => {
           if (group.group === "Analytics") return false;
+          if (group.group === "Principal") return false; // Dashboard temporariamente fora do menu.
           if (group.group === "Administração" ||
               group.group === "Configurações") {
             return isMaster;

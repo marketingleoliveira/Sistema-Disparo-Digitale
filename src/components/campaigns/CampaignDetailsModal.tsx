@@ -8,10 +8,11 @@ import { SmtpDeliveryPanel } from
   "@/components/campaigns/SmtpDeliveryPanel";
 
 export function CampaignDetailsModal({
-  campaignId, name
+  campaignId, name, filtersUnderMaintenance = false
 }: {
   campaignId: string;
   name: string;
+  filtersUnderMaintenance?: boolean;
 }) {
   const [open, setOpen] = React.useState(false);
 
@@ -36,7 +37,7 @@ export function CampaignDetailsModal({
           </DialogHeader>
 
           {open && (
-            <SmtpDeliveryPanel campaignId={campaignId} />
+            <SmtpDeliveryPanel campaignId={campaignId} filtersUnderMaintenance={filtersUnderMaintenance} />
           )}
         </DialogContent>
       </Dialog>

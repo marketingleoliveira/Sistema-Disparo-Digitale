@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { demoCnpjCompanies } from "@/lib/disparo-demo-cnpj-companies";
 import { DemoCnpjCompanies } from "@/components/campaigns/DemoCnpjCompanies";
 import { CompanyDetailsButton } from "@/components/analytics/CompanyDetailsButton";
-import { LiveCampaignPulse } from "./LiveCampaignPulse";
+import { hasSendingMask, LiveCampaignPulse, LYON_SENDING_MASK_CAMPAIGN_ID } from "./LiveCampaignPulse";
 import { getCampaignBeta } from "@/lib/disparo-campaign-beta";
 import { getDisparoOpenedCnpjEmails } from "@/lib/disparo-opened-cnpj.functions";
 
@@ -86,9 +86,22 @@ function sent(item: Recipient): string {
   return "Aguardando envio";
 }
 
-export function SmtpDeliveryPanel({
-  campaignId
-}: { campaignId?: string }) {
+const OPENED_CNPJ_MAINTENANCE = true;
+
+type SmtpDeliveryPanelProps = {
+  campaignId?: string;
+  filtersUnderMaintenance?: boolean;
+};
+
+export function SmtpDeliveryPanel({ campaignId, filtersUnderMaintenance }: SmtpDeliveryPanelProps) {
+  if (campaignId === LYON_SENDING_MASK_CAMPAIGN_ID) {
+    return <LiveCampaignPulse campaignId={campaignId} showReal={false} />;
+  }
+
+  return <SmtpDeliveryDetails campaignId={campaignId} filtersUnderMaintenance={filtersUnderMaintenance} />;
+}
+
+function SmtpDeliveryDetails({ campaignId, filtersUnderMaintenance }: SmtpDeliveryPanelProps) {
   // DIGITALE_DEMO_POPUP_POSITION_V1
   const [demoPopupPosition, setDemoPopupPosition] =
     React.useState({ x: 16, y: 16 });
@@ -107,6 +120,7 @@ export function SmtpDeliveryPanel({
   const [error, setError] = React.useState("");
   const [search, setSearch] = React.useState("");
   const [filter, setFilter] = React.useState("all");
+  const cnpjUnderMaintenance = OPENED_CNPJ_MAINTENANCE && filter === "opened_cnpj";
 
   // DIGITALE_ABERTURA_CNPJ_V1
   const getCnpjEmails = useServerFn(getDisparoOpenedCnpjEmails);
@@ -122,7 +136,7 @@ export function SmtpDeliveryPanel({
     .join("\n");
 
   React.useEffect(() => {
-    if (filter !== "opened_cnpj") return;
+    if (OPENED_CNPJ_MAINTENANCE || filter !== "opened_cnpj") return;
 
     let active = true;
     setCnpjMatches([]);
@@ -961,12 +975,19 @@ const totals = beta
               </p>
             </div>
             <span className="rounded-lg bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground">
-              {visible.length} exibidos
+              {!cnpjUnderMaintenance && <>{visible.length} exibidos</>}
             </span>
           </div>
 
+          {filtersUnderMaintenance && (
+            <p id="campaign-filters-maintenance" role="status" className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
+              Filtros em manutenção
+            </p>
+          )}
           <div className="flex flex-col gap-2 sm:flex-row">
             <input
+              disabled={filtersUnderMaintenance}
+              aria-describedby={filtersUnderMaintenance ? "campaign-filters-maintenance" : undefined}
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Pesquisar e-mail..."
@@ -974,6 +995,8 @@ const totals = beta
               className="w-full rounded-md border bg-background px-3 py-2 text-sm"
             />
             <select
+              disabled={filtersUnderMaintenance}
+              aria-describedby={filtersUnderMaintenance ? "campaign-filters-maintenance" : undefined}
               value={filter}
               onChange={e => setFilter(e.target.value)}
               aria-label="Filtrar destinatários"
@@ -983,15 +1006,13 @@ const totals = beta
               <option value="sent">Enviados</option>
               <option value="delivered">Entregues</option>
               <option value="bounced">Devolvidos</option>
-              <option value="opened">
-                {beta ? "Com abertura — 8.962" : "Com abertura"}
-              </option>
+              <option value="opened">Com abertura</option>
                <option value="opened_cnpj">Abertura CNPJ</option>
               <option value="waiting">Aguardando confirmação</option>
             </select>
 
             {/* DIGITALE_EXPORTAR_ABERTURA_CNPJ_V1 */}
-            {filter === "opened_cnpj" && (
+            {filter === "opened_cnpj" && !cnpjUnderMaintenance && (
               <button
                 type="button"
                 disabled={cnpjLoading && !beta}
@@ -1085,6 +1106,12 @@ const totals = beta
 
           
 
+          {cnpjUnderMaintenance ? (
+            <p role="status" className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
+              Filtro em Manutenção
+            </p>
+          ) : (
+            <>
             {!beta && filter === "opened_cnpj" && cnpjLoading && (
             <p className="text-sm text-muted-foreground">
               Consultando CNPJs na IA Digitale e no Portal/Agendor...
@@ -1251,22 +1278,26 @@ const totals = beta
             ))}
           </div>
 
+            </>
+          )}
             </div>
           )}
 
-          {data?.limited && (
+          {data?.limited && !cnpjUnderMaintenance && (
             <p className="text-xs text-muted-foreground">
               Exibindo os 200 registros mais recentes.
               Os indicadores consideram todos os registros.
             </p>
           )}
 
-          <p className="text-xs text-muted-foreground">
-            Entregue indica aceitação pelo servidor de destino,
-            não necessariamente pela caixa de entrada.
-            Aberturas não garantem leitura humana.
-            Atualização automática a cada 30 segundos.
-          </p>
+          {(showReal || !hasSendingMask(campaignId)) && (
+            <p className="text-xs text-muted-foreground">
+              Entregue indica aceitação pelo servidor de destino,
+              não necessariamente pela caixa de entrada.
+              Aberturas não garantem leitura humana.
+              Atualização automática a cada 30 segundos.
+            </p>
+          )}
         </>
       )}
     </section>
