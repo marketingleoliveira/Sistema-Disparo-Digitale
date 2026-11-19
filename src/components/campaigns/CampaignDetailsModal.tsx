@@ -8,11 +8,12 @@ import { SmtpDeliveryPanel } from
   "@/components/campaigns/SmtpDeliveryPanel";
 
 export function CampaignDetailsModal({
-  campaignId, name, filtersUnderMaintenance = false
+  campaignId, name, filtersUnderMaintenance = false, triggerLabel
 }: {
   campaignId: string;
   name: string;
   filtersUnderMaintenance?: boolean;
+  triggerLabel?: string;
 }) {
   const [open, setOpen] = React.useState(false);
 
@@ -21,10 +22,12 @@ export function CampaignDetailsModal({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="text-left font-semibold text-primary hover:text-orange-600 hover:underline focus-visible:outline focus-visible:outline-2 rounded-sm"
+        className={triggerLabel
+          ? "inline-flex shrink-0 items-center justify-center rounded-md border border-border bg-background px-2.5 py-1 text-xs font-semibold text-primary transition-colors hover:bg-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+          : "text-left font-semibold text-primary hover:text-orange-600 hover:underline focus-visible:outline focus-visible:outline-2 rounded-sm"}
         title={`Acompanhar campanha ${name}`}
       >
-        {name}
+        {triggerLabel || name}
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>

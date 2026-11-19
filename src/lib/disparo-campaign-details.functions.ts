@@ -192,7 +192,7 @@ export const getCampaignDetails =
         WHERE ${where};
       `)[0]?.[0] || 0);
 
-      const limit = 50;
+      const limit = 200;
       const offset = (data.page - 1) * limit;
 
       const entries = rows(`

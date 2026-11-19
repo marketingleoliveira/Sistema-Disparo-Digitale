@@ -1,5 +1,5 @@
 import * as React from "react";
-import { getCampaignBeta } from "@/lib/disparo-campaign-beta";
+import { getCampaignBeta, TREINO_FORCA_DEMO } from "@/lib/disparo-campaign-beta";
 import { useServerFn } from "@tanstack/react-start";
 import {
   AreaChart,
@@ -311,7 +311,7 @@ export function LiveCampaignPulse({
 
   // Cenário fictício, independente do estado operacional.
   // Não altera status, destinatários, fila, APIs ou relatórios reais.
-  if (hasSendingMask(campaignId) && !showReal && !beta) {
+  if (hasSendingMask(campaignId) && !lyonSendingDemo && !showReal && !beta) {
     return renderCard(() => (
       <section className="space-y-4 rounded-2xl border bg-card p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -347,6 +347,55 @@ export function LiveCampaignPulse({
     ));
   }
 
+  // LYON_MILANO_STYLE_18682_V1
+  // Visualizacao de demonstracao com estrutura de metricas do Milano.
+  // Total de contatos apresentados permanece 18.682; nenhum registro real e alterado.
+  if (lyonSendingDemo && !showReal) {
+    const total = 18682;
+    const formatLyon = (v: number) => number(v);
+    const lyonMetrics: ReadonlyArray<readonly [string,string,string]> = [
+      ["Destinatários previstos", formatLyon(total), "#315e91"],
+      ["Tentativas registradas", formatLyon(total), "#315e91"],
+      ["Aceitos pela API", formatLyon(total), "#315e91"],
+      ["Na fila SMTP", "0", "#64748b"],
+      ["Aceitos pelo SMTP", formatLyon(total), "#2563eb"],
+      ["Adiados", "0", "#c38a35"],
+      ["Devolvidos", "135", "#cc5757"],
+      ["Entregues confirmados", formatLyon(total - 135), "#21856b"],
+      ["Falhas iniciais", "0", "#cc5757"],
+      ["Ritmo do motor SMTP", "0/min", "#21856b"],
+      ["Pronto para Ler", formatLyon(total - 135), "#21856b"],
+      ["Leituras", "13.173", "#315e91"],
+      ["Cliques", "291", "#7c3aed"],
+      ["Leitura não confirmada", "5.083", "#64748b"]
+    ];
+    return renderCard(() => (
+      <div data-digitale-lyon-milano-mask="v1" className="space-y-4 rounded-2xl border bg-card p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h3 className="text-base font-semibold">Monitoramento em tempo real</h3>
+          <span className="rounded-full bg-violet-100 px-3 py-2 text-xs font-bold text-violet-800">DADOS DEMO</span>
+        </div>
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {lyonMetrics.map(([title, value, color]) => (
+            <div key={title} className="rounded-xl border p-3">
+              <p className="text-xs text-muted-foreground">{title}</p>
+              <p className="mt-2 text-2xl font-bold tabular-nums" style={{ color }}>{value}</p>
+            </div>
+          ))}
+        </div>
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span className="font-medium">Progresso da preparação (DEMO)</span>
+            <span className="font-bold tabular-nums">100%</span>
+          </div>
+          <div className="h-3 overflow-hidden rounded-full bg-muted">
+            <div className="h-full w-full rounded-full bg-blue-600" />
+          </div>
+        </div>
+      </div>
+    ));
+  }
+
   // DIGITALE_REACT_DEMO_V5
   // Somente uma visualizacao demonstrativa.
   // Nunca altera a resposta da API ou os dados armazenados.
@@ -359,14 +408,7 @@ export function LiveCampaignPulse({
   ) {
     // Cenário fictício de apresentação, sem dados reais ou efeito em relatórios.
     const treinoDemo = campaignId === "77031c19-c393-498e-af23-1610965747d5";
-    const aloeDemo = getCampaignBeta("a89e9396-9906-4c43-b0d2-a031d9bd58d7");
-    const treinoMetrics = treinoDemo && aloeDemo ? aloeDemo.metrics.map(([label, value, color]) => {
-      const readings = Math.round(aloeDemo.readings * 0.84);
-      const clicks = 246; // Valor fictício exclusivo do cenário DEMO Treino de Força.
-      const simulated = label === "Leituras" ? readings : label === "Cliques" ? clicks :
-        label === "Leitura não confirmada" ? aloeDemo.readyToRead - readings : null;
-      return [label, simulated === null ? value : number(simulated), color] as const;
-    }) : null;
+    const treinoMetrics = treinoDemo ? TREINO_FORCA_DEMO.metrics : null;
     const demoMetrics = treinoMetrics ?? beta?.metrics ?? [
       ["Destinatários previstos", "17.434", "#315e91"],
       ["Tentativas registradas", "17.434", "#315e91"],
@@ -395,7 +437,7 @@ export function LiveCampaignPulse({
             <h3 className="text-base font-semibold">
               {treinoDemo ? "Engajamento demonstrativo" : "Monitoramento em tempo real"}
             </h3>
-            {treinoDemo && <p className="text-xs text-muted-foreground">Cenário fictício baseado na máscara Aloe Vera; não corresponde aos resultados reais.</p>}
+            {treinoDemo && <p className="text-xs text-muted-foreground">Cenário demonstrativo independente; não corresponde aos resultados reais.</p>}
             
           </div>
 

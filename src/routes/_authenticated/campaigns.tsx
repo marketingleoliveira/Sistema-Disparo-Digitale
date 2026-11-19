@@ -58,6 +58,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
+import { CampaignMaskTopRanking } from "@/components/campaigns/CampaignMaskTopRanking";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -1154,6 +1155,12 @@ function CampaignsPage() {
         </Button>
       </div>
 
+      {!showArchived && (
+        <div className="w-full min-w-0">
+          <CampaignMaskTopRanking />
+        </div>
+      )}
+
       {showArchived && isDeveloper && (
         <div className="rounded-xl border bg-card p-5 shadow-sm">
           <h2 className="mb-4 text-lg font-semibold">Campanhas arquivadas</h2>
@@ -1171,7 +1178,7 @@ function CampaignsPage() {
       )}
       <Tabs value={statusFilter} onValueChange={setStatusFilter} className={showArchived ? "hidden" : "w-full"}>
         <TabsList className="no-scrollbar w-full justify-start overflow-x-auto bg-muted/50">
-          {["Todas", "Enviadas", "Agendadas", "Rascunhos", "Em andamento"].map((status) => (
+          {["Todas"].map((status) => (
             <TabsTrigger
               key={status}
               value={status}

@@ -25,7 +25,7 @@ function LoginPage() {
 
   React.useEffect(() => {
     if (isAuthenticated) {
-      navigate({ to: "/dashboard" });
+      navigate({ to: "/campaigns" });
     }
   }, [isAuthenticated, navigate]);
 
@@ -37,7 +37,7 @@ function LoginPage() {
     setIsLoading(true);
     try {
       await login(email, password);
-      navigate({ to: "/dashboard" });
+      navigate({ to: "/campaigns" });
     } catch {
       setError("Nao foi possivel entrar. Verifique suas credenciais e utilize uma conexao segura.");
     } finally {

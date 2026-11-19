@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { demoCnpjCompanies } from "@/lib/disparo-demo-cnpj-companies";
 import { DemoCnpjCompanies } from "@/components/campaigns/DemoCnpjCompanies";
 import { CompanyDetailsButton } from "@/components/analytics/CompanyDetailsButton";
+import { CampaignRecipientDemo } from "./CampaignRecipientDemo";
 import { hasSendingMask, LiveCampaignPulse, LYON_SENDING_MASK_CAMPAIGN_ID } from "./LiveCampaignPulse";
 import { getCampaignBeta } from "@/lib/disparo-campaign-beta";
 import { getDisparoOpenedCnpjEmails } from "@/lib/disparo-opened-cnpj.functions";
@@ -93,12 +94,32 @@ type SmtpDeliveryPanelProps = {
   filtersUnderMaintenance?: boolean;
 };
 
-export function SmtpDeliveryPanel({ campaignId, filtersUnderMaintenance }: SmtpDeliveryPanelProps) {
-  if (campaignId === LYON_SENDING_MASK_CAMPAIGN_ID) {
-    return <LiveCampaignPulse campaignId={campaignId} showReal={false} />;
-  }
+const MASKED_CAMPAIGN_IDS = new Set<string>([
+  "4d5f1795-6418-4fda-b72e-ead2f743ae67",
+  "274613ce-eaa7-4214-8e98-9266dcb664dd",
+  "77031c19-c393-498e-af23-1610965747d5",
+  "a89e9396-9906-4c43-b0d2-a031d9bd58d7",
+  "ba60b51a-815b-4f20-8df4-29d6dc4c464d",
+  "86bd2a09-85f9-4641-9f8d-5a031e13ca8b",
+  "cdd61ff9-2273-4b87-9eac-af7d1ce731fc",
+]);
 
-  return <SmtpDeliveryDetails campaignId={campaignId} filtersUnderMaintenance={filtersUnderMaintenance} />;
+export function SmtpDeliveryPanel({ campaignId, filtersUnderMaintenance }: SmtpDeliveryPanelProps) {
+  return (
+    <>
+      {campaignId && MASKED_CAMPAIGN_IDS.has(campaignId) && (
+        <LiveCampaignPulse campaignId={campaignId} showReal={false} />
+      )}
+      {campaignId && MASKED_CAMPAIGN_IDS.has(campaignId) ? (
+        <CampaignRecipientDemo campaignId={campaignId} />
+      ) : (
+        <SmtpDeliveryDetails
+          campaignId={campaignId}
+          filtersUnderMaintenance={filtersUnderMaintenance}
+        />
+      )}
+    </>
+  );
 }
 
 function SmtpDeliveryDetails({ campaignId, filtersUnderMaintenance }: SmtpDeliveryPanelProps) {

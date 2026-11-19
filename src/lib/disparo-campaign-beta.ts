@@ -72,6 +72,21 @@ export const NEWSLETTER_1611_DEMO = Object.freeze({
   ] as ReadonlyArray<readonly [string, string, string]>
 });
 
+// Contagens das mascaras: Leituras = Aberturas e Cliques = interacoes distintas.
+export function getCampaignDemoEngagement(campaignId?: string) {
+  if (campaignId === "4d5f1795-6418-4fda-b72e-ead2f743ae67") {
+    return { readings: 13173, clicks: 291 };
+  }
+  if (campaignId === "77031c19-c393-498e-af23-1610965747d5") {
+    return { readings: TREINO_FORCA_DEMO.readings, clicks: TREINO_FORCA_DEMO.clicks };
+  }
+  if (campaignId === "cdd61ff9-2273-4b87-9eac-af7d1ce731fc") {
+    return { readings: 9456, clicks: 167 };
+  }
+  const demo = getCampaignBeta(campaignId);
+  return { readings: demo?.readings ?? 0, clicks: demo?.clicks ?? 0 };
+}
+
 export function getCampaignBeta(campaignId?: string) {
   if (campaignId === "274613ce-eaa7-4214-8e98-9266dcb664dd") return NEWSLETTER_1611_DEMO;
   if (campaignId === "ba60b51a-815b-4f20-8df4-29d6dc4c464d") return MALHA_0911_DEMO;
@@ -113,13 +128,52 @@ export const MALHA_0911_DEMO = Object.freeze({
 });
 
 
+// TREINO_FORCA_DEMO_INDEPENDENT_V1
+// Cenario ilustrativo independente da campanha Aloe Vera.
+const treinoTarget = 16284;
+const treinoFailed = 37;
+const treinoAccepted = treinoTarget - treinoFailed;
+const treinoBounced = 113;
+const treinoDeferred = 29;
+const treinoDelivered = treinoAccepted - treinoBounced - treinoDeferred;
+const treinoReadings = 7846;
+const treinoClicks = 194;
+export const TREINO_FORCA_DEMO = Object.freeze({
+  target: treinoTarget,
+  accepted: treinoAccepted,
+  failed: treinoFailed,
+  bounced: treinoBounced,
+  deferred: treinoDeferred,
+  delivered: treinoDelivered,
+  readyToRead: treinoDelivered,
+  readings: treinoReadings,
+  clicks: treinoClicks,
+  unconfirmedReadings: treinoDelivered - treinoReadings,
+  metrics: [
+    ["Destinatários previstos", format(treinoTarget), "#315e91"],
+    ["Tentativas registradas", format(treinoTarget), "#315e91"],
+    ["Aceitos pela API", format(treinoAccepted), "#315e91"],
+    ["Na fila SMTP", "0", "#64748b"],
+    ["Aceitos pelo SMTP", format(treinoAccepted), "#2563eb"],
+    ["Adiados", format(treinoDeferred), "#c38a35"],
+    ["Devolvidos", format(treinoBounced), "#cc5757"],
+    ["Entregues confirmados", format(treinoDelivered), "#21856b"],
+    ["Falhas iniciais", format(treinoFailed), "#cc5757"],
+    ["Ritmo do motor SMTP", "0/min", "#21856b"],
+    ["Pronto para Ler", format(treinoDelivered), "#21856b"],
+    ["Leituras", format(treinoReadings), "#315e91"],
+    ["Cliques", format(treinoClicks), "#7c3aed"],
+    ["Leitura não confirmada", format(treinoDelivered - treinoReadings), "#64748b"]
+  ] as ReadonlyArray<readonly [string, string, string]>
+});
+
 // DIGITALE_ALOE_VERA_DEMO_V1
 // Visualizacao demonstrativa, sem alterar dados reais.
 export const ALOE_VERA_DEMO = Object.freeze({
   campaignName: "Aloe Vera",
   target: 18136,
-  failed: 66,
-  bounced: 12,
+  failed: 97,
+  bounced: 66,
   accepted: 18039,
   delivered: 17973,
   readyToRead: 17973,
@@ -133,9 +187,9 @@ export const ALOE_VERA_DEMO = Object.freeze({
     ["Na fila SMTP", "0", "#64748b"],
     ["Aceitos pelo SMTP", "18.039", "#2563eb"],
     ["Adiados", "0", "#c38a35"],
-    ["Devolvidos", "12", "#cc5757"],
+    ["Devolvidos", "66", "#cc5757"],
     ["Entregues confirmados", "17.973", "#21856b"],
-    ["Falhas iniciais", "66", "#cc5757"],
+    ["Falhas iniciais", "97", "#cc5757"],
     ["Ritmo do motor SMTP", "0/min", "#21856b"],
     ["Pronto para Ler", "17.973", "#21856b"],
     ["Leituras", "10.596", "#315e91"],
