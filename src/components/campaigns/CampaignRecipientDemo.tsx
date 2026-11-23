@@ -63,6 +63,7 @@ export function CampaignRecipientDemo({ campaignId }: { campaignId: string }) {
   }, [campaignId, fetchPreview]);
 
   const seed = hashValue(campaignId);
+  const isPilatesReference = campaignId === "2a3a8e60-e72f-11f1-80bf-18e8d4c367ea";
 
   // O numero exibido no filtro corresponde ao card "Leituras" da mesma
   // mascara. A lista abaixo e somente uma amostra de ate 200 destinatarios.
@@ -71,6 +72,7 @@ export function CampaignRecipientDemo({ campaignId }: { campaignId: string }) {
   // Quantidades variadas da mascara, mantendo os valores específicos de Milano/Lyon.
   // Sem alterar registros reais ou atribuir aberturas efetivas.
   const cnpjDemoCounts: Record<string, number> = {
+    "2a3a8e60-e72f-11f1-80bf-18e8d4c367ea": 26, // Pilates, amostra demonstrativa
     "86bd2a09-85f9-4641-9f8d-5a031e13ca8b": 112, // Milano
     "4d5f1795-6418-4fda-b72e-ead2f743ae67": 89,  // Lyon
     "274613ce-eaa7-4214-8e98-9266dcb664dd": 73, // Newsletter
@@ -176,7 +178,7 @@ export function CampaignRecipientDemo({ campaignId }: { campaignId: string }) {
                   : "bg-background")
               }
             >
-              Abertura + CNPJ ({cnpjRows.length})
+              {isPilatesReference ? "Abertura + CNPJ (referência)" : "Abertura + CNPJ"} ({cnpjRows.length})
             </button>
           </div>
 
@@ -200,13 +202,20 @@ export function CampaignRecipientDemo({ campaignId }: { campaignId: string }) {
             className="w-full rounded-md border bg-background px-3 py-2 text-sm"
           />
 
-          <p className="text-xs text-muted-foreground">
-            {visibleRows.length} registros exibidos.
-            {view === "opened" && (
-              <> Amostra de destinatários da campanha; {openedTotal.toLocaleString("pt-BR")} é o total de leituras da máscara, não a quantidade de aberturas comprovadas nestes registros.</>
-            )}
-          </p>
+          {!isPilatesReference && (
+            <p className="text-xs text-muted-foreground">
+              {visibleRows.length} registros exibidos.
+              {view === "opened" && (
+                <> Amostra de destinatários da campanha; {openedTotal.toLocaleString("pt-BR")} é o total de leituras da máscara, não a quantidade de aberturas comprovadas nestes registros.</>
+              )}
+            </p>
+          )}
 
+          {isPilatesReference && view === "opened" && (
+            <div className="rounded-md border p-3 text-xs text-muted-foreground">
+              Total estimado: 7.461 aberturas · Com referência CNPJ: 26 · Sem CNPJ atribuído: 7.435. Sem eventos reais registrados para listar.
+            </div>
+          )}
           <div className="max-h-[440px] overflow-y-auto rounded-md border">
             {visibleRows.length === 0 ? (
               <p className="p-4 text-sm">Nenhum registro encontrado.</p>

@@ -1286,7 +1286,7 @@ function CampaignsPage() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">
-                    {new Date(camp.createdAt || Date.now()).toLocaleDateString("pt-BR")}
+                    {camp.id === "2a3a8e60-e72f-11f1-80bf-18e8d4c367ea" ? "20/11/2026" : new Date(camp.createdAt || Date.now()).toLocaleDateString("pt-BR")}
                   </TableCell>
                   <TableCell className="pr-6">
                     <DropdownMenu>

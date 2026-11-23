@@ -15,9 +15,12 @@ import {
 } from "@/lib/disparo-smtp-delivery.functions";
 
 export const LYON_SENDING_MASK_CAMPAIGN_ID = "4d5f1795-6418-4fda-b72e-ead2f743ae67";
+export const NEWSLETTER_2311_MASK_CAMPAIGN_ID = "0f1e6d18-98aa-48a9-97ef-5c9b6553088c";
+const NEWSLETTER_2311_REFERENCE_TARGET = 18973;
 
 export function hasSendingMask(campaignId?: string) {
   return campaignId === LYON_SENDING_MASK_CAMPAIGN_ID ||
+    campaignId === NEWSLETTER_2311_MASK_CAMPAIGN_ID ||
     campaignId === "274613ce-eaa7-4214-8e98-9266dcb664dd";
 }
 
@@ -312,10 +315,11 @@ export function LiveCampaignPulse({
   // Cenário fictício, independente do estado operacional.
   // Não altera status, destinatários, fila, APIs ou relatórios reais.
   if (hasSendingMask(campaignId) && !lyonSendingDemo && !showReal && !beta) {
+    const newsletter23 = campaignId === NEWSLETTER_2311_MASK_CAMPAIGN_ID;
     return renderCard(() => (
       <section className="space-y-4 rounded-2xl border bg-card p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h3 className="text-base font-semibold">Painel de envio (DEMO)</h3>
+          <h3 className="text-base font-semibold">{newsletter23 ? "Newsletter 23/11 · acompanhamento de referência" : "Painel de envio (DEMO)"}</h3>
           <span className="rounded-full bg-violet-100 px-3 py-2 text-xs font-bold text-violet-800">DADOS DEMO</span>
         </div>
         
@@ -325,10 +329,11 @@ export function LiveCampaignPulse({
             <p className="mt-2 text-2xl font-bold text-blue-600" aria-live="polite">{lyonSendingDemo && demoProgress === 100 ? "Analisando relatório de entrega" : "Enviando"}</p>
           </div>
           <div className="rounded-xl border p-3">
-            <p className="text-xs text-muted-foreground">Destinatários previstos (DEMO)</p>
-            <p className="mt-2 text-2xl font-bold tabular-nums" style={{color:"#315e91"}}>{lyonSendingDemo ? number(18682) : "18.136"}</p>
+            <p className="text-xs text-muted-foreground">{newsletter23 ? "Meta visual de contatos (referência)" : "Destinatários previstos (DEMO)"}</p>
+            <p className="mt-2 text-2xl font-bold tabular-nums" style={{color:"#315e91"}}>{newsletter23 ? number(NEWSLETTER_2311_REFERENCE_TARGET) : lyonSendingDemo ? number(18682) : "18.136"}</p>
           </div>
         </div>
+        {newsletter23 && <p className="text-sm font-medium">Enviando para 18.973 contatos <span className="font-normal text-muted-foreground">(meta visual demonstrativa; não corresponde ao total real programado)</span></p>}
         <div className="space-y-2">
           <div className="flex items-center justify-between gap-2 text-sm font-medium">
             <span>Progresso (DEMO)</span>
@@ -342,7 +347,7 @@ export function LiveCampaignPulse({
             )}
           </div>
         </div>
-        {!lyonSendingDemo && onShowRealChange && <button type="button" className="text-sm underline" onClick={() => onShowRealChange(true)}>Ver dados reais</button>}
+        {!lyonSendingDemo && onShowRealChange && <button type="button" className="text-sm underline" onClick={() => onShowRealChange(true)}>Ver dados reais da campanha</button>}
       </section>
     ));
   }

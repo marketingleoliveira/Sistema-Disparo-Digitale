@@ -1,3 +1,27 @@
+
+// PILATES 20/11: somente referencia visual; zero envios ou eventos reais.
+export const PILATES_2011_ID = "2a3a8e60-e72f-11f1-80bf-18e8d4c367ea";
+export const PILATES_2011_REFERENCE = Object.freeze({
+  target: 18842, failed: 37, bounced: 160, accepted: 18805,
+  delivered: 18645, readyToRead: 18645, readings: 7461, clicks: 72,
+  unconfirmedReadings: 11184,
+  metrics: [
+    ["Destinatários previstos", "18.842", "#315e91"],
+    ["Tentativas estimadas", "18.842", "#315e91"],
+    ["Aceites estimados", "18.805", "#315e91"],
+    ["Na fila SMTP (real)", "0", "#64748b"],
+    ["Aceites SMTP estimados", "18.805", "#2563eb"],
+    ["Adiados estimados", "0", "#c38a35"],
+    ["Devolvidos estimados", "160", "#cc5757"],
+    ["Entregas estimadas", "18.645", "#21856b"],
+    ["Falhas estimadas", "37", "#cc5757"],
+    ["Ritmo SMTP (real)", "0/min", "#21856b"],
+    ["Pronto para ler (estimado)", "18.645", "#21856b"],
+    ["Leituras estimadas", "7.461", "#315e91"],
+    ["Cliques estimados", "72", "#7c3aed"],
+    ["Leitura não confirmada (estimada)", "11.184", "#64748b"]
+  ] as ReadonlyArray<readonly [string,string,string]>
+});
 // Presentation-only simulation. Never used by delivery or reporting APIs.
 export const MILANO_BETA_CAMPAIGN_ID = "86bd2a09-85f9-4641-9f8d-5a031e13ca8b";
 
@@ -74,6 +98,7 @@ export const NEWSLETTER_1611_DEMO = Object.freeze({
 
 // Contagens das mascaras: Leituras = Aberturas e Cliques = interacoes distintas.
 export function getCampaignDemoEngagement(campaignId?: string) {
+  if (campaignId === PILATES_2011_ID) return { readings: 7461, clicks: 72 };
   if (campaignId === "4d5f1795-6418-4fda-b72e-ead2f743ae67") {
     return { readings: 13173, clicks: 291 };
   }
@@ -88,6 +113,7 @@ export function getCampaignDemoEngagement(campaignId?: string) {
 }
 
 export function getCampaignBeta(campaignId?: string) {
+  if (campaignId === PILATES_2011_ID) return PILATES_2011_REFERENCE;
   if (campaignId === "274613ce-eaa7-4214-8e98-9266dcb664dd") return NEWSLETTER_1611_DEMO;
   if (campaignId === "ba60b51a-815b-4f20-8df4-29d6dc4c464d") return MALHA_0911_DEMO;
   if (campaignId === "a89e9396-9906-4c43-b0d2-a031d9bd58d7") return ALOE_VERA_DEMO;

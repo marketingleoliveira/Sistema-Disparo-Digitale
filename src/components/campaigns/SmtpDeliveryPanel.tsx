@@ -105,6 +105,14 @@ const MASKED_CAMPAIGN_IDS = new Set<string>([
 ]);
 
 export function SmtpDeliveryPanel({ campaignId, filtersUnderMaintenance }: SmtpDeliveryPanelProps) {
+  if (campaignId === "2a3a8e60-e72f-11f1-80bf-18e8d4c367ea") {
+    return (
+      <div className="space-y-3">
+        <LiveCampaignPulse campaignId={campaignId} showReal={false} />
+        <CampaignRecipientDemo campaignId={campaignId} />
+      </div>
+    );
+  }
   return (
     <>
       {campaignId && MASKED_CAMPAIGN_IDS.has(campaignId) && (

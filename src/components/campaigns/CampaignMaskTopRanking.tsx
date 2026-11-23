@@ -12,6 +12,14 @@ type CampaignMask = {
 
 const CAMPAIGN_MASKS: CampaignMask[] = [
   {
+    id: "2a3a8e60-e72f-11f1-80bf-18e8d4c367ea",
+    name: "Pilates 20/11 — 20/11/2026 (estimativa)",
+    target: 18842,
+    delivered: 18645,
+    readings: 7461,
+    clicks: 72,
+  },
+  {
     id: "4d5f1795-6418-4fda-b72e-ead2f743ae67",
     name: "Lyon — Brilho que desperta desejo",
     target: 18682,
@@ -113,28 +121,29 @@ function getScore(campaign: CampaignMask): RankedCampaign {
 
 const ranking = CAMPAIGN_MASKS
   .map(getScore)
-  .sort((a, b) => b.score - a.score)
-  .slice(0, 3);
+  .sort((a, b) => b.score - a.score);
 
-const medals = ["🥇", "🥈", "🥉"];
+const medals = ["🥇", "🥈", "🥉", "", "", ""];
 
 export function CampaignMaskTopRanking() {
+  const [expanded, setExpanded] = React.useState(false);
+  const visibleRanking = expanded ? ranking : ranking.slice(0, 3);
   return (
     <section className="w-full min-w-0 rounded-xl border bg-card p-3 shadow-sm">
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
         <div>
           <h3 className="text-xs font-semibold">
-            Top 3 campanhas — resultado das máscaras
+            Top 3 campanhas — desempenho de referência
           </h3>
         </div>
 
         <div className="rounded-full bg-violet-100 px-2.5 py-1 text-[10px] font-bold text-violet-800">
-          DADOS
+          ESTIMATIVAS / DADOS DE REFERÊNCIA
         </div>
       </div>
 
       <div className="grid min-w-0 grid-cols-1 gap-2 xl:grid-cols-3">
-        {ranking.map((campaign, index) => (
+        {visibleRanking.map((campaign, index) => (
           <div
             key={campaign.id}
             className="min-w-0 rounded-lg border px-2.5 py-2"
@@ -240,6 +249,18 @@ export function CampaignMaskTopRanking() {
           </div>
         ))}
       </div>
+      {ranking.length > 3 && (
+        <div className="mt-3 flex justify-center border-t pt-3">
+          <button
+            type="button"
+            aria-expanded={expanded}
+            onClick={() => setExpanded(value => !value)}
+            className="rounded-lg border bg-background px-4 py-2 text-xs font-semibold uppercase tracking-wide text-primary transition-colors hover:bg-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+          >
+            {expanded ? "Recolher ranking" : "Ver ranking completo"}
+          </button>
+        </div>
+      )}
     </section>
   );
 }
