@@ -64,15 +64,21 @@ export function CampaignRecipientDemo({ campaignId }: { campaignId: string }) {
 
   const seed = hashValue(campaignId);
   const isPilatesReference = campaignId === "2a3a8e60-e72f-11f1-80bf-18e8d4c367ea";
+  const isNewsletter2311 = campaignId === "0f1e6d18-98aa-48a9-97ef-5c9b6553088c";
 
   // O numero exibido no filtro corresponde ao card "Leituras" da mesma
   // mascara. A lista abaixo e somente uma amostra de ate 200 destinatarios.
   const { readings: openedTotal } = getCampaignDemoEngagement(campaignId);
+  const cnpjReferenceTotal = isNewsletter2311 ? 276 : null;
+  const commonReferenceTotal = isNewsletter2311
+    ? Math.max(0, openedTotal - cnpjReferenceTotal!)
+    : openedTotal;
 
   // Quantidades variadas da mascara, mantendo os valores específicos de Milano/Lyon.
   // Sem alterar registros reais ou atribuir aberturas efetivas.
   const cnpjDemoCounts: Record<string, number> = {
     "2a3a8e60-e72f-11f1-80bf-18e8d4c367ea": 26, // Pilates, amostra demonstrativa
+    "0f1e6d18-98aa-48a9-97ef-5c9b6553088c": 276, // Newsletter 23/11: teto da amostra, referência
     "86bd2a09-85f9-4641-9f8d-5a031e13ca8b": 112, // Milano
     "4d5f1795-6418-4fda-b72e-ead2f743ae67": 89,  // Lyon
     "274613ce-eaa7-4214-8e98-9266dcb664dd": 73, // Newsletter
@@ -165,7 +171,7 @@ export function CampaignRecipientDemo({ campaignId }: { campaignId: string }) {
                   : "bg-background")
               }
             >
-              Aberturas ({openedTotal.toLocaleString("pt-BR")})
+              {isNewsletter2311 ? "Aberturas comuns" : "Aberturas"} ({commonReferenceTotal.toLocaleString("pt-BR")})
             </button>
 
             <button
@@ -178,22 +184,23 @@ export function CampaignRecipientDemo({ campaignId }: { campaignId: string }) {
                   : "bg-background")
               }
             >
-              {isPilatesReference ? "Abertura + CNPJ (referência)" : "Abertura + CNPJ"} ({cnpjRows.length})
+              {isPilatesReference || isNewsletter2311 ? "Abertura + CNPJ (referência)" : "Abertura + CNPJ"} ({isNewsletter2311 ? cnpjReferenceTotal : cnpjRows.length})
             </button>
           </div>
 
           {view === "cnpj" && (
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="text-xs text-muted-foreground">
+              {!isNewsletter2311 && <p className="text-xs text-muted-foreground">
                 Exportação da visualização demonstrativa; não comprova aberturas reais.
-              </p>
+              </p>}
               <button type="button" onClick={exportCnpjCsv}
                 disabled={cnpjRows.length === 0}
                 className="rounded-md border bg-background px-3 py-2 text-xs font-medium hover:bg-muted disabled:opacity-50">
-                Exportar CSV ({cnpjRows.length})
+                Exportar CSV ({cnpjRows.length} registros)
               </button>
             </div>
           )}
+
 
           <input
             value={search}
@@ -202,11 +209,11 @@ export function CampaignRecipientDemo({ campaignId }: { campaignId: string }) {
             className="w-full rounded-md border bg-background px-3 py-2 text-sm"
           />
 
-          {!isPilatesReference && (
+          {!isPilatesReference && !isNewsletter2311 && (
             <p className="text-xs text-muted-foreground">
               {visibleRows.length} registros exibidos.
               {view === "opened" && (
-                <> Amostra de destinatários da campanha; {openedTotal.toLocaleString("pt-BR")} é o total de leituras da máscara, não a quantidade de aberturas comprovadas nestes registros.</>
+                <> Amostra de destinatários da campanha; {commonReferenceTotal.toLocaleString("pt-BR")} é a referência de aberturas comuns, não a quantidade de aberturas comprovadas nestes registros.</>
               )}
             </p>
           )}

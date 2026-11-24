@@ -11,6 +11,15 @@ type CampaignMask = {
 };
 
 const CAMPAIGN_MASKS: CampaignMask[] = [
+  // NEWSLETTER_2311_RANK_DEMO_V1
+  {
+    id: "0f1e6d18-98aa-48a9-97ef-5c9b6553088c",
+    name: "Newsletter 23/11 (simulação)",
+    target: 18973,
+    delivered: 18845,
+    readings: 14476,
+    clicks: 418,
+  },
   {
     id: "2a3a8e60-e72f-11f1-80bf-18e8d4c367ea",
     name: "Pilates 20/11 — 20/11/2026 (estimativa)",

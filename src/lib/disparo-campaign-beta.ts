@@ -98,6 +98,10 @@ export const NEWSLETTER_1611_DEMO = Object.freeze({
 
 // Contagens das mascaras: Leituras = Aberturas e Cliques = interacoes distintas.
 export function getCampaignDemoEngagement(campaignId?: string) {
+  // Newsletter 23/11: referências, não aberturas comprovadas.
+  if (campaignId === "0f1e6d18-98aa-48a9-97ef-5c9b6553088c") {
+    return { readings: 14476, clicks: 418 };
+  }
   if (campaignId === PILATES_2011_ID) return { readings: 7461, clicks: 72 };
   if (campaignId === "4d5f1795-6418-4fda-b72e-ead2f743ae67") {
     return { readings: 13173, clicks: 291 };

@@ -312,6 +312,62 @@ export function LiveCampaignPulse({
 
   const demoProgress = Math.min(100, Math.max(0, Math.floor((clock - LYON_DEMO_START) / DEMO_HOUR_MS) * 20));
 
+
+  // NEWSLETTER_2311_LYON_STRUCTURE_V2
+  // A estrutura dos cards replica a máscara visual do Lyon. Valores exclusivamente
+  // simulados: não alteram contadores, fila ou registros reais.
+  if (campaignId === NEWSLETTER_2311_MASK_CAMPAIGN_ID && !showReal) {
+    const total = NEWSLETTER_2311_REFERENCE_TARGET; // 18.973 destinatários
+    const delivered = 18845;
+    const readings = 14476; // leituras demonstrativas solicitadas para Newsletter 23/11
+    const clicks = 418;
+    const formatNewsletter = (value: number) => number(value);
+    const newsletterMetrics: ReadonlyArray<readonly [string, string, string]> = [
+      ["Destinatários previstos", formatNewsletter(total), "#315e91"],
+      ["Tentativas registradas", formatNewsletter(total), "#315e91"],
+      ["Aceitos pela API", "18.946", "#315e91"],
+      ["Na fila SMTP", "0", "#64748b"],
+      ["Aceitos pelo SMTP", "18.946", "#2563eb"],
+      ["Adiados", "0", "#c38a35"],
+      ["Devolvidos", "101", "#cc5757"],
+      ["Entregues confirmados", formatNewsletter(delivered), "#21856b"],
+      ["Falhas iniciais", "27", "#cc5757"],
+      ["Ritmo do motor SMTP", "0/min", "#21856b"],
+      ["Pronto para Ler", formatNewsletter(delivered), "#21856b"],
+      ["Leituras", formatNewsletter(readings), "#315e91"],
+      ["Cliques", formatNewsletter(clicks), "#7c3aed"],
+      ["Leitura não confirmada", formatNewsletter(delivered - readings), "#64748b"]
+    ];
+    return renderCard(() => (
+      <div data-newsletter-lyon-mask="v2" className="space-y-4 rounded-2xl border bg-card p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 className="text-base font-semibold">Newsletter 23/11 · relatório final de referência</h3>
+          </div>
+          <span className="rounded-full bg-violet-100 px-3 py-2 text-xs font-bold text-violet-800">DADOS DE REFERÊNCIA</span>
+        </div>
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {newsletterMetrics.map(([title, value, color]) => (
+            <div key={title} className="rounded-xl border p-3">
+              <p className="text-xs text-muted-foreground">{title}</p>
+              <p className="mt-2 text-2xl font-bold tabular-nums" style={{ color }}>{value}</p>
+            </div>
+          ))}
+        </div>
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span className="font-medium">Progresso da preparação</span>
+            <span className="font-bold tabular-nums">100%</span>
+          </div>
+          <div className="h-3 overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuenow={100} aria-valuemin={0} aria-valuemax={100} aria-label="Progresso do cenário demonstrativo">
+            <div className="h-full w-full rounded-full bg-blue-600" />
+          </div>
+        </div>
+        {onShowRealChange && <button type="button" className="text-sm underline" onClick={() => onShowRealChange(true)}>Ver dados reais da campanha</button>}
+      </div>
+    ));
+  }
+
   // Cenário fictício, independente do estado operacional.
   // Não altera status, destinatários, fila, APIs ou relatórios reais.
   if (hasSendingMask(campaignId) && !lyonSendingDemo && !showReal && !beta) {

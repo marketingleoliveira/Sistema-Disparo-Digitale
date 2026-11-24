@@ -95,6 +95,7 @@ type SmtpDeliveryPanelProps = {
 };
 
 const MASKED_CAMPAIGN_IDS = new Set<string>([
+  "0f1e6d18-98aa-48a9-97ef-5c9b6553088c", // Newsletter 23/11
   "4d5f1795-6418-4fda-b72e-ead2f743ae67",
   "274613ce-eaa7-4214-8e98-9266dcb664dd",
   "77031c19-c393-498e-af23-1610965747d5",
