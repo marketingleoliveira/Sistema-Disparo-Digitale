@@ -14,7 +14,7 @@ const CAMPAIGN_MASKS: CampaignMask[] = [
   // NEWSLETTER_2311_RANK_DEMO_V1
   {
     id: "0f1e6d18-98aa-48a9-97ef-5c9b6553088c",
-    name: "Newsletter 23/11 (simulação)",
+    name: "Newsletter 23/11",
     target: 18973,
     delivered: 18845,
     readings: 14476,

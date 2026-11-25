@@ -313,6 +313,35 @@ export function LiveCampaignPulse({
   const demoProgress = Math.min(100, Math.max(0, Math.floor((clock - LYON_DEMO_START) / DEMO_HOUR_MS) * 20));
 
 
+  // DIGITALE_VENEZA_REFERENCE_14518 — apresentação isolada, sem envio real.
+  if (campaignId === "f95990ff-57be-47f1-b43f-8fe37e8415d7" && !showReal) {
+    return (
+      <section data-veneza-reference="14518" className="space-y-4 rounded-2xl border bg-card p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 className="text-base font-semibold">Veneza 25/11 · acompanhamento de referência</h3>
+            <p className="text-xs text-muted-foreground">Máscara visual de envio · meta de referência: 14.518 contatos</p>
+          </div>
+          <span className="rounded-full bg-violet-100 px-3 py-2 text-xs font-bold text-violet-800">DADOS DE REFERÊNCIA</span>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-xl border p-3">
+            <p className="text-xs text-muted-foreground">Status da máscara</p>
+            <p className="mt-2 text-2xl font-bold text-blue-600">Enviando</p>
+          </div>
+          <div className="rounded-xl border p-3">
+            <p className="text-xs text-muted-foreground">Contatos previstos (referência)</p>
+            <p className="mt-2 text-2xl font-bold tabular-nums" style={{ color: "#315e91" }}>14.518</p>
+          </div>
+        </div>
+        <div className="h-3 overflow-hidden rounded-full bg-muted" role="progressbar" aria-label="Animação de referência; não representa progresso real">
+          <div className="h-full w-1/3 rounded-full bg-blue-600/70 animate-pulse" />
+        </div>
+        {onShowRealChange && <button type="button" className="text-sm underline" onClick={() => onShowRealChange(true)}>Ver dados reais da campanha</button>}
+      </section>
+    );
+  }
+
   // NEWSLETTER_2311_LYON_STRUCTURE_V2
   // A estrutura dos cards replica a máscara visual do Lyon. Valores exclusivamente
   // simulados: não alteram contadores, fila ou registros reais.
