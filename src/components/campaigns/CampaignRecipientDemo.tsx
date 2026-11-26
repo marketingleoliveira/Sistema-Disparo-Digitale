@@ -252,3 +252,56 @@ export function CampaignRecipientDemo({ campaignId }: { campaignId: string }) {
     </section>
   );
 }
+
+
+/* VENEZA_CLICK_REFERENCE_V1 */
+export function VenezaClickReference() {
+  const [view, setView] =
+    React.useState<"common" | "cnpj">("common");
+
+  return (
+    <section className="mt-5 space-y-3 rounded-xl border bg-card p-4">
+      <h4 className="text-base font-semibold">
+        Destinatários e cliques
+      </h4>
+
+      <p className="text-xs text-muted-foreground">
+        Metas de referência — 309 cliques estimados.
+      </p>
+
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => setView("common")}
+          className={
+            "rounded-md border px-3 py-2 text-xs font-medium " +
+            (view === "common"
+              ? "bg-foreground text-background"
+              : "bg-background")
+          }
+        >
+          Cliques comuns (215)
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setView("cnpj")}
+          className={
+            "rounded-md border px-3 py-2 text-xs font-medium " +
+            (view === "cnpj"
+              ? "bg-foreground text-background"
+              : "bg-background")
+          }
+        >
+          Cliques + CNPJ (94)
+        </button>
+      </div>
+
+      <div className="rounded-md border p-4 text-sm text-muted-foreground">
+        {view === "cnpj"
+          ? "Meta de 94 registros com CNPJ. Aguardando consulta de cliques comprovados."
+          : "Meta de 215 cliques comuns. Aguardando consulta de cliques comprovados."}
+      </div>
+    </section>
+  );
+}

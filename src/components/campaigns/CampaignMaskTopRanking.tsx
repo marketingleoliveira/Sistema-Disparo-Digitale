@@ -1,3 +1,5 @@
+import referenceRanking from "../../lib/campaign-reference-ranking.json";
+import { rankReferenceCampaigns } from "../../lib/campaign-reference-score";
 import * as React from "react";
 import { CampaignDetailsModal } from "./CampaignDetailsModal";
 
@@ -10,88 +12,7 @@ type CampaignMask = {
   clicks: number;
 };
 
-const CAMPAIGN_MASKS: CampaignMask[] = [
-  // NEWSLETTER_2311_RANK_DEMO_V1
-  {
-    id: "0f1e6d18-98aa-48a9-97ef-5c9b6553088c",
-    name: "Newsletter 23/11",
-    target: 18973,
-    delivered: 18845,
-    readings: 14476,
-    clicks: 418,
-  },
-  {
-    id: "2a3a8e60-e72f-11f1-80bf-18e8d4c367ea",
-    name: "Pilates 20/11 — 20/11/2026 (estimativa)",
-    target: 18842,
-    delivered: 18645,
-    readings: 7461,
-    clicks: 72,
-  },
-  {
-    id: "4d5f1795-6418-4fda-b72e-ead2f743ae67",
-    name: "Lyon — Brilho que desperta desejo",
-    target: 18682,
-    delivered: 18547,
-    readings: 13173,
-    clicks: 291,
-  },
-  {
-    id: "86bd2a09-85f9-4641-9f8d-5a031e13ca8b",
-    name: "Milano",
-    target: 17434,
-    delivered: 17176,
-    readings: 12293,
-    clicks: 259,
-  },
-  {
-    id: "274613ce-eaa7-4214-8e98-9266dcb664dd",
-    name: "Newsletter 16/11",
-    target: 18519,
-    delivered: 18486,
-    readings: 11198,
-    clicks: 313,
-  },
-  {
-    id: "ba60b51a-815b-4f20-8df4-29d6dc4c464d",
-    name: "Malha 09/11",
-    target: 17434,
-    delivered: 17350,
-    readings: 10369,
-    clicks: 307,
-  },
-  {
-    id: "a89e9396-9906-4c43-b0d2-a031d9bd58d7",
-    name: "Aloe Vera",
-    target: 18136,
-    delivered: 17973,
-    readings: 10596,
-    clicks: 327,
-  },
-  {
-    id: "77031c19-c393-498e-af23-1610965747d5",
-    name: "Treino de Força",
-    target: 16284,
-    delivered: 16105,
-    readings: 7846,
-    clicks: 194,
-  },
-  {
-    id: "cdd61ff9-2273-4b87-9eac-af7d1ce731fc",
-    name: "Dia Fisiculturista",
-    target: 17434,
-    delivered: 17251,
-    readings: 9456,
-    clicks: 167,
-  },
-];
-
-type RankedCampaign = CampaignMask & {
-  deliveryRate: number;
-  readingRate: number;
-  clickRate: number;
-  score: number;
-};
+const CAMPAIGN_MASKS: CampaignMask[] = referenceRanking;
 
 function percent(value: number) {
   return `${value.toFixed(1).replace(".", ",")}%`;
@@ -101,36 +22,8 @@ function numberPtBr(value: number) {
   return value.toLocaleString("pt-BR");
 }
 
-function getScore(campaign: CampaignMask): RankedCampaign {
-  const deliveryRate = campaign.target > 0
-    ? (campaign.delivered / campaign.target) * 100
-    : 0;
 
-  const readingRate = campaign.delivered > 0
-    ? (campaign.readings / campaign.delivered) * 100
-    : 0;
-
-  const clickRate = campaign.readings > 0
-    ? (campaign.clicks / campaign.readings) * 100
-    : 0;
-
-  const score =
-    deliveryRate * 0.35 +
-    readingRate * 0.45 +
-    clickRate * 0.20;
-
-  return {
-    ...campaign,
-    deliveryRate,
-    readingRate,
-    clickRate,
-    score,
-  };
-}
-
-const ranking = CAMPAIGN_MASKS
-  .map(getScore)
-  .sort((a, b) => b.score - a.score);
+const ranking = rankReferenceCampaigns(CAMPAIGN_MASKS);
 
 const medals = ["🥇", "🥈", "🥉", "", "", ""];
 

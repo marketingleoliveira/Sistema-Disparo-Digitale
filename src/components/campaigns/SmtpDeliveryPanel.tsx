@@ -1,3 +1,4 @@
+import { VenezaClickReference } from "./CampaignRecipientDemo";
 import { aloeVeraDemoCnpjCompanies } from "@/lib/disparo-aloe-cnpj-companies";
 import { createPortal } from "react-dom";
 import { demoCnpjCompanies } from "@/lib/disparo-demo-cnpj-companies";
@@ -138,21 +139,14 @@ function SmtpDeliveryDetails({ campaignId, filtersUnderMaintenance }: SmtpDelive
 
   const [copiedDemoCnpj, setCopiedDemoCnpj] = React.useState(false);
   const [showReal, setShowReal] = React.useState(false);
-  // VENEZA_HOURLY_REFERENCE: somente apresentação, sem tocar na API ou no banco.
-  const isVenezaHourly = campaignId === "f95990ff-57be-47f1-b43f-8fe37e8415d7";
-  const [venezaClock, setVenezaClock] = React.useState(Date.now());
-  React.useEffect(() => {
-    if (!isVenezaHourly) return;
-    setVenezaClock(Date.now());
-    const interval = window.setInterval(() => setVenezaClock(Date.now()), 30000);
-    return () => window.clearInterval(interval);
-  }, [isVenezaHourly]);
-  const venezaElapsedHours = Math.min(5, Math.max(0,
-    Math.floor((venezaClock - Date.parse("2026-11-25T12:37:00Z")) / 3600000)
-  ));
-  const venezaPercent = venezaElapsedHours * 20;
-  const venezaSimulatedSent = Math.round(14518 * venezaPercent / 100);
-  const venezaVisualMode = isVenezaHourly && !showReal;
+  
+  // VENEZA_FIXED_REFERENCE_V3
+  const venezaVisualMode =
+    campaignId === "f95990ff-57be-47f1-b43f-8fe37e8415d7"
+    && !showReal;
+
+  const venezaPercent = 100;
+  const venezaSimulatedSent = 14316;
 
   // DIGITALE_DEMO_COMPANY_MODAL_V1
   const [demoCompanyInfo, setDemoCompanyInfo] =
@@ -331,17 +325,17 @@ const isDemoCampaign =
   campaignId === "cdd61ff9-2273-4b87-9eac-af7d1ce731fc";
 
 const totals = venezaVisualMode
-  ? {
-      attempts: venezaSimulatedSent,
-      sent: venezaSimulatedSent,
-      delivered: 0,
-      bounced: 0,
-      opened: 0,
-      unconfirmed: 0,
-      deferred: 0,
-      failed: 0
-    }
-  : beta
+    ? {
+        attempts: 14518,
+        sent: 14316,
+        delivered: 14114,
+        bounced: 202,
+        opened: 11573,
+        unconfirmed: 2541,
+        deferred: 0,
+        failed: 16
+      }
+    : beta
   ? {
       attempts: beta.target,
       sent: beta.accepted,
@@ -374,7 +368,9 @@ const totals = venezaVisualMode
   const openedTotal = Math.max(
     0, Number(totals?.opened) || 0
   );
-  const readyToReadTotal = beta?.readyToRead ?? openedTotal;
+  const readyToReadTotal = venezaVisualMode
+      ? 14114
+      : (beta?.readyToRead ?? openedTotal);
 
   const percentage = (value: number, base: number) =>
     base > 0
@@ -647,6 +643,8 @@ const totals = venezaVisualMode
 
       <LiveCampaignPulse campaignId={campaignId}
         showReal={showReal} onShowRealChange={setShowReal} />
+
+
       <div>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="font-semibold">Acompanhamento dos envios</h3>
@@ -655,14 +653,14 @@ const totals = venezaVisualMode
         {venezaVisualMode && (
           <div className="mt-2 space-y-2">
             <div className="flex items-center justify-between gap-2 text-sm">
-              <span>Enviando · {venezaSimulatedSent.toLocaleString("pt-BR")} de 14.518 contatos</span>
+              <span>Cenário de referência concluído</span>
               <strong className="tabular-nums">{venezaPercent}%</strong>
             </div>
             <div className="h-3 overflow-hidden rounded-full bg-muted" role="progressbar" aria-label="Simulação de progresso de envio" aria-valuenow={venezaPercent} aria-valuemin={0} aria-valuemax={100}>
               <div className="h-full rounded-full bg-blue-600 transition-[width] duration-700" style={{width: `${venezaPercent}%`}} />
             </div>
             <div className="flex items-center justify-between gap-3">
-              <p className="text-xs text-muted-foreground">Simulação visual: +20% a cada hora, até 100% em cinco horas.</p>
+              <p className="text-xs text-muted-foreground">Estimativas de referência — não representam eventos reais.</p>
               <button type="button" className="text-xs underline" onClick={() => setShowReal(true)}>Ver dados reais</button>
             </div>
           </div>
@@ -752,7 +750,7 @@ const totals = venezaVisualMode
 
           <div className="space-y-3">
             <h4 className="text-sm font-bold text-foreground">
-              Desempenho da campanha
+              {venezaVisualMode ? "Desempenho estimado" : "Desempenho da campanha"}
             </h4>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -1038,7 +1036,9 @@ const totals = venezaVisualMode
             </div>
           )}
 
-          {true && (
+          {venezaVisualMode && <VenezaClickReference />}
+
+          {!venezaVisualMode && (
             <div className="space-y-3">
           <div className="flex items-center justify-between gap-3 border-t pt-4">
             <div>
@@ -1358,14 +1358,14 @@ const totals = venezaVisualMode
             </div>
           )}
 
-          {data?.limited && !cnpjUnderMaintenance && (
+          {!venezaVisualMode && data?.limited && !cnpjUnderMaintenance && (
             <p className="text-xs text-muted-foreground">
               Exibindo os 200 registros mais recentes.
               Os indicadores consideram todos os registros.
             </p>
           )}
 
-          {(showReal || !hasSendingMask(campaignId)) && (
+          {!venezaVisualMode && (showReal || !hasSendingMask(campaignId)) && (
             <p className="text-xs text-muted-foreground">
               Entregue indica aceitação pelo servidor de destino,
               não necessariamente pela caixa de entrada.

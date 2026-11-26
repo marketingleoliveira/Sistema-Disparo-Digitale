@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from "node:async_hooks";
 import { spawnSync } from "node:child_process";
 import {
   createHash,
@@ -108,7 +109,38 @@ function userFromRow(row: string[]): DisparoUser {
   };
 }
 
+// API agent identity is scoped to a verified request only.
+const agentIdentity = new AsyncLocalStorage<DisparoUser>();
+
+export type DisparoAgentScope = "admin" | "pixelTemplates";
+export function withDisparoAgent<T>(request: Request, callback: (scope: DisparoAgentScope) => T): T | null {
+  const token = request.headers.get("authorization")?.match(/^Bearer ([a-f0-9]{64})$/i)?.[1];
+  if (!token) return null;
+  const actual = createHash("sha256").update(token).digest();
+  const matches = (hash: string | undefined) =>
+    !!hash && /^[a-f0-9]{64}$/i.test(hash) && timingSafeEqual(actual, Buffer.from(hash,"hex"));
+  if (matches(process.env["DISPARO_PIXEL_KEY_SHA256"])) {
+    const actor: DisparoUser = { id:"pixel-marketing-digitale", email:"pixel@integration.invalid", name:"Pixel Marketing Digitale", role:"SDK", initials:"PX" };
+    return agentIdentity.run(actor, () => callback("pixelTemplates"));
+  }
+  if (!matches(process.env["DISPARO_AGENT_KEY_SHA256"])) return null;
+  const email = (process.env["DISPARO_AGENT_EMAIL"] || "").trim().toLowerCase();
+  if (!email) return null;
+  const rows = query(`
+    SELECT id, HEX(email), HEX(COALESCE(full_name, 'Agente IA')), HEX(role)
+    FROM disparo_users
+    WHERE email = CONVERT(UNHEX('${hex(email)}') USING utf8mb4)
+      AND is_active = 1 LIMIT 1
+  `);
+  if (!rows[0]) return null;
+  const actor = userFromRow(rows[0]);
+  if (actor.role !== "Desenvolvedor") return null;
+  return agentIdentity.run(actor, () => callback("admin"));
+}
+
 export function currentUser(): DisparoUser | null {
+  const agent = agentIdentity.getStore();
+  if (agent) return agent;
   const token = getCookie(COOKIE);
 
   if (!token || !/^[0-9a-f]{64}$/.test(token)) {

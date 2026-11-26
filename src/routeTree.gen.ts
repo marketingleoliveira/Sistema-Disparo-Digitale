@@ -44,6 +44,7 @@ import { Route as AuthenticatedSettingsHelpRouteImport } from './routes/_authent
 import { Route as AuthenticatedSettingsTeamRouteImport } from './routes/_authenticated/settings_.team'
 import { Route as AuthenticatedTemplatesSmsRouteImport } from './routes/_authenticated/templates.sms'
 import { Route as AuthenticatedTemplatesWhatsappRouteImport } from './routes/_authenticated/templates.whatsapp'
+import { Route as ApiAgentV1RouteImport } from './routes/api.agent.v1'
 import { Route as SocialIconNetworkColorRouteImport } from './routes/social-icon.$network.$color'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
@@ -232,6 +233,11 @@ const AuthenticatedTemplatesWhatsappRoute =
     path: '/whatsapp',
     getParentRoute: () => AuthenticatedTemplatesRoute,
   } as any)
+const ApiAgentV1Route = ApiAgentV1RouteImport.update({
+  id: '/api/agent/v1',
+  path: '/api/agent/v1',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SocialIconNetworkColorRoute = SocialIconNetworkColorRouteImport.update({
   id: '/social-icon/$network/$color',
   path: '/social-icon/$network/$color',
@@ -283,6 +289,7 @@ export interface FileRoutesByFullPath {
   '/settings/team': typeof AuthenticatedSettingsTeamRoute
   '/templates/sms': typeof AuthenticatedTemplatesSmsRoute
   '/templates/whatsapp': typeof AuthenticatedTemplatesWhatsappRoute
+  '/api/agent/v1': typeof ApiAgentV1Route
   '/social-icon/$network/$color': typeof SocialIconNetworkColorRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -322,6 +329,7 @@ export interface FileRoutesByTo {
   '/settings/team': typeof AuthenticatedSettingsTeamRoute
   '/templates/sms': typeof AuthenticatedTemplatesSmsRoute
   '/templates/whatsapp': typeof AuthenticatedTemplatesWhatsappRoute
+  '/api/agent/v1': typeof ApiAgentV1Route
   '/social-icon/$network/$color': typeof SocialIconNetworkColorRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -363,6 +371,7 @@ export interface FileRoutesById {
   '/_authenticated/settings_/team': typeof AuthenticatedSettingsTeamRoute
   '/_authenticated/templates/sms': typeof AuthenticatedTemplatesSmsRoute
   '/_authenticated/templates/whatsapp': typeof AuthenticatedTemplatesWhatsappRoute
+  '/api/agent/v1': typeof ApiAgentV1Route
   '/social-icon/$network/$color': typeof SocialIconNetworkColorRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -404,6 +413,7 @@ export interface FileRouteTypes {
     | '/settings/team'
     | '/templates/sms'
     | '/templates/whatsapp'
+    | '/api/agent/v1'
     | '/social-icon/$network/$color'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -443,6 +453,7 @@ export interface FileRouteTypes {
     | '/settings/team'
     | '/templates/sms'
     | '/templates/whatsapp'
+    | '/api/agent/v1'
     | '/social-icon/$network/$color'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -483,6 +494,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings_/team'
     | '/_authenticated/templates/sms'
     | '/_authenticated/templates/whatsapp'
+    | '/api/agent/v1'
     | '/social-icon/$network/$color'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -499,6 +511,7 @@ export interface RootRouteChildren {
   HotspotSliceFilenameRoute: typeof HotspotSliceFilenameRoute
   TrackClickRoute: typeof TrackClickRoute
   TrackOpenRoute: typeof TrackOpenRoute
+  ApiAgentV1Route: typeof ApiAgentV1Route
   SocialIconNetworkColorRoute: typeof SocialIconNetworkColorRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -751,6 +764,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTemplatesWhatsappRouteImport
       parentRoute: typeof AuthenticatedTemplatesRoute
     }
+    '/api/agent/v1': {
+      id: '/api/agent/v1'
+      path: '/api/agent/v1'
+      fullPath: '/api/agent/v1'
+      preLoaderRoute: typeof ApiAgentV1RouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/social-icon/$network/$color': {
       id: '/social-icon/$network/$color'
       path: '/social-icon/$network/$color'
@@ -858,6 +878,7 @@ const rootRouteChildren: RootRouteChildren = {
   HotspotSliceFilenameRoute: HotspotSliceFilenameRoute,
   TrackClickRoute: TrackClickRoute,
   TrackOpenRoute: TrackOpenRoute,
+  ApiAgentV1Route: ApiAgentV1Route,
   SocialIconNetworkColorRoute: SocialIconNetworkColorRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
