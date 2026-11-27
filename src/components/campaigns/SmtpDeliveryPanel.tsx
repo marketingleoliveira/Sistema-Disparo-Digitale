@@ -446,6 +446,15 @@ const totals = venezaVisualMode
       return true;
     });
 
+  // BEM_ESTAR_2711_PREVIEW_ONLY
+  // Prévia explicitamente simulada, com acesso aos dados operacionais reais.
+  if (campaignId === "e8329bd5-813c-44cd-bbf0-58a24fd66851" && !showReal) {
+    return (
+      <LiveCampaignPulse campaignId={campaignId}
+        showReal={false} onShowRealChange={setShowReal} />
+    );
+  }
+
   return (
     <section
       className="space-y-4"

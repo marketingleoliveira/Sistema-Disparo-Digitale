@@ -533,6 +533,83 @@ export function LiveCampaignPulse({
     ));
   }
 
+
+
+  // BEM_ESTAR_2711_PLANNING
+  if (
+    campaignId === "e8329bd5-813c-44cd-bbf0-58a24fd66851"
+    && !showReal
+  ) {
+    return renderCard((flip, turning) => (
+      <section className="space-y-4 rounded-2xl border bg-card p-4">
+
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h3 className="text-base font-semibold">
+            Acompanhamento de envio
+          </h3>
+
+          <span className="rounded-full bg-violet-100 px-3 py-2 text-xs font-bold text-violet-800">
+            SIMULAÇÃO
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+
+          <div className="rounded-xl border p-3">
+            <p className="text-xs text-muted-foreground">
+              Status simulado
+            </p>
+            <p className="mt-2 text-2xl font-bold text-blue-600">
+              Enviando
+            </p>
+          </div>
+
+          <div className="rounded-xl border p-3">
+            <p className="text-xs text-muted-foreground">
+              Destinatários previstos
+            </p>
+            <p className="mt-2 text-2xl font-bold text-blue-600 tabular-nums">
+              14.783
+            </p>
+          </div>
+
+        </div>
+
+        <p className="text-sm font-medium">
+          Enviando para 14.783 contatos (simulação)
+        </p>
+
+        <div className="space-y-2">
+
+          <span className="text-sm font-medium">
+            Progresso simulado
+          </span>
+
+          <div className="h-3 overflow-hidden rounded-full bg-muted">
+            <div className="h-full w-1/3 rounded-full bg-blue-600/70 animate-pulse motion-reduce:animate-none" />
+          </div>
+
+        </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            if (onShowRealChange) {
+              onShowRealChange(true);
+            } else {
+              flip();
+            }
+          }}
+          disabled={turning}
+          className="text-xs text-muted-foreground underline"
+        >
+          Ver dados reais da campanha
+        </button>
+
+      </section>
+    ));
+  }
+
   // DIGITALE_REACT_DEMO_V5
   // Somente uma visualizacao demonstrativa.
   // Nunca altera a resposta da API ou os dados armazenados.
